@@ -1,0 +1,15 @@
+# https://gqlgen.com/getting-started/
+
+# Person management
+type Person {
+  id: ID!
+  name: String!
+}
+
+type Query {
+  people: [Person!]!
+}
+
+type Mutation {
+  createPerson(name: String!): Person!
+}
