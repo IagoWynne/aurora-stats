@@ -3,7 +3,8 @@
 # Person management
 type Person {
   id: ID!
-  name: String!
+  firstName: String!
+  lastName: String!
 }
 
 type Query {
@@ -11,5 +12,5 @@ type Query {
 }
 
 type Mutation {
-  createPerson(name: String!): Person!
+  createPerson(firstName: String!, lastName: String!): Person!
 }

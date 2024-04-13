@@ -7,20 +7,21 @@ import (
 
 // definition of a structure which represents a person
 type Person struct {
-	ID       string `json:"id"`
-	Fullname string `json:"fullname"`
+	ID        string `json:"id"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
 }
 
 // function to save a person to the database
 func (person *Person) Save() int64 {
 	// mysql query to insert a person into the people table
-	stmt, err := database.Db.Prepare("INSERT INTO people(fullname) VALUES(?)")
+	stmt, err := database.Db.Prepare("INSERT INTO people(firstName, lastName) VALUES(?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// execute the query using person.fullname
-	res, err := stmt.Exec(person.Fullname)
+	res, err := stmt.Exec(person.FirstName, person.LastName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,13 +31,13 @@ func (person *Person) Save() int64 {
 	if err != nil {
 		log.Fatal("Error:", err.Error())
 	}
-	log.Print("Person inserted with name: ", person.Fullname, " and id: ", id)
+	log.Print("Person inserted with name: ", person.FirstName, " ", person.LastName, " and id: ", id)
 	return id
 }
 
 // function to get all people from the database
 func GetAll() []Person {
-	stmt, err := database.Db.Prepare("SELECT id, fullname FROM people")
+	stmt, err := database.Db.Prepare("SELECT id, firstName, lastName FROM people")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +52,7 @@ func GetAll() []Person {
 	var people []Person
 	for rows.Next() {
 		var person Person
-		err := rows.Scan(&person.ID, &person.Fullname)
+		err := rows.Scan(&person.ID, &person.FirstName, &person.LastName)
 		if err != nil {
 			log.Fatal(err)
 		}

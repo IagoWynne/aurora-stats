@@ -48,12 +48,13 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreatePerson func(childComplexity int, name string) int
+		CreatePerson func(childComplexity int, firstName string, lastName string) int
 	}
 
 	Person struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		FirstName func(childComplexity int) int
+		ID        func(childComplexity int) int
+		LastName  func(childComplexity int) int
 	}
 
 	Query struct {
@@ -62,7 +63,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreatePerson(ctx context.Context, name string) (*model.Person, error)
+	CreatePerson(ctx context.Context, firstName string, lastName string) (*model.Person, error)
 }
 type QueryResolver interface {
 	People(ctx context.Context) ([]*model.Person, error)
@@ -97,7 +98,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreatePerson(childComplexity, args["name"].(string)), true
+		return e.complexity.Mutation.CreatePerson(childComplexity, args["firstName"].(string), args["lastName"].(string)), true
+
+	case "Person.firstName":
+		if e.complexity.Person.FirstName == nil {
+			break
+		}
+
+		return e.complexity.Person.FirstName(childComplexity), true
 
 	case "Person.id":
 		if e.complexity.Person.ID == nil {
@@ -106,12 +114,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Person.ID(childComplexity), true
 
-	case "Person.name":
-		if e.complexity.Person.Name == nil {
+	case "Person.lastName":
+		if e.complexity.Person.LastName == nil {
 			break
 		}
 
-		return e.complexity.Person.Name(childComplexity), true
+		return e.complexity.Person.LastName(childComplexity), true
 
 	case "Query.people":
 		if e.complexity.Query.People == nil {
@@ -247,14 +255,23 @@ func (ec *executionContext) field_Mutation_createPerson_args(ctx context.Context
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["firstName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["name"] = arg0
+	args["firstName"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["lastName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lastName"] = arg1
 	return args, nil
 }
 
@@ -325,7 +342,7 @@ func (ec *executionContext) _Mutation_createPerson(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreatePerson(rctx, fc.Args["name"].(string))
+		return ec.resolvers.Mutation().CreatePerson(rctx, fc.Args["firstName"].(string), fc.Args["lastName"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -352,8 +369,10 @@ func (ec *executionContext) fieldContext_Mutation_createPerson(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Person_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Person_name(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Person_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Person_lastName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Person", field.Name)
 		},
@@ -416,8 +435,8 @@ func (ec *executionContext) fieldContext_Person_id(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Person_name(ctx context.Context, field graphql.CollectedField, obj *model.Person) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Person_name(ctx, field)
+func (ec *executionContext) _Person_firstName(ctx context.Context, field graphql.CollectedField, obj *model.Person) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Person_firstName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -430,7 +449,7 @@ func (ec *executionContext) _Person_name(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.FirstName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -447,7 +466,51 @@ func (ec *executionContext) _Person_name(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Person_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Person_firstName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Person",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Person_lastName(ctx context.Context, field graphql.CollectedField, obj *model.Person) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Person_lastName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Person_lastName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Person",
 		Field:      field,
@@ -501,8 +564,10 @@ func (ec *executionContext) fieldContext_Query_people(ctx context.Context, field
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Person_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Person_name(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Person_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Person_lastName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Person", field.Name)
 		},
@@ -2485,8 +2550,13 @@ func (ec *executionContext) _Person(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "name":
-			out.Values[i] = ec._Person_name(ctx, field, obj)
+		case "firstName":
+			out.Values[i] = ec._Person_firstName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastName":
+			out.Values[i] = ec._Person_lastName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

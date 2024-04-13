@@ -9,6 +9,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/handlers"
 )
 
 const defaultPort = "8080"
@@ -23,6 +24,8 @@ func main() {
 	defer database.CloseDB()
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	// TODO: Add CORS middleware/debug this one - it doesn't seem to be working properly
+	handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(srv)
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

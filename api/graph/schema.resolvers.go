@@ -12,16 +12,17 @@ import (
 )
 
 // CreatePerson is the resolver for the createPerson field.
-func (r *mutationResolver) CreatePerson(ctx context.Context, name string) (*model.Person, error) {
+func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, lastName string) (*model.Person, error) {
 	// creates a person using the struct from people module (this is the struct that interacts with the database)
 	var person people.Person
 	// sets the person's name based on the input
-	person.Fullname = name
+	person.FirstName = firstName
+	person.LastName = lastName
 	// saves the person to the database and is returned their id
 	personID := person.Save()
 
 	// returns the new person with their DB id
-	return &model.Person{ID: strconv.FormatInt(personID, 10), Name: name}, nil
+	return &model.Person{ID: strconv.FormatInt(personID, 10), FirstName: person.FirstName, LastName: person.LastName}, nil
 }
 
 // People is the resolver for the people field.
@@ -29,7 +30,7 @@ func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
 
 	for _, person := range people.GetAll() {
-		resultsPeople = append(resultsPeople, &model.Person{ID: person.ID, Name: person.Fullname})
+		resultsPeople = append(resultsPeople, &model.Person{ID: person.ID, FirstName: person.FirstName, LastName: person.LastName})
 	}
 
 	return resultsPeople, nil
