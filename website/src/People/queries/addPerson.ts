@@ -1,8 +1,11 @@
 import { gql } from "@apollo/client";
 
-const AddPersonMutation = (firstName: string, lastName: string) => gql`
-    mutation {
-        createPerson(firstName: ${firstName}, lastName: ${lastName}) { id }
-    }`;
+const ADD_PERSON_MUTATION = gql`
+  mutation CreatePerson($firstName: String!, $lastName: String!) {
+    createPerson(firstName: $firstName, lastName: $lastName) {
+      id
+    }
+  }
+`;
 
-export default AddPersonMutation;
+export default ADD_PERSON_MUTATION;
