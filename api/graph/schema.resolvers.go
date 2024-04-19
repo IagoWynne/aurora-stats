@@ -7,8 +7,11 @@ package graph
 import (
 	"aurora-stats/api/graph/model"
 	"aurora-stats/api/internal/people"
+	"aurora-stats/api/internal/wheel"
 	"context"
+	"fmt"
 	"strconv"
+	"time"
 )
 
 // CreatePerson is the resolver for the createPerson field.
@@ -25,6 +28,18 @@ func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, l
 	return &model.Person{ID: strconv.FormatInt(personID, 10), FirstName: person.FirstName, LastName: person.LastName}, nil
 }
 
+// AddWheelOption is the resolver for the addWheelOption field.
+func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*model.WheelOption, error) {
+	wheelOptionID := wheel.SaveWheelOption(name)
+
+	return &model.WheelOption{ID: strconv.FormatInt(wheelOptionID, 10), Name: name}, nil
+}
+
+// AddWheelRun is the resolver for the addWheelRun field.
+func (r *mutationResolver) AddWheelRun(ctx context.Context, date time.Time, participants []int, options []*model.AvailableOption, winnerID int, resultID int) (*model.WheelResult, error) {
+	panic(fmt.Errorf("not implemented: AddWheelRun - addWheelRun"))
+}
+
 // People is the resolver for the people field.
 func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
@@ -34,6 +49,17 @@ func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	}
 
 	return resultsPeople, nil
+}
+
+// WheelOptions is the resolver for the wheelOptions field.
+func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption, error) {
+	var resultsWheelOptions []*model.WheelOption
+
+	for _, wheelOption := range wheel.GetAllWheelOptions() {
+		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: wheelOption.ID, Name: wheelOption.Name})
+	}
+
+	return resultsWheelOptions, nil
 }
 
 // Mutation returns MutationResolver implementation.
