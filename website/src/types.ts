@@ -3,3 +3,8 @@ export interface PersonType {
   firstName: string;
   lastName: string;
 }
+
+export interface WheelOptionType {
+  id: number;
+  name: string;
+}

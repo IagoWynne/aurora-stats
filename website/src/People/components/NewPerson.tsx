@@ -1,34 +1,14 @@
 import { useMutation } from "@apollo/client";
 import React from "react";
-import ADD_PERSON_MUTATION from "../queries/addPerson";
-import GET_PEOPLE_QUERY from "../queries/getPeople";
-import { createUseStyles } from "react-jss";
-
-const useStyles = createUseStyles({
-  form: {
-    "& label": {
-      margin: "0 5px 0 0",
-    },
-  },
-  input: {
-    border: "none",
-    borderBottom: "1px solid black",
-    width: "100px",
-  },
-  submitButton: {
-    background: "none",
-    border: "none",
-    fontSize: "large",
-    fontWeight: "bold",
-  },
-});
+import { ADD_PERSON_MUTATION, GET_PEOPLE_QUERY } from "../queries";
+import useFormStyles from "../../Common/Styles/useFormStyles";
 
 const NewPerson = (): JSX.Element => {
   const [addPerson, { loading, error }] = useMutation(ADD_PERSON_MUTATION, {
     refetchQueries: [{ query: GET_PEOPLE_QUERY }],
   });
 
-  const styles = useStyles();
+  const styles = useFormStyles();
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
