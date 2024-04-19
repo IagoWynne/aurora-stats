@@ -1,22 +1,25 @@
-import React from "react";
-import { Outlet, Link } from "react-router-dom";
-import "./App.css";
+import { Outlet } from "react-router-dom";
+import Nav from "./Nav";
+import { createUseStyles } from "react-jss";
+
+const useStyles = createUseStyles({
+  outlet: {
+    maxWidth: 1024,
+    margin: "auto",
+    padding: "1rem",
+  },
+});
 
 function App() {
+  const styles = useStyles();
+
   return (
-    <div className="App">
-      <nav>
-        <ul>
-          <li>
-            <Link to={"/"}>Home</Link>
-          </li>
-          <li>
-            <Link to={"/people"}>People</Link>
-          </li>
-        </ul>
-      </nav>
-      <Outlet />
-    </div>
+    <>
+      <Nav />
+      <div className={styles.outlet}>
+        <Outlet />
+      </div>
+    </>
   );
 }
 
