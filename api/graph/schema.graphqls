@@ -1,7 +1,5 @@
 # https://gqlgen.com/getting-started/
 
-scalar Time
-
 # Person management
 type Person {
   id: ID!
@@ -17,14 +15,22 @@ type WheelOption {
 
 type WheelResult {
   id: ID!
-  date: Int!
+  date: String!
   optionId: Int!
   personId: Int!
+}
+
+type WheelWinStat {
+  id: ID!
+  date: String!
+  winner: Person!
+  result: WheelOption!
 }
 
 type Query {
   people: [Person!]!
   wheelOptions: [WheelOption!]!
+  wheelWins(from: String!, to: String): [WheelWinStat!]!
 }
 
 input AvailableOption {
@@ -36,9 +42,7 @@ type Mutation {
   createPerson(firstName: String!, lastName: String!): Person!
   addWheelOption(name: String!): WheelOption!
   addWheelRun(
-    date: Time!
-    participants: [Int!]!
-    options: [AvailableOption!]!
+    date: String!
     winnerId: Int!,
     resultId: Int!
   ): WheelResult!

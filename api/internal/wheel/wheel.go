@@ -1,17 +1,43 @@
 package wheel
 
 import (
+	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
 	"log"
+	"time"
 )
 
 type WheelOption struct {
-	ID   string `json:"id"`
+	ID   int64  `json:"id"`
 	Name string `json:"optionName"`
 }
 
+type WheelRun struct {
+	ID       int64  `json:"id"`
+	Date     string `json:"date"`
+	WinnerId int64  `json:"winnerId"`
+	ResultId int64  `json:"resultId"`
+}
+
+type WheelRunResult struct {
+	ID              string `json:"id"`
+	Date            string `json:"date"`
+	WinnerId        int64  `json:"winnerId"`
+	WinnerFirstName string `json:"winnerFirstName"`
+	WinnerLastName  string `json:"winnerLastName"`
+	ResultId        int64  `json:"resultId"`
+	ResultName      string `json:"resultName"`
+}
+
+type WheelWin struct {
+	ID     string        `json:"id"`
+	Date   string        `json:"date"`
+	Winner people.Person `json:"winner"`
+	Result WheelOption   `json:"result"`
+}
+
 func SaveWheelOption(name string) int64 {
-	stmt, err := database.Db.Prepare("INSERT INTO wheel_options(optionName) VALUES(?)")
+	stmt, err := database.Db.Prepare("INSERT INTO wheel_option(option_name) VALUES(?)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,7 +57,7 @@ func SaveWheelOption(name string) int64 {
 }
 
 func GetAllWheelOptions() []WheelOption {
-	stmt, err := database.Db.Prepare("SELECT id, optionName FROM wheel_options")
+	stmt, err := database.Db.Prepare("SELECT id, option_name FROM wheel_option")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,4 +80,62 @@ func GetAllWheelOptions() []WheelOption {
 	}
 
 	return wheelOptions
+}
+
+func SaveWheelRun(date string, winnerId int, resultId int) int64 {
+	stmt, err := database.Db.Prepare("INSERT INTO wheel_run(run_date, winner_id, winning_option_id) VALUES(?,?,?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res, err := stmt.Exec(date, winnerId, resultId)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal("Error:", err.Error())
+	}
+
+	log.Print("Wheel run inserted with date: ", date, ", winnerId: ", winnerId, "resultId: ", resultId, " and id: ", id)
+	return id
+}
+
+func GetWheelRuns(from string, to *string) []WheelWin {
+	if to == nil {
+		t := time.Now().UTC().Format("2006-01-02")
+		to = &t
+	}
+	stmt, err := database.Db.Prepare("SELECT run_date, winner_id, winning_option_id, first_name, last_name, option_name FROM wheel_run INNER JOIN wheel_option ON wheel_run.winning_option_id = wheel_option.id INNER JOIN person ON wheel_run.winner_id = person.id WHERE run_date BETWEEN ? AND ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows, err := stmt.Query(from, *to)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var wins []WheelWin
+	for rows.Next() {
+		var result WheelRunResult
+		err := rows.Scan(&result.Date, &result.WinnerId, &result.ResultId, &result.WinnerFirstName, &result.WinnerLastName, &result.ResultName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var win WheelWin
+		win.ID = result.ID
+		win.Date = result.Date
+		win.Winner.ID = result.WinnerId
+		win.Winner.FirstName = result.WinnerFirstName
+		win.Winner.LastName = result.WinnerLastName
+		win.Result.ID = result.ResultId
+		win.Result.Name = result.ResultName
+		wins = append(wins, win)
+	}
+
+	return wins
 }

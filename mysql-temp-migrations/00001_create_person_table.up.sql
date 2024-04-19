@@ -1,5 +1,5 @@
-create table if not exists people(
+create table if not exists person(
     id int not null unique primary key auto_increment,
-    firstName varchar (255) not null,
-    lastName varchar (255) not null
+    first_name varchar (255) not null,
+    last_name varchar (255) not null
 );

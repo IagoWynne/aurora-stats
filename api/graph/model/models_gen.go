@@ -26,7 +26,14 @@ type WheelOption struct {
 
 type WheelResult struct {
 	ID       string `json:"id"`
-	Date     int    `json:"date"`
+	Date     string `json:"date"`
 	OptionID int    `json:"optionId"`
 	PersonID int    `json:"personId"`
+}
+
+type WheelWinStat struct {
+	ID     string       `json:"id"`
+	Date   string       `json:"date"`
+	Winner *Person      `json:"winner"`
+	Result *WheelOption `json:"result"`
 }

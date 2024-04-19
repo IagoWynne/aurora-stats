@@ -9,9 +9,7 @@ import (
 	"aurora-stats/api/internal/people"
 	"aurora-stats/api/internal/wheel"
 	"context"
-	"fmt"
 	"strconv"
-	"time"
 )
 
 // CreatePerson is the resolver for the createPerson field.
@@ -36,8 +34,10 @@ func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*mo
 }
 
 // AddWheelRun is the resolver for the addWheelRun field.
-func (r *mutationResolver) AddWheelRun(ctx context.Context, date time.Time, participants []int, options []*model.AvailableOption, winnerID int, resultID int) (*model.WheelResult, error) {
-	panic(fmt.Errorf("not implemented: AddWheelRun - addWheelRun"))
+func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.WheelResult, error) {
+	wheelRunID := wheel.SaveWheelRun(date, winnerID, resultID)
+
+	return &model.WheelResult{ID: strconv.FormatInt(wheelRunID, 10), Date: date, PersonID: winnerID, OptionID: resultID}, nil
 }
 
 // People is the resolver for the people field.
@@ -45,7 +45,7 @@ func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
 
 	for _, person := range people.GetAll() {
-		resultsPeople = append(resultsPeople, &model.Person{ID: person.ID, FirstName: person.FirstName, LastName: person.LastName})
+		resultsPeople = append(resultsPeople, &model.Person{ID: strconv.FormatInt(person.ID, 10), FirstName: person.FirstName, LastName: person.LastName})
 	}
 
 	return resultsPeople, nil
@@ -56,10 +56,33 @@ func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption,
 	var resultsWheelOptions []*model.WheelOption
 
 	for _, wheelOption := range wheel.GetAllWheelOptions() {
-		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: wheelOption.ID, Name: wheelOption.Name})
+		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: strconv.FormatInt(wheelOption.ID, 10), Name: wheelOption.Name})
 	}
 
 	return resultsWheelOptions, nil
+}
+
+// WheelWins is the resolver for the wheelWins field.
+func (r *queryResolver) WheelWins(ctx context.Context, from string, to *string) ([]*model.WheelWinStat, error) {
+	var wheelWinResults []*model.WheelWinStat
+
+	for _, wheelWin := range wheel.GetWheelRuns(from, to) {
+		wheelWinResults = append(wheelWinResults, &model.WheelWinStat{
+			ID:   wheelWin.ID,
+			Date: wheelWin.Date,
+			Winner: &model.Person{
+				ID:        strconv.FormatInt(wheelWin.Winner.ID, 10),
+				FirstName: wheelWin.Winner.FirstName,
+				LastName:  wheelWin.Winner.LastName,
+			},
+			Result: &model.WheelOption{
+				ID:   strconv.FormatInt(wheelWin.Result.ID, 10),
+				Name: wheelWin.Result.Name,
+			},
+		})
+	}
+
+	return wheelWinResults, nil
 }
 
 // Mutation returns MutationResolver implementation.

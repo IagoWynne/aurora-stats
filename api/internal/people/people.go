@@ -7,15 +7,15 @@ import (
 
 // definition of a structure which represents a person
 type Person struct {
-	ID        string `json:"id"`
+	ID        int64  `json:"id"`
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
 }
 
 // function to save a person to the database
 func (person *Person) Save() int64 {
-	// mysql query to insert a person into the people table
-	stmt, err := database.Db.Prepare("INSERT INTO people(firstName, lastName) VALUES(?,?)")
+	// mysql query to insert a person into the person table
+	stmt, err := database.Db.Prepare("INSERT INTO person(first_name, last_name) VALUES(?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func (person *Person) Save() int64 {
 
 // function to get all people from the database
 func GetAll() []Person {
-	stmt, err := database.Db.Prepare("SELECT id, firstName, lastName FROM people")
+	stmt, err := database.Db.Prepare("SELECT id, first_name, last_name FROM person")
 	if err != nil {
 		log.Fatal(err)
 	}

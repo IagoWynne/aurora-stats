@@ -11,7 +11,7 @@ import App from "./App";
 import ErrorPage from "./ErrorPage";
 import { People } from "./People";
 import "./index.css";
-import { Wheel } from "./Wheel";
+import { Wheel, WheelOptions } from "./Wheel";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -37,6 +37,12 @@ const router = createBrowserRouter([
       {
         path: "/wheel",
         element: <Wheel />,
+        children: [
+          {
+            path: "/wheel/options",
+            element: <WheelOptions />
+          }
+        ]
       },
     ],
   },
