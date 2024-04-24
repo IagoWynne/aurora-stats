@@ -34,4 +34,4 @@ For now:
 1. Create a folder for the type at `/graph/internal/` (e.g. `/graph/internal/people`)
 2. Within this folder, create a file named after the type (e.g. `people.go`)
 3. Create the type(s) you will need
-4. Create functions to save/retrieve data (follow examples in `people.go`)
+4. Create functions to save/retrieve data (follow examples in `people.go` or `wheel.go`)

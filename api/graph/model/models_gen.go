@@ -7,6 +7,11 @@ type AvailableOption struct {
 	Count    int `json:"count"`
 }
 
+type DeleteResponse struct {
+	ID      string `json:"id"`
+	Success bool   `json:"success"`
+}
+
 type Mutation struct {
 }
 
@@ -35,5 +40,5 @@ type WheelWinStat struct {
 	ID     string       `json:"id"`
 	Date   string       `json:"date"`
 	Winner *Person      `json:"winner"`
-	Result *WheelOption `json:"result"`
+	Prize  *WheelOption `json:"prize"`
 }

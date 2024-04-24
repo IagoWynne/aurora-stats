@@ -25,15 +25,15 @@ type WheelRunResult struct {
 	WinnerId        int64  `json:"winnerId"`
 	WinnerFirstName string `json:"winnerFirstName"`
 	WinnerLastName  string `json:"winnerLastName"`
-	ResultId        int64  `json:"resultId"`
+	PrizeId         int64  `json:"resultId"`
 	ResultName      string `json:"resultName"`
 }
 
-type WheelWin struct {
+type WheelResult struct {
 	ID     string        `json:"id"`
 	Date   string        `json:"date"`
 	Winner people.Person `json:"winner"`
-	Result WheelOption   `json:"result"`
+	Prize  WheelOption   `json:"result"`
 }
 
 func SaveWheelOption(name string) int64 {
@@ -83,7 +83,7 @@ func GetAllWheelOptions() []WheelOption {
 }
 
 func SaveWheelRun(date string, winnerId int, resultId int) int64 {
-	stmt, err := database.Db.Prepare("INSERT INTO wheel_run(run_date, winner_id, winning_option_id) VALUES(?,?,?)")
+	stmt, err := database.Db.Prepare("INSERT INTO wheel_run(run_date, winner_id, prize_id) VALUES(?,?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,12 +102,12 @@ func SaveWheelRun(date string, winnerId int, resultId int) int64 {
 	return id
 }
 
-func GetWheelRuns(from string, to *string) []WheelWin {
+func GetWheelRuns(from string, to *string) []WheelResult {
 	if to == nil {
 		t := time.Now().UTC().Format("2006-01-02")
 		to = &t
 	}
-	stmt, err := database.Db.Prepare("SELECT run_date, winner_id, winning_option_id, first_name, last_name, option_name FROM wheel_run INNER JOIN wheel_option ON wheel_run.winning_option_id = wheel_option.id INNER JOIN person ON wheel_run.winner_id = person.id WHERE run_date BETWEEN ? AND ?")
+	stmt, err := database.Db.Prepare("SELECT wheel_run.id, run_date, winner_id, prize_id, first_name, last_name, option_name FROM wheel_run INNER JOIN wheel_option ON wheel_run.prize_id = wheel_option.id INNER JOIN person ON wheel_run.winner_id = person.id WHERE run_date BETWEEN ? AND ?")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,22 +118,22 @@ func GetWheelRuns(from string, to *string) []WheelWin {
 	}
 	defer rows.Close()
 
-	var wins []WheelWin
+	var wins []WheelResult
 	for rows.Next() {
 		var result WheelRunResult
-		err := rows.Scan(&result.Date, &result.WinnerId, &result.ResultId, &result.WinnerFirstName, &result.WinnerLastName, &result.ResultName)
+		err := rows.Scan(&result.ID, &result.Date, &result.WinnerId, &result.PrizeId, &result.WinnerFirstName, &result.WinnerLastName, &result.ResultName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		var win WheelWin
+		var win WheelResult
 		win.ID = result.ID
 		win.Date = result.Date
 		win.Winner.ID = result.WinnerId
 		win.Winner.FirstName = result.WinnerFirstName
 		win.Winner.LastName = result.WinnerLastName
-		win.Result.ID = result.ResultId
-		win.Result.Name = result.ResultName
+		win.Prize.ID = result.PrizeId
+		win.Prize.Name = result.ResultName
 		wins = append(wins, win)
 	}
 

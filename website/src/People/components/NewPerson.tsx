@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import React from "react";
 import { ADD_PERSON_MUTATION, GET_PEOPLE_QUERY } from "../queries";
-import useFormStyles from "../../Common/Styles/useFormStyles";
+import { useFormStyles } from "../../Common";
 
 const NewPerson = (): JSX.Element => {
   const [addPerson, { loading, error }] = useMutation(ADD_PERSON_MUTATION, {

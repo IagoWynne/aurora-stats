@@ -37,7 +37,7 @@ func (person *Person) Save() int64 {
 
 // function to get all people from the database
 func GetAll() []Person {
-	stmt, err := database.Db.Prepare("SELECT id, first_name, last_name FROM person")
+	stmt, err := database.Db.Prepare("SELECT id, first_name, last_name FROM person where deleted = 0")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,4 +63,16 @@ func GetAll() []Person {
 	}
 
 	return people
+}
+
+func DeletePerson(id string) {
+	stmt, err := database.Db.Prepare("UPDATE person SET deleted = 1 WHERE id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

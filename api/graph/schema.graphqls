@@ -1,5 +1,10 @@
 # https://gqlgen.com/getting-started/
 
+type DeleteResponse {
+  id: ID!
+  success: Boolean!
+}
+
 # Person management
 type Person {
   id: ID!
@@ -24,13 +29,13 @@ type WheelWinStat {
   id: ID!
   date: String!
   winner: Person!
-  result: WheelOption!
+  prize: WheelOption!
 }
 
 type Query {
   people: [Person!]!
   wheelOptions: [WheelOption!]!
-  wheelWins(from: String!, to: String): [WheelWinStat!]!
+  wheelResults(from: String!, to: String): [WheelWinStat!]!
 }
 
 input AvailableOption {
@@ -40,10 +45,7 @@ input AvailableOption {
 
 type Mutation {
   createPerson(firstName: String!, lastName: String!): Person!
+  deletePerson(id: ID!): DeleteResponse!
   addWheelOption(name: String!): WheelOption!
-  addWheelRun(
-    date: String!
-    winnerId: Int!,
-    resultId: Int!
-  ): WheelResult!
+  addWheelRun(date: String!, winnerId: Int!, resultId: Int!): WheelResult!
 }

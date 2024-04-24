@@ -9,4 +9,18 @@ const GET_WHEEL_OPTIONS_QUERY = gql`
   }
 `;
 
-export default GET_WHEEL_OPTIONS_QUERY;
+const GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY = gql`
+  query GetWheelOptionsAndPeople {
+    wheelOptions {
+      id
+      name
+    }
+    people {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
+
+export { GET_WHEEL_OPTIONS_QUERY, GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY };

@@ -9,6 +9,7 @@ import (
 	"aurora-stats/api/internal/people"
 	"aurora-stats/api/internal/wheel"
 	"context"
+	"fmt"
 	"strconv"
 )
 
@@ -24,6 +25,13 @@ func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, l
 
 	// returns the new person with their DB id
 	return &model.Person{ID: strconv.FormatInt(personID, 10), FirstName: person.FirstName, LastName: person.LastName}, nil
+}
+
+// DeletePerson is the resolver for the deletePerson field.
+func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error) {
+	people.DeletePerson(id)
+
+	return &model.DeleteResponse{ID: id, Success: true}, nil
 }
 
 // AddWheelOption is the resolver for the addWheelOption field.
@@ -62,8 +70,16 @@ func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption,
 	return resultsWheelOptions, nil
 }
 
-// WheelWins is the resolver for the wheelWins field.
-func (r *queryResolver) WheelWins(ctx context.Context, from string, to *string) ([]*model.WheelWinStat, error) {
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
+
+func (r *queryResolver) WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelWinStat, error) {
 	var wheelWinResults []*model.WheelWinStat
 
 	for _, wheelWin := range wheel.GetWheelRuns(from, to) {
@@ -75,21 +91,15 @@ func (r *queryResolver) WheelWins(ctx context.Context, from string, to *string) 
 				FirstName: wheelWin.Winner.FirstName,
 				LastName:  wheelWin.Winner.LastName,
 			},
-			Result: &model.WheelOption{
-				ID:   strconv.FormatInt(wheelWin.Result.ID, 10),
-				Name: wheelWin.Result.Name,
+			Prize: &model.WheelOption{
+				ID:   strconv.FormatInt(wheelWin.Prize.ID, 10),
+				Name: wheelWin.Prize.Name,
 			},
 		})
 	}
 
 	return wheelWinResults, nil
 }
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+func (r *mutationResolver) DeleteMutation(ctx context.Context, id string) (*model.DeleteResponse, error) {
+	panic(fmt.Errorf("not implemented: DeleteMutation - deleteMutation"))
+}
