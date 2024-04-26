@@ -7,6 +7,7 @@ TODO: set this up to be dockerised and use input parameters
    1. `docker exec -it aurora-stats-mysql bash`
    2. `mysql -u root -p` - will request password, enter `dbpass`
    3. `CREATE DATABASE aurora-stats;` Note: database might already exist. If it does, this is fine
+   4. Run every script in the migrations folder in order
 2. Run `asdf install`
 3. Run `go run ./server.go`
 4. You may be prompted to install various `golang` modules. Install them.
