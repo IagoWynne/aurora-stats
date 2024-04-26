@@ -6,37 +6,45 @@ const useStyles = createUseStyles({
   dateLabel: {
     fontWeight: "bold",
     display: "block",
+    marginBottom: "5px"
   },
   defaultDate: {
     padding: "10px",
     background: "none",
     border: "1px solid lightgrey",
     display: "block",
+    width: "100%",
   },
 });
 
 interface Props {
+  id: string;
   label?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   showLabel?: boolean;
   value?: Date;
+  required?: boolean;
 }
 
 const DateInput = ({
+  id,
   label,
   onChange,
   showLabel,
   value,
+  required,
 }: Props): JSX.Element => {
   const styles = useStyles();
   return (
     <>
       {showLabel && <label className={styles.dateLabel}>{label}</label>}
       <input
+        id={id}
         className={styles.defaultDate}
         type="date"
         onChange={onChange}
         defaultValue={value ? formatDate(value, "yyyy-MM-dd") : undefined}
+        required={required || false}
       />
     </>
   );

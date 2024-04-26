@@ -1,10 +1,9 @@
-import WheelRun from "./WheelRun/WheelRun";
-import WheelStats from "./WheelStats/WheelStats";
+import WheelResults from "./WheelRun/WheelResults";
 
 const Wheel = (): JSX.Element => {
   return (
     <>
-      <WheelRun />
+      <WheelResults />
     </>
   );
 };

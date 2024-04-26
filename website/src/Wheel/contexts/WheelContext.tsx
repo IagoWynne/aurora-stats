@@ -11,13 +11,8 @@ import { formatDate, subDays } from "date-fns";
 export interface WheelState {
   wheelOptions: WheelOptionType[];
   people: PersonType[];
-  winnerId: number | null;
-  resultId: number | null;
   runDate: Date;
-  setWinnerId: (id: number) => void;
-  setResultId: (id: number) => void;
-  setRunDate: (date: Date) => void;
-  recordWheelWin: () => void;
+  recordWheelWin: (date: Date, winnerId: number, resultId: number) => void;
 }
 
 const WheelContext = createContext<WheelState | undefined>(undefined);
@@ -42,24 +37,16 @@ export const WheelContextProvider: (
         },
       ],
     });
-  const [winnerId, setWinnerId] = useState<number | null>(null);
-  const [resultId, setResultId] = useState<number | null>(null);
-  const [runDate, setRunDate] = useState(new Date());
+  const runDate = new Date();
 
-  const recordWheelWin = async () => {
-    if (winnerId && resultId) {
-      await addWheelWin({
-        variables: {
-          date: formatDate(runDate, "yyyy-MM-dd"),
-          winnerId,
-          resultId,
-        },
-      });
-
-      setWinnerId(null);
-      setResultId(null);
-    }
-  };
+  const recordWheelWin = async (
+    date: Date,
+    winnerId: number,
+    resultId: number
+  ) =>
+    await addWheelWin({
+      variables: { date: formatDate(date, "yyyy-MM-dd"), winnerId, resultId },
+    });
 
   if (dataLoading || addWheelLoading) {
     return <p>Loading...</p>;
@@ -74,12 +61,7 @@ export const WheelContextProvider: (
       value={{
         wheelOptions: data.wheelOptions,
         people: data.people,
-        winnerId,
-        resultId,
         runDate,
-        setWinnerId,
-        setResultId,
-        setRunDate,
         recordWheelWin,
       }}
     >

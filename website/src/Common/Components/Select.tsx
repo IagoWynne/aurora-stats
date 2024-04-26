@@ -4,13 +4,15 @@ import { createUseStyles } from "react-jss";
 const useStyles = createUseStyles({
   selectLabel: {
     fontWeight: "bold",
-    display: "block"
+    display: "block",
+    marginBottom: "5px",
   },
   defaultSelect: {
     padding: "10px",
     background: "none",
     border: "1px solid lightgrey",
-    display: "block"
+    display: "block",
+    width: "100%",
   },
 });
 
@@ -19,8 +21,9 @@ interface Props {
   options: { id: number; label: string }[];
   showLabel?: boolean;
   label?: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   selectedId?: number | null;
+  required?: boolean;
 }
 
 const Select = ({
@@ -29,7 +32,7 @@ const Select = ({
   showLabel,
   label,
   onChange,
-  selectedId,
+  required,
 }: Props): JSX.Element => {
   const styles = useStyles();
 
@@ -43,13 +46,9 @@ const Select = ({
       <select
         id={id}
         onChange={onChange}
-        defaultValue={selectedId ?? "unselectable"}
         className={styles.defaultSelect}
+        required={required || false}
       >
-        <option hidden disabled value="unselectable">
-          {" "}
-          -- select an option --{" "}
-        </option>
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.label}

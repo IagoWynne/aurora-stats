@@ -1,22 +1,11 @@
 import { createUseStyles } from "react-jss";
 import { WheelContextProvider } from "../../contexts/WheelContext";
-import WinnerSelection from "./WinnerSelection";
-import ResultSelection from "./ResultSelection";
-import AddResultButton from "./AddRunButton";
 import { SectionContainer } from "../../../Common";
-import RunDateSelection from "./RunDateSelection";
 import WheelResultsTable from "../WheelStats/WheelResultsTable";
 import PeopleWheel from "./PeopleWheel";
+import AddResultForm from "./AddResultForm";
 
 const useStyles = createUseStyles({
-  container: {
-    padding: "0 0 1rem 0",
-    display: "flex",
-    justifyContent: "flex-start",
-    "& > div + div": {
-      marginLeft: "1rem",
-    },
-  },
   title: {
     margin: 0,
     fontWeight: "bold",
@@ -28,7 +17,7 @@ const useStyles = createUseStyles({
   },
 });
 
-const WheelRun = (): JSX.Element => {
+const WheelResults = (): JSX.Element => {
   const styles = useStyles();
 
   return (
@@ -40,20 +29,15 @@ const WheelRun = (): JSX.Element => {
         </div>
       </SectionContainer> */}
       <SectionContainer>
-        <p className={styles.title}>Recent Runs</p>
-        <WheelResultsTable />
+        <p className={styles.title}>Add Wheel Result</p>
+        <AddResultForm />
       </SectionContainer>
       <SectionContainer>
-        <p className={styles.title}>Add Wheel Result</p>
-        <div className={styles.container}>
-          <WinnerSelection />
-          <ResultSelection />
-          <RunDateSelection />
-        </div>
-        <AddResultButton />
+        <p className={styles.title}>Recent Runs</p>
+        <WheelResultsTable />
       </SectionContainer>
     </WheelContextProvider>
   );
 };
 
-export default WheelRun;
+export default WheelResults;
