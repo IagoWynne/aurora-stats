@@ -5,34 +5,31 @@ import WheelResultsTable from "../WheelStats/WheelResultsTable";
 import PeopleWheel from "./PeopleWheel";
 import AddResultForm from "./AddResultForm";
 import { Link } from "react-router-dom";
-
-const useStyles = createUseStyles({
-  title: {
-    margin: 0,
-    fontWeight: "bold",
-    paddingBottom: "1rem",
-  },
-});
+import { WheelContextProvider } from "../../contexts/WheelContext";
+import { WheelStatsContextProvider } from "../../contexts/WheelStatsContext";
 
 const WheelResults = (): JSX.Element => {
-  const styles = useStyles();
 
   return (
-    <WheelRunContextProvider>
-      <Link to="/wheel/stats">Wheel Stats</Link>
-      {/* <SectionContainer>
+    <WheelContextProvider>
+      <WheelRunContextProvider>
+        <WheelStatsContextProvider>
+          <Link to="/wheel/stats">Wheel Stats</Link>
+          {/* <SectionContainer>
         <p className={styles.title}>The Wheel</p>
         <div className={styles.container}>
           <PeopleWheel />
         </div>
       </SectionContainer> */}
-      <SectionContainer title="Add Wheel Result">
-        <AddResultForm />
-      </SectionContainer>
-      <SectionContainer title="Recent Runs">
-        <WheelResultsTable />
-      </SectionContainer>
-    </WheelRunContextProvider>
+          <SectionContainer title="Add Wheel Result">
+            <AddResultForm />
+          </SectionContainer>
+          <SectionContainer title="Recent Runs">
+            <WheelResultsTable />
+          </SectionContainer>
+        </WheelStatsContextProvider>
+      </WheelRunContextProvider>
+    </WheelContextProvider>
   );
 };
 

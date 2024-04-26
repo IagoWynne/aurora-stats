@@ -2,6 +2,7 @@ import React from "react";
 import { useWheelRunContext } from "../../contexts/WheelRunContext";
 import { Button, DateInput, Select } from "../../../Common";
 import { createUseStyles } from "react-jss";
+import { useWheelContext } from "../../contexts/WheelContext";
 
 const useStyles = createUseStyles({
   container: {
@@ -18,8 +19,8 @@ const useStyles = createUseStyles({
 
 const AddResultForm = (): JSX.Element => {
   const styles = useStyles();
-  const { people, wheelOptions, runDate, recordWheelWin } =
-    useWheelRunContext();
+  const { runDate, recordWheelWin } = useWheelRunContext();
+  const { wheelOptions, people } = useWheelContext();
 
   const availableResults = wheelOptions.map((option) => ({
     id: option.id,

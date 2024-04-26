@@ -3,6 +3,7 @@ import { GET_WHEEL_RESULTS_BETWEEN } from "../../queries/getWheelResults";
 import { PersonType } from "../../../types";
 import { formatDate, subDays } from "date-fns";
 import { createUseStyles } from "react-jss";
+import { useWheelStatsContext } from "../../contexts/WheelStatsContext";
 
 const useStyles = createUseStyles({
   resultsTable: {
@@ -27,44 +28,16 @@ const useStyles = createUseStyles({
   },
 });
 
-interface Props {
-  from?: Date;
-  to?: Date;
-}
-
-const WheelResultsTable = ({ from, to }: Props): JSX.Element => {
+const WheelResultsTable = (): JSX.Element => {
   const styles = useStyles();
+  const { results } = useWheelStatsContext();
 
-  // TODO - these dates should probably be passed in as props
-  const now = Date.now();
-
-  const { loading, error, data } = useQuery(GET_WHEEL_RESULTS_BETWEEN, {
-    variables: {
-      from: `${formatDate(from || new Date(subDays(now, 14)), "yyyy-MM-dd")}`,
-      to: `${formatDate(to || now, "yyyy-MM-dd")}`,
-    },
-  });
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  if (error) {
-    return <div>Error! {error.message}</div>;
-  }
-
-  const results = data.wheelResults.map(
-    (result: {
-      id: number;
-      date: string;
-      winner: PersonType;
-      prize: { name: string };
-    }) => ({
-      id: result.id,
-      date: new Date(result.date),
-      winner: `${result.winner.firstName} ${result.winner.lastName}`,
-      prize: result.prize.name,
-    })
-  );
+  const items = results.map((result) => ({
+    id: result.id,
+    date: new Date(result.date),
+    winner: `${result.winner.firstName} ${result.winner.lastName}`,
+    prize: result.prize.name,
+  }));
 
   return (
     <table className={styles.resultsTable}>
@@ -76,7 +49,7 @@ const WheelResultsTable = ({ from, to }: Props): JSX.Element => {
         </tr>
       </thead>
       <tbody>
-        {results.map(
+        {items.map(
           (result: {
             id: number;
             date: Date;

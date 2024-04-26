@@ -1,16 +1,12 @@
-import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { WheelOptionType, PersonType } from "../../types";
-import { useMutation, useQuery } from "@apollo/client";
+import { PropsWithChildren, createContext, useContext } from "react";
+import { useMutation } from "@apollo/client";
 import {
-  GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY,
   RECORD_WHEEL_WIN_MUTATION,
   GET_WHEEL_RESULTS_BETWEEN,
 } from "../queries";
 import { formatDate, subDays } from "date-fns";
 
 export interface WheelRunState {
-  wheelOptions: WheelOptionType[];
-  people: PersonType[];
   runDate: Date;
   recordWheelWin: (date: Date, winnerId: number, resultId: number) => void;
 }
@@ -20,12 +16,7 @@ const WheelRunContext = createContext<WheelRunState | undefined>(undefined);
 export const WheelRunContextProvider: (
   props: PropsWithChildren
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
-  const {
-    loading: dataLoading,
-    error: dataError,
-    data,
-  } = useQuery(GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY);
-  const [addWheelWin, { loading: addWheelLoading, error: addWheelError }] =
+  const [addWheelWin, { loading: addResultLoading, error: addResultError }] =
     useMutation(RECORD_WHEEL_WIN_MUTATION, {
       refetchQueries: [
         {
@@ -48,19 +39,17 @@ export const WheelRunContextProvider: (
       variables: { date: formatDate(date, "yyyy-MM-dd"), winnerId, resultId },
     });
 
-  if (dataLoading || addWheelLoading) {
+  if (addResultLoading) {
     return <p>Loading...</p>;
   }
 
-  if (dataError || addWheelError) {
+  if (addResultError) {
     return <p>Error!</p>;
   }
 
   return (
     <WheelRunContext.Provider
       value={{
-        wheelOptions: data.wheelOptions,
-        people: data.people,
         runDate,
         recordWheelWin,
       }}
@@ -74,7 +63,7 @@ export const useWheelRunContext = () => {
   const context = useContext(WheelRunContext);
   if (context === undefined) {
     throw new Error(
-      "useWheelContext must be rendered in a tree within a WheelContextProvider"
+      "useWheelRunContext must be rendered in a tree within a WheelRunContextProvider"
     );
   }
   return context;

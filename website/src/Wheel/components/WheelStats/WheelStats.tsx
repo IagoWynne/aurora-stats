@@ -1,29 +1,25 @@
-import { useState } from "react";
-import { DateInput, SectionContainer } from "../../../Common";
+import { SectionContainer } from "../../../Common";
 import WheelResultsTable from "./WheelResultsTable";
-import { subDays } from "date-fns";
-import DateRangeSelector from "../../../Common/Components/DateRangeSelector";
+import StatsDateRangeSelector from "./StatsDateRangeSelector";
+import { WheelContextProvider } from "../../contexts/WheelContext";
+import { WheelStatsContextProvider } from "../../contexts/WheelStatsContext";
+import WinsPerPersonGraph from "./WinsPerPersonGraph";
 
-interface Props {}
-
-const WheelStats = ({}: Props): JSX.Element => {
-  const [to, setTo] = useState(new Date());
-  const [from, setFrom] = useState(new Date(subDays(to, 14)));
-
+const WheelStats = (): JSX.Element => {
   return (
-    <>
-      <SectionContainer title="Show Stats Between">
-        <DateRangeSelector
-          from={from}
-          to={to}
-          fromChanged={setFrom}
-          toChanged={setTo}
-        />
-      </SectionContainer>
-      <SectionContainer title="Wheel Results">
-        <WheelResultsTable from={from} to={to} />
-      </SectionContainer>
-    </>
+    <WheelContextProvider>
+      <WheelStatsContextProvider>
+        <SectionContainer title="Show Stats Between">
+          <StatsDateRangeSelector />
+        </SectionContainer>
+        <SectionContainer title="Wheel Results">
+          <WheelResultsTable />
+        </SectionContainer>
+        <SectionContainer title="Wins Per Person">
+          <WinsPerPersonGraph />
+        </SectionContainer>
+      </WheelStatsContextProvider>
+    </WheelContextProvider>
   );
 };
 

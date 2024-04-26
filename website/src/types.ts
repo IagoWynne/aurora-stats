@@ -8,3 +8,23 @@ export interface WheelOptionType {
   id: number;
   name: string;
 }
+
+export interface WheelResultType {
+  id: number;
+  date: Date;
+  winner: PersonType;
+  prize: WheelOptionType;
+}
+
+export interface WheelStat {
+  id: number;
+  name: string;
+  wins: number;
+}
+
+export interface WheelPersonWins {
+  id: number;
+  name: string;
+  totalWins: number;
+  winsByOption: WheelStat[];
+}
