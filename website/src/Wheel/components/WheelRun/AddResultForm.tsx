@@ -56,7 +56,6 @@ const AddResultForm = (): JSX.Element => {
             id="winner"
             options={availablePeople}
             label="Winner"
-            showLabel
           />
         </div>
         <div>
@@ -64,7 +63,6 @@ const AddResultForm = (): JSX.Element => {
             id="result"
             options={availableResults}
             label="Result"
-            showLabel
           />
         </div>
         <div>

@@ -19,7 +19,6 @@ const useStyles = createUseStyles({
 interface Props {
   id?: string;
   options: { id: number; label: string }[];
-  showLabel?: boolean;
   label?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   selectedId?: number | null;
@@ -29,7 +28,6 @@ interface Props {
 const Select = ({
   id,
   options,
-  showLabel,
   label,
   onChange,
   required,
@@ -38,7 +36,7 @@ const Select = ({
 
   return (
     <>
-      {showLabel && (
+      {label && (
         <label htmlFor={id} className={styles.selectLabel}>
           {label}
         </label>
