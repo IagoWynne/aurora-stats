@@ -8,16 +8,16 @@ import {
 } from "../queries";
 import { formatDate, subDays } from "date-fns";
 
-export interface WheelState {
+export interface WheelRunState {
   wheelOptions: WheelOptionType[];
   people: PersonType[];
   runDate: Date;
   recordWheelWin: (date: Date, winnerId: number, resultId: number) => void;
 }
 
-const WheelContext = createContext<WheelState | undefined>(undefined);
+const WheelRunContext = createContext<WheelRunState | undefined>(undefined);
 
-export const WheelContextProvider: (
+export const WheelRunContextProvider: (
   props: PropsWithChildren
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
   const {
@@ -57,7 +57,7 @@ export const WheelContextProvider: (
   }
 
   return (
-    <WheelContext.Provider
+    <WheelRunContext.Provider
       value={{
         wheelOptions: data.wheelOptions,
         people: data.people,
@@ -66,12 +66,12 @@ export const WheelContextProvider: (
       }}
     >
       {children}
-    </WheelContext.Provider>
+    </WheelRunContext.Provider>
   );
 };
 
-export const useWheelContext = () => {
-  const context = useContext(WheelContext);
+export const useWheelRunContext = () => {
+  const context = useContext(WheelRunContext);
   if (context === undefined) {
     throw new Error(
       "useWheelContext must be rendered in a tree within a WheelContextProvider"

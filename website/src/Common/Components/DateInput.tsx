@@ -6,7 +6,7 @@ const useStyles = createUseStyles({
   dateLabel: {
     fontWeight: "bold",
     display: "block",
-    marginBottom: "5px"
+    marginBottom: "5px",
   },
   defaultDate: {
     padding: "10px",
@@ -21,7 +21,6 @@ interface Props {
   id: string;
   label?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  showLabel?: boolean;
   value?: Date;
   required?: boolean;
 }
@@ -30,14 +29,13 @@ const DateInput = ({
   id,
   label,
   onChange,
-  showLabel,
   value,
   required,
 }: Props): JSX.Element => {
   const styles = useStyles();
   return (
     <>
-      {showLabel && <label className={styles.dateLabel}>{label}</label>}
+      {label && <label className={styles.dateLabel}>{label}</label>}
       <input
         id={id}
         className={styles.defaultDate}

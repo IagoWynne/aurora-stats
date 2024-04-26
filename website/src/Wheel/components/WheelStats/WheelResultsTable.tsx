@@ -27,17 +27,21 @@ const useStyles = createUseStyles({
   },
 });
 
-const WheelResultsTable = (): JSX.Element => {
+interface Props {
+  from?: Date;
+  to?: Date;
+}
+
+const WheelResultsTable = ({ from, to }: Props): JSX.Element => {
   const styles = useStyles();
 
   // TODO - these dates should probably be passed in as props
   const now = Date.now();
-  const from = new Date(subDays(now, 14));
 
   const { loading, error, data } = useQuery(GET_WHEEL_RESULTS_BETWEEN, {
     variables: {
-      from: `${formatDate(from, "yyyy-MM-dd")}`,
-      to: `${formatDate(now, "yyyy-MM-dd")}`,
+      from: `${formatDate(from || new Date(subDays(now, 14)), "yyyy-MM-dd")}`,
+      to: `${formatDate(to || now, "yyyy-MM-dd")}`,
     },
   });
 

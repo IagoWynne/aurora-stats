@@ -1,5 +1,5 @@
 import React from "react";
-import { useWheelContext } from "../../contexts/WheelContext";
+import { useWheelRunContext } from "../../contexts/WheelRunContext";
 import { Button, DateInput, Select } from "../../../Common";
 import { createUseStyles } from "react-jss";
 
@@ -10,15 +10,16 @@ const useStyles = createUseStyles({
     justifyContent: "space-evenly",
     alignContent: "stretch",
     "& > div": {
-      width: "30%"
+      width: "30%",
     },
-    marginLeft: "-22px"
+    marginLeft: "-22px",
   },
 });
 
 const AddResultForm = (): JSX.Element => {
   const styles = useStyles();
-  const { people, wheelOptions, runDate, recordWheelWin } = useWheelContext();
+  const { people, wheelOptions, runDate, recordWheelWin } =
+    useWheelRunContext();
 
   const availableResults = wheelOptions.map((option) => ({
     id: option.id,
@@ -66,7 +67,7 @@ const AddResultForm = (): JSX.Element => {
           />
         </div>
         <div>
-          <DateInput id="date" showLabel label="Date" value={runDate} />
+          <DateInput id="date" label="Date" value={runDate} />
         </div>
       </div>
       <Button type="submit">Add Result</Button>

@@ -1,11 +1,11 @@
 import React from "react";
-import { useWheelContext } from "../../contexts/WheelContext";
+import { useWheelRunContext } from "../../contexts/WheelRunContext";
 import Wheel from "./Wheel";
 
 interface Props {}
 
 const PeopleWheel = ({}: Props): JSX.Element => {
-  const { people } = useWheelContext();
+  const { people } = useWheelRunContext();
 
   const peopleArray = people.map(
     (person) => `${person.firstName}`

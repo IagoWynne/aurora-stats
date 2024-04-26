@@ -7,13 +7,27 @@ const useStyles = createUseStyles({
     background: "white",
     borderRadius: "5px",
     padding: "1rem",
-    marginBottom: "1rem"
+    marginBottom: "1rem",
+  },
+  title: {
+    margin: 0,
+    fontWeight: "bold",
+    paddingBottom: "1rem",
   },
 });
 
-const SectionContainer = ({ children }: PropsWithChildren): JSX.Element => {
+interface Props extends PropsWithChildren {
+  title?: string;
+}
+
+const SectionContainer = ({ title, children }: Props): JSX.Element => {
   const styles = useStyles();
-  return <div className={styles.container}>{children}</div>;
+  return (
+    <div className={styles.container}>
+      {title && <p className={styles.title}>{title}</p>}
+      {children}
+    </div>
+  );
 };
 
 export default SectionContainer;

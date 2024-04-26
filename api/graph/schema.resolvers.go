@@ -9,12 +9,11 @@ import (
 	"aurora-stats/api/internal/people"
 	"aurora-stats/api/internal/wheel"
 	"context"
-	"fmt"
 	"strconv"
 )
 
 // CreatePerson is the resolver for the createPerson field.
-func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, lastName string) (*model.Person, error) {
+func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, lastName string) (*model.InsertResponse, error) {
 	// creates a person using the struct from people module (this is the struct that interacts with the database)
 	var person people.Person
 	// sets the person's name based on the input
@@ -24,7 +23,7 @@ func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, l
 	personID := person.Save()
 
 	// returns the new person with their DB id
-	return &model.Person{ID: strconv.FormatInt(personID, 10), FirstName: person.FirstName, LastName: person.LastName}, nil
+	return &model.InsertResponse{ID: strconv.FormatInt(personID, 10)}, nil
 }
 
 // DeletePerson is the resolver for the deletePerson field.
@@ -35,17 +34,17 @@ func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.
 }
 
 // AddWheelOption is the resolver for the addWheelOption field.
-func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*model.WheelOption, error) {
+func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error) {
 	wheelOptionID := wheel.SaveWheelOption(name)
 
-	return &model.WheelOption{ID: strconv.FormatInt(wheelOptionID, 10), Name: name}, nil
+	return &model.InsertResponse{ID: strconv.FormatInt(wheelOptionID, 10)}, nil
 }
 
 // AddWheelRun is the resolver for the addWheelRun field.
-func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.WheelResult, error) {
+func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.InsertResponse, error) {
 	wheelRunID := wheel.SaveWheelRun(date, winnerID, resultID)
 
-	return &model.WheelResult{ID: strconv.FormatInt(wheelRunID, 10), Date: date, PersonID: winnerID, OptionID: resultID}, nil
+	return &model.InsertResponse{ID: strconv.FormatInt(wheelRunID, 10)}, nil
 }
 
 // People is the resolver for the people field.
@@ -70,20 +69,12 @@ func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption,
 	return resultsWheelOptions, nil
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-
-func (r *queryResolver) WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelWinStat, error) {
-	var wheelWinResults []*model.WheelWinStat
+// WheelResults is the resolver for the wheelResults field.
+func (r *queryResolver) WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelResult, error) {
+	var wheelWinResults []*model.WheelResult
 
 	for _, wheelWin := range wheel.GetWheelRuns(from, to) {
-		wheelWinResults = append(wheelWinResults, &model.WheelWinStat{
+		wheelWinResults = append(wheelWinResults, &model.WheelResult{
 			ID:   wheelWin.ID,
 			Date: wheelWin.Date,
 			Winner: &model.Person{
@@ -100,6 +91,12 @@ func (r *queryResolver) WheelResults(ctx context.Context, from string, to *strin
 
 	return wheelWinResults, nil
 }
-func (r *mutationResolver) DeleteMutation(ctx context.Context, id string) (*model.DeleteResponse, error) {
-	panic(fmt.Errorf("not implemented: DeleteMutation - deleteMutation"))
-}
+
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

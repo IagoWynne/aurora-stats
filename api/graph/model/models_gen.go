@@ -12,6 +12,10 @@ type DeleteResponse struct {
 	Success bool   `json:"success"`
 }
 
+type InsertResponse struct {
+	ID string `json:"id"`
+}
+
 type Mutation struct {
 }
 
@@ -30,13 +34,6 @@ type WheelOption struct {
 }
 
 type WheelResult struct {
-	ID       string `json:"id"`
-	Date     string `json:"date"`
-	OptionID int    `json:"optionId"`
-	PersonID int    `json:"personId"`
-}
-
-type WheelWinStat struct {
 	ID     string       `json:"id"`
 	Date   string       `json:"date"`
 	Winner *Person      `json:"winner"`

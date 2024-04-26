@@ -52,6 +52,10 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	InsertResponse struct {
+		ID func(childComplexity int) int
+	}
+
 	Mutation struct {
 		AddWheelOption func(childComplexity int, name string) int
 		AddWheelRun    func(childComplexity int, date string, winnerID int, resultID int) int
@@ -77,13 +81,6 @@ type ComplexityRoot struct {
 	}
 
 	WheelResult struct {
-		Date     func(childComplexity int) int
-		ID       func(childComplexity int) int
-		OptionID func(childComplexity int) int
-		PersonID func(childComplexity int) int
-	}
-
-	WheelWinStat struct {
 		Date   func(childComplexity int) int
 		ID     func(childComplexity int) int
 		Prize  func(childComplexity int) int
@@ -92,15 +89,15 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreatePerson(ctx context.Context, firstName string, lastName string) (*model.Person, error)
+	CreatePerson(ctx context.Context, firstName string, lastName string) (*model.InsertResponse, error)
 	DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error)
-	AddWheelOption(ctx context.Context, name string) (*model.WheelOption, error)
-	AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.WheelResult, error)
+	AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error)
+	AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.InsertResponse, error)
 }
 type QueryResolver interface {
 	People(ctx context.Context) ([]*model.Person, error)
 	WheelOptions(ctx context.Context) ([]*model.WheelOption, error)
-	WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelWinStat, error)
+	WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelResult, error)
 }
 
 type executableSchema struct {
@@ -135,6 +132,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteResponse.Success(childComplexity), true
+
+	case "InsertResponse.id":
+		if e.complexity.InsertResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.InsertResponse.ID(childComplexity), true
 
 	case "Mutation.addWheelOption":
 		if e.complexity.Mutation.AddWheelOption == nil {
@@ -259,47 +263,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WheelResult.ID(childComplexity), true
 
-	case "WheelResult.optionId":
-		if e.complexity.WheelResult.OptionID == nil {
+	case "WheelResult.prize":
+		if e.complexity.WheelResult.Prize == nil {
 			break
 		}
 
-		return e.complexity.WheelResult.OptionID(childComplexity), true
+		return e.complexity.WheelResult.Prize(childComplexity), true
 
-	case "WheelResult.personId":
-		if e.complexity.WheelResult.PersonID == nil {
+	case "WheelResult.winner":
+		if e.complexity.WheelResult.Winner == nil {
 			break
 		}
 
-		return e.complexity.WheelResult.PersonID(childComplexity), true
-
-	case "WheelWinStat.date":
-		if e.complexity.WheelWinStat.Date == nil {
-			break
-		}
-
-		return e.complexity.WheelWinStat.Date(childComplexity), true
-
-	case "WheelWinStat.id":
-		if e.complexity.WheelWinStat.ID == nil {
-			break
-		}
-
-		return e.complexity.WheelWinStat.ID(childComplexity), true
-
-	case "WheelWinStat.prize":
-		if e.complexity.WheelWinStat.Prize == nil {
-			break
-		}
-
-		return e.complexity.WheelWinStat.Prize(childComplexity), true
-
-	case "WheelWinStat.winner":
-		if e.complexity.WheelWinStat.Winner == nil {
-			break
-		}
-
-		return e.complexity.WheelWinStat.Winner(childComplexity), true
+		return e.complexity.WheelResult.Winner(childComplexity), true
 
 	}
 	return 0, false
@@ -678,6 +654,50 @@ func (ec *executionContext) fieldContext_DeleteResponse_success(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _InsertResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.InsertResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_InsertResponse_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_InsertResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InsertResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createPerson(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createPerson(ctx, field)
 	if err != nil {
@@ -704,9 +724,9 @@ func (ec *executionContext) _Mutation_createPerson(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Person)
+	res := resTmp.(*model.InsertResponse)
 	fc.Result = res
-	return ec.marshalNPerson2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐPerson(ctx, field.Selections, res)
+	return ec.marshalNInsertResponse2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐInsertResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createPerson(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -718,13 +738,9 @@ func (ec *executionContext) fieldContext_Mutation_createPerson(ctx context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Person_id(ctx, field)
-			case "firstName":
-				return ec.fieldContext_Person_firstName(ctx, field)
-			case "lastName":
-				return ec.fieldContext_Person_lastName(ctx, field)
+				return ec.fieldContext_InsertResponse_id(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Person", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type InsertResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -828,9 +844,9 @@ func (ec *executionContext) _Mutation_addWheelOption(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.WheelOption)
+	res := resTmp.(*model.InsertResponse)
 	fc.Result = res
-	return ec.marshalNWheelOption2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelOption(ctx, field.Selections, res)
+	return ec.marshalNInsertResponse2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐInsertResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addWheelOption(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -842,11 +858,9 @@ func (ec *executionContext) fieldContext_Mutation_addWheelOption(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_WheelOption_id(ctx, field)
-			case "name":
-				return ec.fieldContext_WheelOption_name(ctx, field)
+				return ec.fieldContext_InsertResponse_id(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type WheelOption", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type InsertResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -889,9 +903,9 @@ func (ec *executionContext) _Mutation_addWheelRun(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.WheelResult)
+	res := resTmp.(*model.InsertResponse)
 	fc.Result = res
-	return ec.marshalNWheelResult2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResult(ctx, field.Selections, res)
+	return ec.marshalNInsertResponse2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐInsertResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addWheelRun(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -903,15 +917,9 @@ func (ec *executionContext) fieldContext_Mutation_addWheelRun(ctx context.Contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_WheelResult_id(ctx, field)
-			case "date":
-				return ec.fieldContext_WheelResult_date(ctx, field)
-			case "optionId":
-				return ec.fieldContext_WheelResult_optionId(ctx, field)
-			case "personId":
-				return ec.fieldContext_WheelResult_personId(ctx, field)
+				return ec.fieldContext_InsertResponse_id(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type WheelResult", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type InsertResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -1188,9 +1196,9 @@ func (ec *executionContext) _Query_wheelResults(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.WheelWinStat)
+	res := resTmp.([]*model.WheelResult)
 	fc.Result = res
-	return ec.marshalNWheelWinStat2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelWinStatᚄ(ctx, field.Selections, res)
+	return ec.marshalNWheelResult2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResultᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_wheelResults(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1202,15 +1210,15 @@ func (ec *executionContext) fieldContext_Query_wheelResults(ctx context.Context,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_WheelWinStat_id(ctx, field)
+				return ec.fieldContext_WheelResult_id(ctx, field)
 			case "date":
-				return ec.fieldContext_WheelWinStat_date(ctx, field)
+				return ec.fieldContext_WheelResult_date(ctx, field)
 			case "winner":
-				return ec.fieldContext_WheelWinStat_winner(ctx, field)
+				return ec.fieldContext_WheelResult_winner(ctx, field)
 			case "prize":
-				return ec.fieldContext_WheelWinStat_prize(ctx, field)
+				return ec.fieldContext_WheelResult_prize(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type WheelWinStat", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type WheelResult", field.Name)
 		},
 	}
 	defer func() {
@@ -1532,184 +1540,8 @@ func (ec *executionContext) fieldContext_WheelResult_date(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _WheelResult_optionId(ctx context.Context, field graphql.CollectedField, obj *model.WheelResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WheelResult_optionId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OptionID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WheelResult_optionId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WheelResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WheelResult_personId(ctx context.Context, field graphql.CollectedField, obj *model.WheelResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WheelResult_personId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PersonID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WheelResult_personId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WheelResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WheelWinStat_id(ctx context.Context, field graphql.CollectedField, obj *model.WheelWinStat) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WheelWinStat_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WheelWinStat_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WheelWinStat",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WheelWinStat_date(ctx context.Context, field graphql.CollectedField, obj *model.WheelWinStat) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WheelWinStat_date(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Date, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WheelWinStat_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WheelWinStat",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WheelWinStat_winner(ctx context.Context, field graphql.CollectedField, obj *model.WheelWinStat) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WheelWinStat_winner(ctx, field)
+func (ec *executionContext) _WheelResult_winner(ctx context.Context, field graphql.CollectedField, obj *model.WheelResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WheelResult_winner(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1739,9 +1571,9 @@ func (ec *executionContext) _WheelWinStat_winner(ctx context.Context, field grap
 	return ec.marshalNPerson2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐPerson(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WheelWinStat_winner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WheelResult_winner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WheelWinStat",
+		Object:     "WheelResult",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1760,8 +1592,8 @@ func (ec *executionContext) fieldContext_WheelWinStat_winner(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _WheelWinStat_prize(ctx context.Context, field graphql.CollectedField, obj *model.WheelWinStat) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WheelWinStat_prize(ctx, field)
+func (ec *executionContext) _WheelResult_prize(ctx context.Context, field graphql.CollectedField, obj *model.WheelResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WheelResult_prize(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1791,9 +1623,9 @@ func (ec *executionContext) _WheelWinStat_prize(ctx context.Context, field graph
 	return ec.marshalNWheelOption2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelOption(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WheelWinStat_prize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WheelResult_prize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "WheelWinStat",
+		Object:     "WheelResult",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3669,6 +3501,45 @@ func (ec *executionContext) _DeleteResponse(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var insertResponseImplementors = []string{"InsertResponse"}
+
+func (ec *executionContext) _InsertResponse(ctx context.Context, sel ast.SelectionSet, obj *model.InsertResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, insertResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("InsertResponse")
+		case "id":
+			out.Values[i] = ec._InsertResponse_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3969,67 +3840,13 @@ func (ec *executionContext) _WheelResult(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "optionId":
-			out.Values[i] = ec._WheelResult_optionId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "personId":
-			out.Values[i] = ec._WheelResult_personId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var wheelWinStatImplementors = []string{"WheelWinStat"}
-
-func (ec *executionContext) _WheelWinStat(ctx context.Context, sel ast.SelectionSet, obj *model.WheelWinStat) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, wheelWinStatImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WheelWinStat")
-		case "id":
-			out.Values[i] = ec._WheelWinStat_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "date":
-			out.Values[i] = ec._WheelWinStat_date(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "winner":
-			out.Values[i] = ec._WheelWinStat_winner(ctx, field, obj)
+			out.Values[i] = ec._WheelResult_winner(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "prize":
-			out.Values[i] = ec._WheelWinStat_prize(ctx, field, obj)
+			out.Values[i] = ec._WheelResult_prize(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4426,6 +4243,20 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) marshalNInsertResponse2auroraᚑstatsᚋapiᚋgraphᚋmodelᚐInsertResponse(ctx context.Context, sel ast.SelectionSet, v model.InsertResponse) graphql.Marshaler {
+	return ec._InsertResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNInsertResponse2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐInsertResponse(ctx context.Context, sel ast.SelectionSet, v *model.InsertResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._InsertResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4439,10 +4270,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNPerson2auroraᚑstatsᚋapiᚋgraphᚋmodelᚐPerson(ctx context.Context, sel ast.SelectionSet, v model.Person) graphql.Marshaler {
-	return ec._Person(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNPerson2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐPersonᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Person) graphql.Marshaler {
@@ -4514,10 +4341,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNWheelOption2auroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelOption(ctx context.Context, sel ast.SelectionSet, v model.WheelOption) graphql.Marshaler {
-	return ec._WheelOption(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNWheelOption2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelOptionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WheelOption) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -4572,21 +4395,7 @@ func (ec *executionContext) marshalNWheelOption2ᚖauroraᚑstatsᚋapiᚋgraph�
 	return ec._WheelOption(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNWheelResult2auroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResult(ctx context.Context, sel ast.SelectionSet, v model.WheelResult) graphql.Marshaler {
-	return ec._WheelResult(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNWheelResult2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResult(ctx context.Context, sel ast.SelectionSet, v *model.WheelResult) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._WheelResult(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNWheelWinStat2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelWinStatᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WheelWinStat) graphql.Marshaler {
+func (ec *executionContext) marshalNWheelResult2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WheelResult) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4610,7 +4419,7 @@ func (ec *executionContext) marshalNWheelWinStat2ᚕᚖauroraᚑstatsᚋapiᚋgr
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNWheelWinStat2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelWinStat(ctx, sel, v[i])
+			ret[i] = ec.marshalNWheelResult2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResult(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4630,14 +4439,14 @@ func (ec *executionContext) marshalNWheelWinStat2ᚕᚖauroraᚑstatsᚋapiᚋgr
 	return ret
 }
 
-func (ec *executionContext) marshalNWheelWinStat2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelWinStat(ctx context.Context, sel ast.SelectionSet, v *model.WheelWinStat) graphql.Marshaler {
+func (ec *executionContext) marshalNWheelResult2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelResult(ctx context.Context, sel ast.SelectionSet, v *model.WheelResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WheelWinStat(ctx, sel, v)
+	return ec._WheelResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

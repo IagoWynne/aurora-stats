@@ -5,37 +5,63 @@ type DeleteResponse {
   success: Boolean!
 }
 
-# Person management
+type InsertResponse {
+  id: ID!
+}
+
+# Options
 type Person {
   id: ID!
   firstName: String!
   lastName: String!
 }
 
-# Wheel Stats
 type WheelOption {
   id: ID!
   name: String!
 }
 
+# Wheel Stats
 type WheelResult {
-  id: ID!
-  date: String!
-  optionId: Int!
-  personId: Int!
-}
-
-type WheelWinStat {
   id: ID!
   date: String!
   winner: Person!
   prize: WheelOption!
 }
 
+# type WheelPersonTotal {
+#   person: Person!
+#   wins: Int!
+# }
+
+# type WheelOptionTotal {
+#   option: WheelOption!
+#   wins: Int!
+# }
+
+# type WheelPersonStats {
+#   person: Person!
+#   totalWins: Int!
+#   results: [WheelOptionTotal!]!
+# }
+
+# type WheelOptionStats {
+#   option: WheelOption!
+#   totalWins: Int!
+#   people: [WheelPersonTotal!]!
+# }
+
+# type WheelStats {
+#   people: [WheelPersonStats!]!
+#   results: [WheelOptionStats!]!
+#   totalWins: Int!
+# }
+
 type Query {
   people: [Person!]!
   wheelOptions: [WheelOption!]!
-  wheelResults(from: String!, to: String): [WheelWinStat!]!
+  wheelResults(from: String!, to: String): [WheelResult!]!
+  # wheelStats(from: String!, to: String): WheelStats!
 }
 
 input AvailableOption {
@@ -44,8 +70,8 @@ input AvailableOption {
 }
 
 type Mutation {
-  createPerson(firstName: String!, lastName: String!): Person!
+  createPerson(firstName: String!, lastName: String!): InsertResponse!
   deletePerson(id: ID!): DeleteResponse!
-  addWheelOption(name: String!): WheelOption!
-  addWheelRun(date: String!, winnerId: Int!, resultId: Int!): WheelResult!
+  addWheelOption(name: String!): InsertResponse!
+  addWheelRun(date: String!, winnerId: Int!, resultId: Int!): InsertResponse!
 }

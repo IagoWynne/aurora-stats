@@ -1,9 +1,10 @@
 import { createUseStyles } from "react-jss";
-import { WheelContextProvider } from "../../contexts/WheelContext";
+import { WheelRunContextProvider } from "../../contexts/WheelRunContext";
 import { SectionContainer } from "../../../Common";
 import WheelResultsTable from "../WheelStats/WheelResultsTable";
 import PeopleWheel from "./PeopleWheel";
 import AddResultForm from "./AddResultForm";
+import { Link } from "react-router-dom";
 
 const useStyles = createUseStyles({
   title: {
@@ -11,32 +12,27 @@ const useStyles = createUseStyles({
     fontWeight: "bold",
     paddingBottom: "1rem",
   },
-  dateLabel: {
-    fontWeight: "bold",
-    display: "block",
-  },
 });
 
 const WheelResults = (): JSX.Element => {
   const styles = useStyles();
 
   return (
-    <WheelContextProvider>
+    <WheelRunContextProvider>
+      <Link to="/wheel/stats">Wheel Stats</Link>
       {/* <SectionContainer>
         <p className={styles.title}>The Wheel</p>
         <div className={styles.container}>
           <PeopleWheel />
         </div>
       </SectionContainer> */}
-      <SectionContainer>
-        <p className={styles.title}>Add Wheel Result</p>
+      <SectionContainer title="Add Wheel Result">
         <AddResultForm />
       </SectionContainer>
-      <SectionContainer>
-        <p className={styles.title}>Recent Runs</p>
+      <SectionContainer title="Recent Runs">
         <WheelResultsTable />
       </SectionContainer>
-    </WheelContextProvider>
+    </WheelRunContextProvider>
   );
 };
 

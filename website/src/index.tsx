@@ -12,6 +12,7 @@ import ErrorPage from "./ErrorPage";
 import { People } from "./People";
 import "./index.css";
 import { Wheel, WheelOptions } from "./Wheel";
+import WheelStats from "./Wheel/components/WheelStats/WheelStats";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -37,12 +38,14 @@ const router = createBrowserRouter([
       {
         path: "/wheel",
         element: <Wheel />,
-        children: [
-          {
-            path: "/wheel/options",
-            element: <WheelOptions />
-          }
-        ]
+      },
+      {
+        path: "/wheel/options",
+        element: <WheelOptions />,
+      },
+      {
+        path: "/wheel/stats",
+        element: <WheelStats />,
       },
     ],
   },
