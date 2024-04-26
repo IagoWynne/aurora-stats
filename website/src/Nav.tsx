@@ -42,7 +42,7 @@ const Nav = (): JSX.Element => {
 
   const links: { to: string; label: string }[] = [
     { to: "/wheel", label: "Wheel"},
-    { to: "/fingeronthepulse", label: "Finger on the Pulse"},
+    { to: "/vibecheck", label: "Vibe Check"},
     { to: "/people", label: "People" },
   ];
 

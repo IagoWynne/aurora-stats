@@ -32,7 +32,7 @@ const WheelResultsTable = (): JSX.Element => {
 
   // TODO - these dates should probably be passed in as props
   const now = Date.now();
-  const from = new Date(subDays(now, 7));
+  const from = new Date(subDays(now, 14));
 
   const { loading, error, data } = useQuery(GET_WHEEL_RESULTS_BETWEEN, {
     variables: {
@@ -47,8 +47,6 @@ const WheelResultsTable = (): JSX.Element => {
   if (error) {
     return <div>Error! {error.message}</div>;
   }
-
-  console.log(data);
 
   const results = data.wheelResults.map(
     (result: {

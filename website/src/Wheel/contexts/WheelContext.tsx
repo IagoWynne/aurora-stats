@@ -6,7 +6,7 @@ import {
   RECORD_WHEEL_WIN_MUTATION,
   GET_WHEEL_RESULTS_BETWEEN,
 } from "../queries";
-import { formatDate } from "date-fns";
+import { formatDate, subDays } from "date-fns";
 
 export interface WheelState {
   wheelOptions: WheelOptionType[];
@@ -32,21 +32,32 @@ export const WheelContextProvider: (
   } = useQuery(GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY);
   const [addWheelWin, { loading: addWheelLoading, error: addWheelError }] =
     useMutation(RECORD_WHEEL_WIN_MUTATION, {
-      refetchQueries: [{ query: GET_WHEEL_RESULTS_BETWEEN }],
+      refetchQueries: [
+        {
+          query: GET_WHEEL_RESULTS_BETWEEN,
+          variables: {
+            from: formatDate(new Date(subDays(new Date(), 14)), "yyyy-MM-dd"),
+            to: formatDate(new Date(), "yyyy-MM-dd"),
+          },
+        },
+      ],
     });
   const [winnerId, setWinnerId] = useState<number | null>(null);
   const [resultId, setResultId] = useState<number | null>(null);
   const [runDate, setRunDate] = useState(new Date());
 
-  const recordWheelWin = () => {
+  const recordWheelWin = async () => {
     if (winnerId && resultId) {
-      addWheelWin({
+      await addWheelWin({
         variables: {
           date: formatDate(runDate, "yyyy-MM-dd"),
           winnerId,
           resultId,
         },
       });
+
+      setWinnerId(null);
+      setResultId(null);
     }
   };
 

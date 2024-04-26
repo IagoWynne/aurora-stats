@@ -5,7 +5,6 @@ const Wheel = (): JSX.Element => {
   return (
     <>
       <WheelRun />
-      <WheelStats />
     </>
   );
 };
