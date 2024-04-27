@@ -1,0 +1,27 @@
+networks:
+  aurora-s:
+    external: false
+
+services:
+  db:
+    image: mysql:latest
+    networks:
+      - aurora-s
+    command: --authentication_policy=caching_sha2_password
+    environment:
+      MYSQL_ROOT_PASSWORD: dbpass
+      MYSQL_DATABASE: aurora-stats
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db:/var/lib/mysql
+  
+  flyway:
+    image: flyway/flyway
+    networks:
+      - aurora-s
+    command: -url=jdbc:mysql://db:3306 -schemas=aurora-stats -user=root -password=dbpass -connectRetries=50 migrate
+    volumes: 
+      - ./mysql/migrations:/flyway/sql
+    depends_on:
+      - db
