@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"log"
+	"os"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/source/file"
@@ -10,9 +12,29 @@ import (
 
 var Db *sql.DB
 
+// Use 172.17.0.2 if you're using windows
+const defaultHost = "localhost"
+
+func BuildConnectionString() string {
+	var sb strings.Builder
+	host := os.Getenv("DB_HOST")
+
+	if host == "" {
+		host = defaultHost
+	}
+
+	sb.WriteString("root:dbpass@tcp(")
+	sb.WriteString(host)
+	sb.WriteString(")/aurora-stats")
+
+	return sb.String()
+}
+
 func InitDB() {
-	// Use root:dbpass@tcp(172.17.0.2)/aurora-stats, if you're using Windows.
-	db, err := sql.Open("mysql", "root:dbpass@tcp(localhost)/aurora-stats")
+	connectionString := BuildConnectionString()
+
+	// TODO: need to implement some kind of retry here
+	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -26,19 +48,3 @@ func InitDB() {
 func CloseDB() error {
 	return Db.Close()
 }
-
-// func Migrate() {
-// 	if err := Db.Ping(); err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	driver, _ := mysql.WithInstance(Db, &mysql.Config{})
-// 	m, _ := migrate.NewWithDatabaseInstance(
-// 		"file://internal/pkg/db/migrations/mysql",
-// 		"mysql",
-// 		driver,
-// 	)
-// 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-// 		log.Fatal(err)
-// 	}
-
-// }

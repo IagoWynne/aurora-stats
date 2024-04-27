@@ -1,12 +1,12 @@
 networks:
-  aurora-s:
+  aurora:
     external: false
 
 services:
   db:
     image: mysql:latest
     networks:
-      - aurora-s
+      - aurora
     command: --authentication_policy=caching_sha2_password
     environment:
       MYSQL_ROOT_PASSWORD: dbpass
@@ -14,14 +14,33 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./db:/var/lib/mysql
+      - ./mysql/db:/var/lib/mysql
   
   flyway:
     image: flyway/flyway
     networks:
-      - aurora-s
+      - aurora
     command: -url=jdbc:mysql://db:3306 -schemas=aurora-stats -user=root -password=dbpass -connectRetries=50 migrate
     volumes: 
       - ./mysql/migrations:/flyway/sql
+    depends_on:
+      - db
+
+  api:
+    networks:
+      - aurora
+    build:
+      dockerfile: api.dockerfile
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: dbpass
+    develop:
+    # TODO - this doesn't appear to be working properly
+      watch:
+        - path: ./api
+          action: rebuild
+    ports:
+      - 8080:8080
     depends_on:
       - db
