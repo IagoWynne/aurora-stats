@@ -5,6 +5,7 @@ import (
 	database "aurora-stats/api/internal/pkg/db/mysql"
 	"log"
 	"net/http"
+	"net"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -17,10 +18,25 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
+
+func GetOutboundIP() net.IP {
+    conn, err := net.Dial("udp", "8.8.8.8:80")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer conn.Close()
+
+    localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+    return localAddr.IP
+}
+
 const defaultPort = "8080"
+const defaultHost = "localhost"
 
 func main() {
 	port := os.Getenv("PORT")
+	
 	if port == "" {
 		port = defaultPort
 	}
@@ -54,6 +70,8 @@ func main() {
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	host := GetOutboundIP()
+
+	log.Printf("connect to http://%s:%s/ for GraphQL playground", host, port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

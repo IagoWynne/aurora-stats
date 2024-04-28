@@ -9,10 +9,6 @@
 # testing
 /coverage
 
-# next.js
-/website/.next/
-/out/
-
 # production
 */build
 */dist
@@ -37,3 +33,6 @@ yarn-error.log*
 next-env.d.ts
 
 api-js/*
+
+# local db volume
+mysql/db/*
