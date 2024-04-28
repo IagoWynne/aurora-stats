@@ -1,5 +1,5 @@
 import { createUseStyles } from "react-jss";
-import { AURORA_LIGHT_GREEN } from "../../COLOURS";
+import { AURORA_LIGHT_GREEN } from "../../Colours";
 import { PropsWithChildren } from "react";
 
 const useStyles = createUseStyles({

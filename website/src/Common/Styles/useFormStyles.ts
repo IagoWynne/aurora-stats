@@ -1,5 +1,5 @@
 import { createUseStyles } from "react-jss";
-import { AURORA_LIGHT_GREEN, AURORA_LIGHT_HOVER } from "../../COLOURS";
+import { AURORA_LIGHT_GREEN, AURORA_LIGHT_HOVER } from "../../Colours";
 
 const useFormStyles = createUseStyles({
   form: {

@@ -1,6 +1,6 @@
 import { createUseStyles } from "react-jss";
 import { Link } from "react-router-dom";
-import { WHITE, AURORA_LIGHT_GREEN, AURORA_DARK_GREEN } from "./COLOURS";
+import { WHITE, AURORA_LIGHT_GREEN, AURORA_DARK_GREEN } from "./Colours";
 
 const useStyles = createUseStyles({
   nav: {

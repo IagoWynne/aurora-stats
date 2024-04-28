@@ -14,7 +14,7 @@ import {
   AURORA_DARK_GREEN,
   AURORA_LIGHT_GREEN,
   AURORA_LIGHT_HOVER,
-} from "../../../COLOURS";
+} from "../../../Colours";
 
 const WinsPerPersonGraph = (): JSX.Element => {
   const { people, wheelOptions } = useWheelContext();

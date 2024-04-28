@@ -4,7 +4,7 @@ import { WheelOptionType } from "../../types";
 import AddWheelOption from "./AddWheelOption";
 import { GET_WHEEL_OPTIONS_QUERY } from "../queries";
 import { createUseStyles } from "react-jss";
-import { AURORA_LIGHT_GREEN, AURORA_LIGHT_HOVER } from "../../COLOURS";
+import { AURORA_LIGHT_GREEN, AURORA_LIGHT_HOVER } from "../../Colours";
 
 const useStyles = createUseStyles({
   addButton: {
