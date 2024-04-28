@@ -1,7 +1,7 @@
-import { AURORA_DARK_GREEN, AURORA_LIGHT_GREEN } from "../../Colours";
+import { AURORA_DARK_GREEN, AURORA_LIGHT_GREEN } from "../../COLOURS";
 
 export default class WheelModel {
-  private colours: string[];
+  private COLOURS: string[];
   private centreX: number;
   private centreY: number;
   private radius: number;
@@ -15,7 +15,7 @@ export default class WheelModel {
     private size: number,
     private ctx: CanvasRenderingContext2D
   ) {
-    this.colours = [
+    this.COLOURS = [
       AURORA_DARK_GREEN,
       AURORA_LIGHT_GREEN,
       "#4ddabd",
@@ -95,7 +95,7 @@ export default class WheelModel {
   }
 
   private getColour(itemNumber: number): string {
-    return this.colours[(itemNumber + 1) % (this.colours.length - 1)];
+    return this.COLOURS[(itemNumber + 1) % (this.COLOURS.length - 1)];
   }
 
   private drawLabel(arcStartPoint: number, arcEndPoint: number, label: string) {

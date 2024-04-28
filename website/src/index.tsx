@@ -18,7 +18,8 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
-const httpLink = createHttpLink({ uri: "http://localhost:8080/query" });
+const host = "172.20.0.3";
+const httpLink = createHttpLink({ uri: `http://${host}:8080/query` });
 
 const client = new ApolloClient({
   link: httpLink,

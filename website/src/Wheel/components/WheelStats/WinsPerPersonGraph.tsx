@@ -14,7 +14,7 @@ import {
   AURORA_DARK_GREEN,
   AURORA_LIGHT_GREEN,
   AURORA_LIGHT_HOVER,
-} from "../../../Colours";
+} from "../../../COLOURS";
 
 const WinsPerPersonGraph = (): JSX.Element => {
   const { people, wheelOptions } = useWheelContext();
@@ -33,7 +33,7 @@ const WinsPerPersonGraph = (): JSX.Element => {
     return result;
   });
 
-  const colours = [
+  const COLOURS = [
     AURORA_LIGHT_GREEN,
     AURORA_BLUE,
     AURORA_LIGHT_HOVER,
@@ -48,7 +48,7 @@ const WinsPerPersonGraph = (): JSX.Element => {
         <Tooltip />
         <Legend />
         {wheelOptionNames.map((optionName, i) => (
-          <Bar key={i} dataKey={optionName} fill={colours[i]} />
+          <Bar key={i} dataKey={optionName} fill={COLOURS[i]} />
         ))}
       </BarChart>
     </ResponsiveContainer>
