@@ -34,7 +34,8 @@ services:
     environment:
       DB_HOST: db
       DB_USER: root
-      DB_PASSWORD: dbpass
+      DB_PASS: dbpass
+      PORT: 8080
     develop:
     # TODO - this doesn't appear to be working properly
       watch:
@@ -44,3 +45,15 @@ services:
       - 8080:8080
     depends_on:
       - db
+
+  # website:
+  #   networks:
+  #     - aurora
+  #   image: node:22.0.0-alpine3.18
+  #   volumes: 
+  #     - ./website:/app
+  #   depends_on:
+  #     - api
+  #   environment:
+  #     API: api
+  #   command: yarn install && yarn start

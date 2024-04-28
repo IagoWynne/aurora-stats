@@ -7,23 +7,24 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/golang-migrate/migrate/source/file"
+	"github.com/avast/retry-go"
 )
 
 var Db *sql.DB
 
 // Use 172.17.0.2 if you're using windows
-const defaultHost = "localhost"
+// const defaultHost = "localhost"
 
 func BuildConnectionString() string {
 	var sb strings.Builder
 	host := os.Getenv("DB_HOST")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
 
-	if host == "" {
-		host = defaultHost
-	}
-
-	sb.WriteString("root:dbpass@tcp(")
+	sb.WriteString(dbUser)
+	sb.WriteString(":")
+	sb.WriteString(dbPass)
+	sb.WriteString("@tcp(")
 	sb.WriteString(host)
 	sb.WriteString(")/aurora-stats")
 
@@ -33,16 +34,24 @@ func BuildConnectionString() string {
 func InitDB() {
 	connectionString := BuildConnectionString()
 
-	// TODO: need to implement some kind of retry here
-	db, err := sql.Open("mysql", connectionString)
+	err := retry.Do(
+		func () error {
+			db, err := sql.Open("mysql", connectionString)	
+			if err != nil {
+				return err
+			}
+
+			if err = db.Ping(); err != nil {
+				return err
+			}
+			Db = db
+			return nil
+		},
+	)
+
 	if err != nil {
 		log.Panic(err)
 	}
-
-	if err = db.Ping(); err != nil {
-		log.Panic(err)
-	}
-	Db = db
 }
 
 func CloseDB() error {
