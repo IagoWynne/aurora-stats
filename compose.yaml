@@ -36,11 +36,6 @@ services:
       DB_USER: root
       DB_PASS: dbpass
       PORT: 8080
-    develop:
-    # TODO - this doesn't appear to be working properly
-      watch:
-        - path: ./api
-          action: rebuild
     ports:
       - 8080:8080
     depends_on:
