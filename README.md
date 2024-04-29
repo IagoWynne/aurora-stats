@@ -1,14 +1,20 @@
 # Aurora Stats
+## Running the Project
+- Clone the repo
+- Checkout `main` branch
+- Run `docker compose up` from the root directory to run the app locally. Changes made to the website will automatically be picked up and included. Changes made to the api will require a full rebuild of the container.
+- By default, the site runs on `http://localhost:3000` and the graphql playground for the api is at `http://localhost:8080`
 
-## Website
+## Info
+### Website
 - Built with react
 - See `/website/README.md` for more info
 
-## API
+### API
 - GraphQL API build in go
 - See `/api/README.md` for more info
 
-## Database
+### Database
 - MySQL database
 - Migrations managed with Flyway
 - Migrations are stored in `/mysql/migrations`

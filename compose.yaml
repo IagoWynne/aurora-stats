@@ -40,3 +40,20 @@ services:
       - 8080:8080
     depends_on:
       - db
+
+  website:
+    networks:
+      - aurora
+    build:
+      dockerfile: website-dev.dockerfile
+      # context: ./website
+    command: yarn start
+    environment:
+      REACT_APP_API: localhost
+      REACT_APP_API_PORT: 8080
+    volumes:
+      - ./website:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
