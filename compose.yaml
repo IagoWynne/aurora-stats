@@ -46,8 +46,11 @@ services:
       - aurora
     build:
       dockerfile: website-dev.dockerfile
-      context: ./website
+      # context: ./website
     command: yarn start
+    environment:
+      REACT_APP_API: localhost
+      REACT_APP_API_PORT: 8080
     volumes:
       - ./website:/app
     ports:
