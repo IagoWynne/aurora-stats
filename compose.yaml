@@ -40,3 +40,17 @@ services:
       - 8080:8080
     depends_on:
       - db
+
+  website:
+    networks:
+      - aurora
+    build:
+      dockerfile: website-dev.dockerfile
+      context: ./website
+    command: yarn start
+    volumes:
+      - ./website:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
