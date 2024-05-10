@@ -9,18 +9,13 @@ import (
 	"aurora-stats/api/internal/people"
 	"aurora-stats/api/internal/wheel"
 	"context"
+	"errors"
 	"strconv"
 )
 
 // CreatePerson is the resolver for the createPerson field.
 func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, lastName string) (*model.InsertResponse, error) {
-	// creates a person using the struct from people module (this is the struct that interacts with the database)
-	var person people.Person
-	// sets the person's name based on the input
-	person.FirstName = firstName
-	person.LastName = lastName
-	// saves the person to the database and is returned their id
-	personID := person.Save()
+	personID := people.CreatePerson(ctx, firstName, lastName)
 
 	// returns the new person with their DB id
 	return &model.InsertResponse{ID: strconv.FormatInt(personID, 10)}, nil
@@ -28,14 +23,18 @@ func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, l
 
 // DeletePerson is the resolver for the deletePerson field.
 func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error) {
-	people.DeletePerson(id)
+	people.DeletePerson(ctx, id)
 
 	return &model.DeleteResponse{ID: id, Success: true}, nil
 }
 
 // AddWheelOption is the resolver for the addWheelOption field.
 func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error) {
-	wheelOptionID := wheel.SaveWheelOption(name)
+	wheelOptionID, err := wheel.SaveWheelOption(name)
+
+	if err != nil {
+		return nil, errors.New("there was an error saving the data")
+	}
 
 	return &model.InsertResponse{ID: strconv.FormatInt(wheelOptionID, 10)}, nil
 }
@@ -51,7 +50,7 @@ func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerI
 func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
 
-	for _, person := range people.GetAll() {
+	for _, person := range people.GetAll(ctx) {
 		resultsPeople = append(resultsPeople, &model.Person{ID: strconv.FormatInt(person.ID, 10), FirstName: person.FirstName, LastName: person.LastName})
 	}
 

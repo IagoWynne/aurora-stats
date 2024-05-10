@@ -2,10 +2,11 @@ package main
 
 import (
 	"aurora-stats/api/graph"
+	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
 	"log"
-	"net/http"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -18,31 +19,31 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-
 func GetOutboundIP() net.IP {
-    conn, err := net.Dial("udp", "8.8.8.8:80")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer conn.Close()
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
 
-    localAddr := conn.LocalAddr().(*net.UDPAddr)
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
-    return localAddr.IP
+	return localAddr.IP
 }
 
 const defaultPort = "8080"
-const defaultHost = "localhost"
 
 func main() {
 	port := os.Getenv("PORT")
-	
+
 	if port == "" {
 		port = defaultPort
 	}
 
 	database.InitDB()
 	defer database.CloseDB()
+
+	people.InitPeopleRepo(people.NewPersonRepository(database.Db))
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)

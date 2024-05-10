@@ -3,6 +3,7 @@ package wheel
 import (
 	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
+	"errors"
 	"log"
 	"time"
 )
@@ -30,30 +31,39 @@ type WheelRunResult struct {
 }
 
 type WheelResult struct {
-	ID     string        `json:"id"`
-	Date   string        `json:"date"`
-	Winner people.Person `json:"winner"`
-	Prize  WheelOption   `json:"result"`
+	ID     string              `json:"id"`
+	Date   string              `json:"date"`
+	Winner people.DomainPerson `json:"winner"`
+	Prize  WheelOption         `json:"result"`
 }
 
-func SaveWheelOption(name string) int64 {
+func SaveWheelOption(name string) (int64, error) {
+	if name == "" {
+		log.Printf("Error saving wheel option: name is empty")
+		// todo: custom error types
+		return 0, errors.New("name is required")
+	}
+
 	stmt, err := database.Db.Prepare("INSERT INTO wheel_option(option_name) VALUES(?)")
 	if err != nil {
-		log.Fatal(err)
+		log.Print("Error:", err.Error())
+		return 0, errors.New("there was an error saving the data")
 	}
 
 	res, err := stmt.Exec(name)
 	if err != nil {
-		log.Fatal(err)
+		log.Print("Error:", err.Error())
+		return 0, errors.New("there was an error saving the data")
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		log.Fatal("Error:", err.Error())
+		log.Print("Error:", err.Error())
+		return 0, errors.New("there was an error retrieving the id")
 	}
 
 	log.Print("Wheel option inserted with name: ", name, " and id: ", id)
-	return id
+	return id, nil
 }
 
 func GetAllWheelOptions() []WheelOption {

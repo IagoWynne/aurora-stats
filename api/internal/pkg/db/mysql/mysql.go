@@ -1,42 +1,28 @@
 package database
 
 import (
-	"database/sql"
 	"log"
 	"os"
-	"strings"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/avast/retry-go"
+	"github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
-var Db *sql.DB
-
-// Use 172.17.0.2 if you're using windows
-// const defaultHost = "localhost"
-
-func BuildConnectionString() string {
-	var sb strings.Builder
-	host := os.Getenv("DB_HOST")
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASS")
-
-	sb.WriteString(dbUser)
-	sb.WriteString(":")
-	sb.WriteString(dbPass)
-	sb.WriteString("@tcp(")
-	sb.WriteString(host)
-	sb.WriteString(")/aurora-stats")
-
-	return sb.String()
-}
+var Db *sqlx.DB
 
 func InitDB() {
-	connectionString := BuildConnectionString()
+	config := mysql.Config{
+		Addr:                 os.Getenv("DB_HOST"),
+		User:                 os.Getenv("DB_USER"),
+		Passwd:               os.Getenv("DB_PASS"),
+		DBName:               "aurora-stats",
+		AllowNativePasswords: true,
+	}
 
 	err := retry.Do(
-		func () error {
-			db, err := sql.Open("mysql", connectionString)	
+		func() error {
+			db, err := sqlx.Connect("mysql", config.FormatDSN())
 			if err != nil {
 				return err
 			}

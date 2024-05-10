@@ -1,77 +1,48 @@
 package people
 
 import (
-	database "aurora-stats/api/internal/pkg/db/mysql"
+	"context"
 	"log"
+	"strconv"
 )
 
-// definition of a structure which represents a person
-type Person struct {
-	ID        int64  `json:"id"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
+var repo Repository
+
+func InitPeopleRepo(repository Repository) {
+	repo = repository
 }
 
+// TODO - add validation logic for saving new person
+
 // function to save a person to the database
-func (person *Person) Save() int64 {
-	// mysql query to insert a person into the person table
-	stmt, err := database.Db.Prepare("INSERT INTO person(first_name, last_name) VALUES(?,?)")
+func CreatePerson(ctx context.Context, firstName string, lastName string) int64 {
+	id, err := repo.Create(ctx, firstName, lastName)
+
 	if err != nil {
-		log.Fatal(err)
+		return 0
 	}
 
-	// execute the query using person.fullname
-	res, err := stmt.Exec(person.FirstName, person.LastName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// get the last inserted id (in this case, the id of the new person)
-	id, err := res.LastInsertId()
-	if err != nil {
-		log.Fatal("Error:", err.Error())
-	}
-	log.Print("Person inserted with name: ", person.FirstName, " ", person.LastName, " and id: ", id)
-	return id
+	return *id
 }
 
 // function to get all people from the database
-func GetAll() []Person {
-	stmt, err := database.Db.Prepare("SELECT id, first_name, last_name FROM person where deleted = 0")
+func GetAll(ctx context.Context) []DomainPerson {
+	domainPeople, err := repo.GetAll(ctx)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer stmt.Close()
 
-	rows, err := stmt.Query()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	var people []Person
-	for rows.Next() {
-		var person Person
-		err := rows.Scan(&person.ID, &person.FirstName, &person.LastName)
-		if err != nil {
-			log.Fatal(err)
-		}
-		people = append(people, person)
-	}
-	if err = rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	return people
+	return domainPeople
 }
 
-func DeletePerson(id string) {
-	stmt, err := database.Db.Prepare("UPDATE person SET deleted = 1 WHERE id = ?")
+func DeletePerson(ctx context.Context, id string) {
+	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	_, err = stmt.Exec(id)
+	err = repo.Delete(ctx, i)
 	if err != nil {
 		log.Fatal(err)
 	}
