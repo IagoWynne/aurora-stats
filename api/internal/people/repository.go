@@ -1,7 +1,6 @@
 package people
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"log"
@@ -21,25 +20,25 @@ type PersonRepository struct {
 }
 
 type Repository interface {
-	Create(ctx context.Context, firstName string, lastName string) (*int64, error)
-	// Update(ctx context.Context, id int64, firstName string, lastName string) error
-	GetAll(ctx context.Context) ([]DomainPerson, error)
-	Delete(ctx context.Context, id int64) error
+	Create(firstName string, lastName string) (*int64, error)
+	// Update(id int64, firstName string, lastName string) error
+	GetAll() ([]DomainPerson, error)
+	Delete(id int64) error
 }
 
 func NewPersonRepository(db *sqlx.DB) *PersonRepository {
 	if db == nil {
-		panic("missing db")
+		log.Panic("missing db")
 	}
 
 	return &PersonRepository{db: db}
 }
 
-func (m PersonRepository) Create(ctx context.Context, firstName string, lastName string) (*int64, error) {
-	return m.create(ctx, m.db, firstName, lastName)
+func (m PersonRepository) Create(firstName string, lastName string) (*int64, error) {
+	return m.create(m.db, firstName, lastName)
 }
 
-func (m PersonRepository) create(ctx context.Context, db *sqlx.DB, firstName string, lastName string) (*int64, error) {
+func (m PersonRepository) create(db *sqlx.DB, firstName string, lastName string) (*int64, error) {
 	query := "INSERT INTO person(first_name, last_name) VALUES(:first_name, :last_name)"
 
 	result, err := db.NamedExec(query, mysqlPerson{
@@ -58,18 +57,17 @@ func (m PersonRepository) create(ctx context.Context, db *sqlx.DB, firstName str
 	return &id, nil
 }
 
-func (m PersonRepository) get(ctx context.Context, db *sqlx.DB, id int64, forUpdate bool) (*mysqlPerson, error) {
+func (m PersonRepository) get(db *sqlx.DB, id int64, forUpdate bool) (*mysqlPerson, error) {
 	query := "SELECT id, first_name, last_name, deleted from person WHERE id = ?"
 
 	if forUpdate {
 		query += " FOR UPDATE"
 	}
 
-	// query += " VALUES(:id)"
-
 	dbPerson := mysqlPerson{}
 
 	err := db.Get(&dbPerson, query, id)
+
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	} else if err != nil {
@@ -79,11 +77,11 @@ func (m PersonRepository) get(ctx context.Context, db *sqlx.DB, id int64, forUpd
 	return &dbPerson, err
 }
 
-func (m PersonRepository) GetAll(ctx context.Context) ([]DomainPerson, error) {
-	return m.getAll(ctx, m.db)
+func (m PersonRepository) GetAll() ([]DomainPerson, error) {
+	return m.getAll(m.db)
 }
 
-func (m PersonRepository) getAll(ctx context.Context, db *sqlx.DB) ([]DomainPerson, error) {
+func (m PersonRepository) getAll(db *sqlx.DB) ([]DomainPerson, error) {
 	query := "SELECT id, first_name, last_name FROM person where deleted = 0"
 
 	rows, err := db.Queryx(query)
@@ -105,7 +103,7 @@ func (m PersonRepository) getAll(ctx context.Context, db *sqlx.DB) ([]DomainPers
 	return people, nil
 }
 
-func (m PersonRepository) update(ctx context.Context, db *sqlx.DB, updatedPerson *mysqlPerson) (mysqlPerson, error) {
+func (m PersonRepository) update(db *sqlx.DB, updatedPerson *mysqlPerson) (mysqlPerson, error) {
 	tx, err := db.Beginx()
 	if err != nil {
 		log.Fatal(err)
@@ -129,12 +127,12 @@ func (m PersonRepository) update(ctx context.Context, db *sqlx.DB, updatedPerson
 	return *updatedPerson, nil
 }
 
-func (m PersonRepository) Delete(ctx context.Context, id int64) error {
-	return m.delete(ctx, m.db, id)
+func (m PersonRepository) Delete(id int64) error {
+	return m.delete(m.db, id)
 }
 
-func (m PersonRepository) delete(ctx context.Context, db *sqlx.DB, id int64) error {
-	person, err := m.get(ctx, db, id, true)
+func (m PersonRepository) delete(db *sqlx.DB, id int64) error {
+	person, err := m.get(db, id, true)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
 	} else if err != nil {
@@ -142,7 +140,7 @@ func (m PersonRepository) delete(ctx context.Context, db *sqlx.DB, id int64) err
 	}
 
 	person.Deleted = true
-	_, err = m.update(ctx, db, person)
+	_, err = m.update(db, person)
 	if err != nil {
 		log.Fatal(err)
 	}

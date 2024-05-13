@@ -1,7 +1,7 @@
 package people
 
 import (
-	"context"
+	customErrors "aurora-stats/api/internal/errors"
 	"log"
 	"strconv"
 )
@@ -12,22 +12,28 @@ func InitPeopleRepo(repository Repository) {
 	repo = repository
 }
 
-// TODO - add validation logic for saving new person
-
 // function to save a person to the database
-func CreatePerson(ctx context.Context, firstName string, lastName string) int64 {
-	id, err := repo.Create(ctx, firstName, lastName)
-
-	if err != nil {
-		return 0
+func CreatePerson(firstName string, lastName string) (*int64, error) {
+	if firstName == "" {
+		return nil, customErrors.NewRequiredValueMissingError("firstName")
 	}
 
-	return *id
+	if lastName == "" {
+		return nil, customErrors.NewRequiredValueMissingError("lastName")
+	}
+
+	id, err := repo.Create(firstName, lastName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return id, nil
 }
 
 // function to get all people from the database
-func GetAll(ctx context.Context) []DomainPerson {
-	domainPeople, err := repo.GetAll(ctx)
+func GetAll() []DomainPerson {
+	domainPeople, err := repo.GetAll()
 
 	if err != nil {
 		log.Fatal(err)
@@ -36,13 +42,13 @@ func GetAll(ctx context.Context) []DomainPerson {
 	return domainPeople
 }
 
-func DeletePerson(ctx context.Context, id string) {
+func DeletePerson(id string) {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		panic(err)
 	}
 
-	err = repo.Delete(ctx, i)
+	err = repo.Delete(i)
 	if err != nil {
 		log.Fatal(err)
 	}

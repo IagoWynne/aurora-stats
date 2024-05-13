@@ -15,15 +15,19 @@ import (
 
 // CreatePerson is the resolver for the createPerson field.
 func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, lastName string) (*model.InsertResponse, error) {
-	personID := people.CreatePerson(ctx, firstName, lastName)
+	personID, err := people.CreatePerson(firstName, lastName)
+
+	if err != nil {
+		return nil, err
+	}
 
 	// returns the new person with their DB id
-	return &model.InsertResponse{ID: strconv.FormatInt(personID, 10)}, nil
+	return &model.InsertResponse{ID: strconv.FormatInt(*personID, 10)}, nil
 }
 
 // DeletePerson is the resolver for the deletePerson field.
 func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error) {
-	people.DeletePerson(ctx, id)
+	people.DeletePerson(id)
 
 	return &model.DeleteResponse{ID: id, Success: true}, nil
 }
@@ -50,7 +54,7 @@ func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerI
 func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
 
-	for _, person := range people.GetAll(ctx) {
+	for _, person := range people.GetAll() {
 		resultsPeople = append(resultsPeople, &model.Person{ID: strconv.FormatInt(person.ID, 10), FirstName: person.FirstName, LastName: person.LastName})
 	}
 
