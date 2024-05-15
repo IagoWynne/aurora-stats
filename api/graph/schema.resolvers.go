@@ -27,7 +27,11 @@ func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, l
 
 // DeletePerson is the resolver for the deletePerson field.
 func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error) {
-	people.DeletePerson(id)
+	err := people.DeletePerson(id)
+
+	if err != nil {
+		return &model.DeleteResponse{ID: "", Success: false}, err
+	}
 
 	return &model.DeleteResponse{ID: id, Success: true}, nil
 }

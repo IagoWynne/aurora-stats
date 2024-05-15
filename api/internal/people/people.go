@@ -2,6 +2,7 @@ package people
 
 import (
 	customErrors "aurora-stats/api/internal/errors"
+	"errors"
 	"log"
 	"strconv"
 )
@@ -36,20 +37,25 @@ func GetAll() []DomainPerson {
 	domainPeople, err := repo.GetAll()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error retrieving people from repo: %s", err)
+		return []DomainPerson{}
 	}
 
 	return domainPeople
 }
 
-func DeletePerson(id string) {
+func DeletePerson(id string) error {
 	i, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		panic(err)
+		log.Printf("Error parsing ID for delete person: %s", err)
+		return errors.New("there was an error deleting this person")
 	}
 
 	err = repo.Delete(i)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error deleting person: %s", err)
+		return errors.New("there was an error deleting this person")
 	}
+
+	return nil
 }

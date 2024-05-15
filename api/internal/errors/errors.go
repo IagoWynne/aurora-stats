@@ -12,9 +12,11 @@ func (error *NotFoundError) Error() string {
 	return error.msg
 }
 
-func NewNotFoundError() error {
+func NewNotFoundError(entity string, id int64) error {
+	msg := fmt.Sprintf("could not find %s with ID %d", entity, id)
+
 	return &NotFoundError{
-		"Could not find record",
+		msg,
 	}
 }
 
@@ -28,7 +30,7 @@ func (error *RequiredValueMissingError) Error() string {
 
 func NewRequiredValueMissingError(field string) error {
 	msg :=
-		fmt.Sprintf("Required value missing: %s", field)
+		fmt.Sprintf("required value missing: %s", field)
 
 	return &RequiredValueMissingError{
 		msg,

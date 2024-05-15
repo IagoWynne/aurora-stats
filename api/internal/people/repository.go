@@ -1,6 +1,7 @@
 package people
 
 import (
+	customErrors "aurora-stats/api/internal/errors"
 	"database/sql"
 	"errors"
 	"log"
@@ -134,7 +135,7 @@ func (m PersonRepository) Delete(id int64) error {
 func (m PersonRepository) delete(db *sqlx.DB, id int64) error {
 	person, err := m.get(db, id, true)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil
+		return customErrors.NewNotFoundError("person", id)
 	} else if err != nil {
 		log.Fatal(err)
 	}
@@ -163,34 +164,3 @@ func (m PersonRepository) finishTransaction(err error, tx *sqlx.Tx) error {
 		return nil
 	}
 }
-
-// func (m MySQLPersonRepository) GetAll() ([]Person, error) {
-// 	query := "SELECT id, first_name, last_name FROM person where deleted = 0"
-
-// 	stmt, err := m.db.Prepare(query)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer stmt.Close()
-
-// 	rows, err := stmt.Query()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer rows.Close()
-
-// 	var people []Person
-// 	for rows.Next() {
-// 		var person Person
-// 		err := rows.Scan(&person.ID, &person.FirstName, &person.LastName)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// 		people = append(people, person)
-// 	}
-// 	if err = rows.Err(); err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	return people
-// }
