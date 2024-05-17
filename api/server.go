@@ -4,6 +4,7 @@ import (
 	"aurora-stats/api/graph"
 	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
+	"aurora-stats/api/internal/wheel"
 	"log"
 	"net"
 	"net/http"
@@ -44,6 +45,7 @@ func main() {
 	defer database.CloseDB()
 
 	people.InitPeopleRepo(people.NewPersonRepository(database.Db))
+	wheel.InitWheelRepo(wheel.NewWheelRepository(database.Db))
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
@@ -51,7 +53,7 @@ func main() {
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"*"}, //TODO - set this up to read from env variables
 		AllowCredentials: true,
 		Debug:            true,
 	}).Handler)

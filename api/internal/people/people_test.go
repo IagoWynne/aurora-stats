@@ -14,8 +14,8 @@ type mockPersonRepository struct {
 	deleteError  error
 }
 
-func (m mockPersonRepository) Create(firstName string, lastName string) (*int64, error) {
-	return &m.createdId, m.createError
+func (m mockPersonRepository) Create(firstName string, lastName string) (int64, error) {
+	return m.createdId, m.createError
 }
 
 func (m mockPersonRepository) GetAll() ([]DomainPerson, error) {
@@ -28,13 +28,13 @@ func (m mockPersonRepository) Delete(id int64) error {
 
 func TestCreatePerson(t *testing.T) {
 	cases := []struct {
-		createdId       int64
-		createError     error
-		name            string
-		expected        int64
-		validationError error
-		firstName       string
-		lastName        string
+		name          string
+		firstName     string
+		lastName      string
+		createdId     int64
+		createError   error
+		expected      int64
+		expectedError error
 	}{
 		{
 			name:        "It creates a new person and returns the id",
@@ -45,22 +45,23 @@ func TestCreatePerson(t *testing.T) {
 			lastName:    "Person",
 		},
 		{
-			name:        "It returns an error if there is an error creating the person in the repo",
-			createError: errors.New("Create person failed"),
-			firstName:   "Test",
-			lastName:    "Person",
+			name:          "It returns an error if there is an error creating the person in the repo",
+			createError:   errors.New("Create person failed"),
+			firstName:     "Test",
+			lastName:      "Person",
+			expectedError: errors.New("Create person failed"),
 		},
 		{
-			name:            "It returns a required value missing error for firstName if firstName is missing",
-			validationError: customErrors.NewRequiredValueMissingError("firstName"),
-			firstName:       "",
-			lastName:        "Person",
+			name:          "It returns a required value missing error for firstName if firstName is missing",
+			expectedError: customErrors.NewRequiredValueMissingError("firstName"),
+			firstName:     "",
+			lastName:      "Person",
 		},
 		{
-			name:            "It returns a required value missing error for lastName if lastName is missing",
-			validationError: customErrors.NewRequiredValueMissingError("lastName"),
-			firstName:       "Test",
-			lastName:        "",
+			name:          "It returns a required value missing error for lastName if lastName is missing",
+			expectedError: customErrors.NewRequiredValueMissingError("lastName"),
+			firstName:     "Test",
+			lastName:      "",
 		},
 	}
 
@@ -73,22 +74,16 @@ func TestCreatePerson(t *testing.T) {
 
 			actual, err := CreatePerson(tc.firstName, tc.lastName)
 
-			if tc.createError != nil {
+			if tc.expectedError != nil {
 				if err == nil {
-					t.Errorf("Expected error: %s. Got: nil", tc.createError)
-				} else if err.Error() != tc.createError.Error() {
-					t.Errorf("Expected error: %s. Got: %s", tc.createError, err)
-				}
-			} else if tc.validationError != nil {
-				if err == nil {
-					t.Errorf("Expected error: %s. Got nil", tc.validationError)
-				} else if err.Error() != tc.validationError.Error() {
-					t.Errorf("Expected error: %s. Got: %s", tc.validationError, err)
+					t.Errorf("Expected error: %s. Got nil", tc.expectedError)
+				} else if err.Error() != tc.expectedError.Error() {
+					t.Errorf("Expected error: %s. Got: %s", tc.expectedError, err)
 				}
 			} else if err != nil {
 				t.Errorf("Unexpected error: %s", err)
-			} else if *actual != tc.expected {
-				t.Errorf("Expected: %d. Got: %d", tc.expected, *actual)
+			} else if tc.expected != actual {
+				t.Errorf("Expected: %d. Got: %d", tc.expected, actual)
 			}
 		})
 	}
@@ -96,10 +91,11 @@ func TestCreatePerson(t *testing.T) {
 
 func TestGetAll(t *testing.T) {
 	cases := []struct {
-		name         string
-		expectedIds  []int64
-		getAllPeople []DomainPerson
-		getAllError  error
+		name          string
+		expectedIds   []int64
+		getAllPeople  []DomainPerson
+		getAllError   error
+		expectedError error
 	}{
 		{name: "It returns a list of people",
 			getAllPeople: []DomainPerson{
@@ -116,9 +112,9 @@ func TestGetAll(t *testing.T) {
 			expectedIds: []int64{1, 2},
 		},
 		{
-			name:        "It returns an empty array if there's an error retrieving people from the repo",
-			getAllError: errors.New("Error"),
-			expectedIds: []int64{},
+			name:          "It returns an error if there's an error retrieving people from the repo",
+			getAllError:   errors.New("Error"),
+			expectedError: errors.New("there was an error retrieving people"),
 		},
 	}
 
@@ -129,7 +125,17 @@ func TestGetAll(t *testing.T) {
 				getAllError:  tc.getAllError,
 			})
 
-			actual := GetAll()
+			actual, err := GetAll()
+
+			if tc.expectedError != nil {
+				if err == nil {
+					t.Errorf("Expected error: %s. Got nil", tc.expectedError)
+				} else if err.Error() != tc.expectedError.Error() {
+					t.Errorf("Expected error: %s. Got: %s", tc.expectedError, err)
+				}
+			} else if err != nil {
+				t.Errorf("Unexpected error: %s", err)
+			}
 
 			if len(actual) != len(tc.expectedIds) {
 				t.Errorf("Actual array length does not match expected array length. Expected: %v. Got: %v", len(tc.expectedIds), len(actual))
@@ -152,28 +158,23 @@ func TestGetAll(t *testing.T) {
 func TestDeletePerson(t *testing.T) {
 	cases := []struct {
 		name             string
-		personId         string
+		personId         int64
 		deleteError      error
 		expectedErrorMsg string
 	}{
 		{
 			name:     "It returns nil if the operation is successful",
-			personId: "5",
-		},
-		{
-			name:             "It returns an error if the id cannot be parsed to int64",
-			personId:         "Squirrel",
-			expectedErrorMsg: "there was an error deleting this person",
+			personId: 5,
 		},
 		{
 			name:             "It returns an error if the record cannot be located",
-			personId:         "3",
+			personId:         3,
 			deleteError:      customErrors.NewNotFoundError("person", 3),
 			expectedErrorMsg: "there was an error deleting this person",
 		},
 		{
 			name:             "It returns an error if there are any other errors",
-			personId:         "4",
+			personId:         4,
 			deleteError:      errors.New("Unexpected error"),
 			expectedErrorMsg: "there was an error deleting this person",
 		},

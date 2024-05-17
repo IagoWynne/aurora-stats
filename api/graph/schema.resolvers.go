@@ -9,8 +9,7 @@ import (
 	"aurora-stats/api/internal/people"
 	"aurora-stats/api/internal/wheel"
 	"context"
-	"errors"
-	"strconv"
+	"time"
 )
 
 // CreatePerson is the resolver for the createPerson field.
@@ -22,15 +21,15 @@ func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, l
 	}
 
 	// returns the new person with their DB id
-	return &model.InsertResponse{ID: strconv.FormatInt(*personID, 10)}, nil
+	return &model.InsertResponse{ID: personID}, nil
 }
 
 // DeletePerson is the resolver for the deletePerson field.
-func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error) {
+func (r *mutationResolver) DeletePerson(ctx context.Context, id int64) (*model.DeleteResponse, error) {
 	err := people.DeletePerson(id)
 
 	if err != nil {
-		return &model.DeleteResponse{ID: "", Success: false}, err
+		return &model.DeleteResponse{ID: id, Success: false}, err
 	}
 
 	return &model.DeleteResponse{ID: id, Success: true}, nil
@@ -40,26 +39,27 @@ func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.
 func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error) {
 	wheelOptionID, err := wheel.SaveWheelOption(name)
 
-	if err != nil {
-		return nil, errors.New("there was an error saving the data")
-	}
-
-	return &model.InsertResponse{ID: strconv.FormatInt(wheelOptionID, 10)}, nil
+	return &model.InsertResponse{ID: wheelOptionID}, err
 }
 
 // AddWheelRun is the resolver for the addWheelRun field.
-func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.InsertResponse, error) {
-	wheelRunID := wheel.SaveWheelRun(date, winnerID, resultID)
+func (r *mutationResolver) AddWheelRun(ctx context.Context, date time.Time, winnerID int64, resultID int64) (*model.InsertResponse, error) {
+	wheelRunID, err := wheel.SaveWheelRun(date, winnerID, resultID)
 
-	return &model.InsertResponse{ID: strconv.FormatInt(wheelRunID, 10)}, nil
+	return &model.InsertResponse{ID: wheelRunID}, err
 }
 
 // People is the resolver for the people field.
 func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
 
-	for _, person := range people.GetAll() {
-		resultsPeople = append(resultsPeople, &model.Person{ID: strconv.FormatInt(person.ID, 10), FirstName: person.FirstName, LastName: person.LastName})
+	allPeople, err := people.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, person := range allPeople {
+		resultsPeople = append(resultsPeople, &model.Person{ID: person.ID, FirstName: person.FirstName, LastName: person.LastName})
 	}
 
 	return resultsPeople, nil
@@ -69,28 +69,38 @@ func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption, error) {
 	var resultsWheelOptions []*model.WheelOption
 
-	for _, wheelOption := range wheel.GetAllWheelOptions() {
-		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: strconv.FormatInt(wheelOption.ID, 10), Name: wheelOption.Name})
+	wheelOptions, err := wheel.GetAllWheelOptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wheelOption := range wheelOptions {
+		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: wheelOption.ID, Name: wheelOption.Name})
 	}
 
 	return resultsWheelOptions, nil
 }
 
 // WheelResults is the resolver for the wheelResults field.
-func (r *queryResolver) WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelResult, error) {
+func (r *queryResolver) WheelResults(ctx context.Context, from time.Time, to *time.Time) ([]*model.WheelResult, error) {
 	var wheelWinResults []*model.WheelResult
 
-	for _, wheelWin := range wheel.GetWheelRuns(from, to) {
+	wheelResults, err := wheel.GetWheelRuns(from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wheelWin := range wheelResults {
 		wheelWinResults = append(wheelWinResults, &model.WheelResult{
 			ID:   wheelWin.ID,
 			Date: wheelWin.Date,
 			Winner: &model.Person{
-				ID:        strconv.FormatInt(wheelWin.Winner.ID, 10),
+				ID:        wheelWin.Winner.ID,
 				FirstName: wheelWin.Winner.FirstName,
 				LastName:  wheelWin.Winner.LastName,
 			},
 			Prize: &model.WheelOption{
-				ID:   strconv.FormatInt(wheelWin.Prize.ID, 10),
+				ID:   wheelWin.Prize.ID,
 				Name: wheelWin.Prize.Name,
 			},
 		})

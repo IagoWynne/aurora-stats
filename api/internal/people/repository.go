@@ -1,7 +1,7 @@
 package people
 
 import (
-	customErrors "aurora-stats/api/internal/errors"
+	database "aurora-stats/api/internal/pkg/db/mysql"
 	"database/sql"
 	"errors"
 	"log"
@@ -21,7 +21,7 @@ type PersonRepository struct {
 }
 
 type Repository interface {
-	Create(firstName string, lastName string) (*int64, error)
+	Create(firstName string, lastName string) (int64, error)
 	// Update(id int64, firstName string, lastName string) error
 	GetAll() ([]DomainPerson, error)
 	Delete(id int64) error
@@ -35,39 +35,24 @@ func NewPersonRepository(db *sqlx.DB) *PersonRepository {
 	return &PersonRepository{db: db}
 }
 
-func (m PersonRepository) Create(firstName string, lastName string) (*int64, error) {
+func (m PersonRepository) Create(firstName string, lastName string) (int64, error) {
 	return m.create(m.db, firstName, lastName)
 }
 
-func (m PersonRepository) create(db *sqlx.DB, firstName string, lastName string) (*int64, error) {
+func (m PersonRepository) create(db *sqlx.DB, firstName string, lastName string) (int64, error) {
 	query := "INSERT INTO person(first_name, last_name) VALUES(:first_name, :last_name)"
 
-	result, err := db.NamedExec(query, mysqlPerson{
+	person := mysqlPerson{
 		FirstName: firstName,
-		LastName:  lastName})
-	if err != nil {
-		return nil, err
-	}
+		LastName:  lastName}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-
-	log.Print("Person inserted with name: ", firstName, " ", lastName, " and id: ", id)
-	return &id, nil
+	return database.InsertRecordAndReturnId(db, query, person, "person")
 }
 
 func (m PersonRepository) get(db *sqlx.DB, id int64, forUpdate bool) (*mysqlPerson, error) {
-	query := "SELECT id, first_name, last_name, deleted from person WHERE id = ?"
-
-	if forUpdate {
-		query += " FOR UPDATE"
-	}
-
 	dbPerson := mysqlPerson{}
 
-	err := db.Get(&dbPerson, query, id)
+	err := database.FindById(db, []string{"id", "first_name", "last_name", "deleted"}, id, "person", dbPerson, forUpdate)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, err
@@ -83,49 +68,28 @@ func (m PersonRepository) GetAll() ([]DomainPerson, error) {
 }
 
 func (m PersonRepository) getAll(db *sqlx.DB) ([]DomainPerson, error) {
-	query := "SELECT id, first_name, last_name FROM person where deleted = 0"
+	query := "SELECT id, first_name, last_name FROM person WHERE deleted = 0"
 
-	rows, err := db.Queryx(query)
-	if err != nil {
-		return nil, err
-	}
-
-	var people []DomainPerson
-
-	for rows.Next() {
-		var person mysqlPerson
-		err := rows.StructScan(&person)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		people = append(people, MapPersonFromDbToDomain(person))
-	}
-
-	return people, nil
+	return database.GetMultiple(db, query, mapPersonFromDbToDomain)
 }
 
-func (m PersonRepository) update(db *sqlx.DB, updatedPerson *mysqlPerson) (mysqlPerson, error) {
-	tx, err := db.Beginx()
-	if err != nil {
-		log.Fatal(err)
+func mapPersonFromDbToDomain(dbPerson mysqlPerson) DomainPerson {
+	return DomainPerson{
+		ID:        dbPerson.ID,
+		FirstName: dbPerson.FirstName,
+		LastName:  dbPerson.LastName,
 	}
+}
 
-	defer func() {
-		err = m.finishTransaction(err, tx)
-	}()
-
-	_, err = tx.NamedExec(
-		`INSERT INTO person (id, first_name, last_name, deleted)
-			VALUES(:id, :first_name, :last_name, :deleted)
+func (m PersonRepository) update(db *sqlx.DB, person *mysqlPerson) (mysqlPerson, error) {
+	query := `INSERT INTO person (id, first_name, last_name, deleted)
+	VALUES(:id, :first_name, :last_name, :deleted)
 		ON DUPLICATE KEY UPDATE
-			first_name = :first_name, last_name = :last_name, deleted = :deleted`,
-		updatedPerson)
+	first_name = :first_name, last_name = :last_name, deleted = :deleted`
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	updatedPerson, err := database.UpdateRecord(db, query, person, "person")
 
-	return *updatedPerson, nil
+	return *updatedPerson, err
 }
 
 func (m PersonRepository) Delete(id int64) error {
@@ -134,33 +98,12 @@ func (m PersonRepository) Delete(id int64) error {
 
 func (m PersonRepository) delete(db *sqlx.DB, id int64) error {
 	person, err := m.get(db, id, true)
-	if errors.Is(err, sql.ErrNoRows) {
-		return customErrors.NewNotFoundError("person", id)
-	} else if err != nil {
-		log.Fatal(err)
+	if err != nil {
+		return err
 	}
 
 	person.Deleted = true
 	_, err = m.update(db, person)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	return nil
-}
-
-func (m PersonRepository) finishTransaction(err error, tx *sqlx.Tx) error {
-	if err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			log.Fatal(rollbackErr, err)
-		}
-
-		return err
-	} else {
-		if commitErr := tx.Commit(); commitErr != nil {
-			log.Fatal(commitErr)
-		}
-
-		return nil
-	}
+	return err
 }

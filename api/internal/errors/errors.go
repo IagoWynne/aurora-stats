@@ -2,6 +2,7 @@ package customErrors
 
 import (
 	"fmt"
+	"strings"
 )
 
 type NotFoundError struct {
@@ -31,6 +32,14 @@ func (error *RequiredValueMissingError) Error() string {
 func NewRequiredValueMissingError(field string) error {
 	msg :=
 		fmt.Sprintf("required value missing: %s", field)
+
+	return &RequiredValueMissingError{
+		msg,
+	}
+}
+
+func NewMultipleRequiredValueMissingError(fields []string) error {
+	msg := fmt.Sprintf("multiple required values missing: %s", strings.Join(fields, ", "))
 
 	return &RequiredValueMissingError{
 		msg,
