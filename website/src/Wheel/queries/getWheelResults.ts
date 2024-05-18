@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 const GET_WHEEL_RESULTS_BETWEEN = gql`
-  query GetWheelResultsBetween($from: String!, $to: String!) {
+  query GetWheelResultsBetween($from: Time!, $to: Time!) {
     wheelResults(from: $from, to: $to) {
       id
       date

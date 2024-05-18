@@ -22,8 +22,8 @@ export const WheelRunContextProvider: (
         {
           query: GET_WHEEL_RESULTS_BETWEEN,
           variables: {
-            from: formatDate(new Date(subDays(new Date(), 14)), "yyyy-MM-dd"),
-            to: formatDate(new Date(), "yyyy-MM-dd"),
+            from: new Date(subDays(new Date(), 28)).toISOString(),
+            to: new Date().toISOString(),
           },
         },
       ],
