@@ -106,20 +106,23 @@ func (m WheelRepository) getWheelResults(db *sqlx.DB, filters GetWheelRunFilters
 	INNER JOIN person on wheel_run.winner_id = person.id`
 
 	var whereClauses []string
-
-	if filters.to != nil {
-		whereClauses = append(whereClauses, "to <= ?")
-	}
+	var filterVars []any
 
 	if filters.from != nil {
-		whereClauses = append(whereClauses, "from >= ?")
+		whereClauses = append(whereClauses, "run_date >= ?")
+		filterVars = append(filterVars, filters.from)
+	}
+
+	if filters.to != nil {
+		whereClauses = append(whereClauses, "run_date <= ?")
+		filterVars = append(filterVars, filters.to)
 	}
 
 	if len(whereClauses) > 0 {
 		query += " WHERE " + strings.Join(whereClauses, " AND ")
 	}
 
-	return database.GetMultiple(db, query, mapWheelResultFromDbToDomain)
+	return database.GetMultiple(db, query, mapWheelResultFromDbToDomain, filterVars...)
 }
 
 func mapWheelResultFromDbToDomain(sqlResult mysqlWheelResult) DomainWheelResult {

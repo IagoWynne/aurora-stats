@@ -67,5 +67,20 @@ func SaveWheelRun(date time.Time, winnerId int64, resultId int64) (int64, error)
 }
 
 func GetWheelRuns(from time.Time, to *time.Time) ([]DomainWheelResult, error) {
-	return nil, errors.New("not implemented")
+	if time.Time.IsZero(from) {
+		return nil, customErrors.NewRequiredValueMissingError("from")
+	}
+
+	filters := GetWheelRunFilters{
+		from: &from,
+		to:   to,
+	}
+
+	results, err := repo.GetWheelResults(filters)
+	if err != nil {
+		log.Print(err)
+		return nil, errors.New("there was an error retrieving the wheel results")
+	}
+
+	return results, nil
 }

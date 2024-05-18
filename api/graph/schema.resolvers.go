@@ -59,7 +59,7 @@ func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	}
 
 	for _, person := range allPeople {
-		resultsPeople = append(resultsPeople, &model.Person{ID: person.ID, FirstName: person.FirstName, LastName: person.LastName})
+		resultsPeople = append(resultsPeople, mapPersonToGQL(person))
 	}
 
 	return resultsPeople, nil
@@ -75,7 +75,7 @@ func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption,
 	}
 
 	for _, wheelOption := range wheelOptions {
-		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: wheelOption.ID, Name: wheelOption.Name})
+		resultsWheelOptions = append(resultsWheelOptions, mapWheelOptionToGQL(wheelOption))
 	}
 
 	return resultsWheelOptions, nil
@@ -90,20 +90,8 @@ func (r *queryResolver) WheelResults(ctx context.Context, from time.Time, to *ti
 		return nil, err
 	}
 
-	for _, wheelWin := range wheelResults {
-		wheelWinResults = append(wheelWinResults, &model.WheelResult{
-			ID:   wheelWin.ID,
-			Date: wheelWin.Date,
-			Winner: &model.Person{
-				ID:        wheelWin.Winner.ID,
-				FirstName: wheelWin.Winner.FirstName,
-				LastName:  wheelWin.Winner.LastName,
-			},
-			Prize: &model.WheelOption{
-				ID:   wheelWin.Prize.ID,
-				Name: wheelWin.Prize.Name,
-			},
-		})
+	for _, wheelResult := range wheelResults {
+		wheelWinResults = append(wheelWinResults, mapDomainWheelResultToGQL(wheelResult))
 	}
 
 	return wheelWinResults, nil

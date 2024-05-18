@@ -269,9 +269,65 @@ func TestGetWheelRuns(t *testing.T) {
 			},
 			expectedIds: []int64{4, 7, 9},
 		},
-		// TODO: more cases
+		{
+			name: "It returns the wheel results when only from is specified",
+			from: parseTime("2024-04-17"),
+			wheelResults: []DomainWheelResult{
+				{
+					ID: 3,
+				},
+				{
+					ID: 9,
+				},
+			},
+			expectedIds: []int64{3, 9},
+		},
+		{
+			name:          "It returns an error if from is not specified",
+			expectedError: customErrors.NewRequiredValueMissingError("from"),
+		},
+		{
+			name:          "It returns an error if there is an error retrieving the wheel results",
+			from:          parseTime("2024-04-17"),
+			returnedError: errors.New("blargh"),
+			expectedError: errors.New("there was an error retrieving the wheel results"),
+		},
 	}
-	// TODO: run the test cases
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			InitWheelRepo(&mockWheelRepository{
+				wheelResults:  tc.wheelResults,
+				returnedError: tc.returnedError,
+			})
+
+			actual, err := GetWheelRuns(tc.from, tc.to)
+
+			if tc.expectedError != nil {
+				if err == nil {
+					t.Errorf("Expected error: %s. Got nil", tc.expectedError)
+				} else if err.Error() != tc.expectedError.Error() {
+					t.Errorf("Expected error: %s. Got: %s", tc.expectedError, err)
+				}
+			} else if err != nil {
+				t.Errorf("Unexpected error: %s", err)
+			}
+
+			if len(actual) != len(tc.expectedIds) {
+				t.Errorf("Actual array length does not match expected array length. Expected: %v. Got: %v", len(tc.expectedIds), len(actual))
+			}
+
+			if len(tc.expectedIds) == 0 {
+				return
+			}
+
+			for i, item := range actual {
+				if item.ID != tc.expectedIds[i] {
+					t.Errorf("Actual item at index %v does not match expected. Expected: %v. Got: %v", i, tc.expectedIds[i], item.ID)
+				}
+			}
+		})
+	}
 }
 
 func parseTime(dateString string) time.Time {

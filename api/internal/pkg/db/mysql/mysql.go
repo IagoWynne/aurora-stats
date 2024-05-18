@@ -14,7 +14,7 @@ import (
 var Db *sqlx.DB
 
 func InitDB() {
-	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s`, os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), "3306", "aurora-stats")
+	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), "3306", "aurora-stats")
 
 	err := retry.Do(
 		func() error {
@@ -112,8 +112,8 @@ func FindById(db *sqlx.DB, fields []string, id int64, table string, dest interfa
 	return db.Get(&dest, query, id)
 }
 
-func GetMultiple[T any, U any](db *sqlx.DB, query string, mapFn func(U) T) ([]T, error) {
-	rows, err := db.Queryx(query)
+func GetMultiple[T any, U any](db *sqlx.DB, query string, mapFn func(U) T, args ...interface{}) ([]T, error) {
+	rows, err := db.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
