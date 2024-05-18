@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -58,9 +59,9 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddWheelOption func(childComplexity int, name string) int
-		AddWheelRun    func(childComplexity int, date string, winnerID int, resultID int) int
+		AddWheelRun    func(childComplexity int, date time.Time, winnerID int64, resultID int64) int
 		CreatePerson   func(childComplexity int, firstName string, lastName string) int
-		DeletePerson   func(childComplexity int, id string) int
+		DeletePerson   func(childComplexity int, id int64) int
 	}
 
 	Person struct {
@@ -72,7 +73,7 @@ type ComplexityRoot struct {
 	Query struct {
 		People       func(childComplexity int) int
 		WheelOptions func(childComplexity int) int
-		WheelResults func(childComplexity int, from string, to *string) int
+		WheelResults func(childComplexity int, from time.Time, to *time.Time) int
 	}
 
 	WheelOption struct {
@@ -90,14 +91,14 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreatePerson(ctx context.Context, firstName string, lastName string) (*model.InsertResponse, error)
-	DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error)
+	DeletePerson(ctx context.Context, id int64) (*model.DeleteResponse, error)
 	AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error)
-	AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.InsertResponse, error)
+	AddWheelRun(ctx context.Context, date time.Time, winnerID int64, resultID int64) (*model.InsertResponse, error)
 }
 type QueryResolver interface {
 	People(ctx context.Context) ([]*model.Person, error)
 	WheelOptions(ctx context.Context) ([]*model.WheelOption, error)
-	WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelResult, error)
+	WheelResults(ctx context.Context, from time.Time, to *time.Time) ([]*model.WheelResult, error)
 }
 
 type executableSchema struct {
@@ -162,7 +163,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddWheelRun(childComplexity, args["date"].(string), args["winnerId"].(int), args["resultId"].(int)), true
+		return e.complexity.Mutation.AddWheelRun(childComplexity, args["date"].(time.Time), args["winnerId"].(int64), args["resultId"].(int64)), true
 
 	case "Mutation.createPerson":
 		if e.complexity.Mutation.CreatePerson == nil {
@@ -186,7 +187,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeletePerson(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeletePerson(childComplexity, args["id"].(int64)), true
 
 	case "Person.firstName":
 		if e.complexity.Person.FirstName == nil {
@@ -233,7 +234,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.WheelResults(childComplexity, args["from"].(string), args["to"].(*string)), true
+		return e.complexity.Query.WheelResults(childComplexity, args["from"].(time.Time), args["to"].(*time.Time)), true
 
 	case "WheelOption.id":
 		if e.complexity.WheelOption.ID == nil {
@@ -284,9 +285,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputAvailableOption,
-	)
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
 	first := true
 
 	switch rc.Operation.Operation {
@@ -420,28 +419,28 @@ func (ec *executionContext) field_Mutation_addWheelOption_args(ctx context.Conte
 func (ec *executionContext) field_Mutation_addWheelRun_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 time.Time
 	if tmp, ok := rawArgs["date"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["date"] = arg0
-	var arg1 int
+	var arg1 int64
 	if tmp, ok := rawArgs["winnerId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("winnerId"))
-		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+		arg1, err = ec.unmarshalNInt2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["winnerId"] = arg1
-	var arg2 int
+	var arg2 int64
 	if tmp, ok := rawArgs["resultId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultId"))
-		arg2, err = ec.unmarshalNInt2int(ctx, tmp)
+		arg2, err = ec.unmarshalNInt2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -477,10 +476,10 @@ func (ec *executionContext) field_Mutation_createPerson_args(ctx context.Context
 func (ec *executionContext) field_Mutation_deletePerson_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -507,19 +506,19 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_wheelResults_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 time.Time
 	if tmp, ok := rawArgs["from"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["from"] = arg0
-	var arg1 *string
+	var arg1 *time.Time
 	if tmp, ok := rawArgs["to"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg1, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -592,9 +591,9 @@ func (ec *executionContext) _DeleteResponse_id(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DeleteResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -680,9 +679,9 @@ func (ec *executionContext) _InsertResponse_id(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_InsertResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -771,7 +770,7 @@ func (ec *executionContext) _Mutation_deletePerson(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeletePerson(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().DeletePerson(rctx, fc.Args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -891,7 +890,7 @@ func (ec *executionContext) _Mutation_addWheelRun(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddWheelRun(rctx, fc.Args["date"].(string), fc.Args["winnerId"].(int), fc.Args["resultId"].(int))
+		return ec.resolvers.Mutation().AddWheelRun(rctx, fc.Args["date"].(time.Time), fc.Args["winnerId"].(int64), fc.Args["resultId"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -962,9 +961,9 @@ func (ec *executionContext) _Person_id(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Person_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1184,7 +1183,7 @@ func (ec *executionContext) _Query_wheelResults(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().WheelResults(rctx, fc.Args["from"].(string), fc.Args["to"].(*string))
+		return ec.resolvers.Query().WheelResults(rctx, fc.Args["from"].(time.Time), fc.Args["to"].(*time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1390,9 +1389,9 @@ func (ec *executionContext) _WheelOption_id(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WheelOption_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1478,9 +1477,9 @@ func (ec *executionContext) _WheelResult_id(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WheelResult_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1522,9 +1521,9 @@ func (ec *executionContext) _WheelResult_date(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WheelResult_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1534,7 +1533,7 @@ func (ec *executionContext) fieldContext_WheelResult_date(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3415,40 +3414,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAvailableOption(ctx context.Context, obj interface{}) (model.AvailableOption, error) {
-	var it model.AvailableOption
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"optionId", "count"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "optionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("optionId"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.OptionID = data
-		case "count":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("count"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Count = data
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4228,13 +4193,13 @@ func (ec *executionContext) marshalNDeleteResponse2ᚖauroraᚑstatsᚋapiᚋgra
 	return ec._DeleteResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNID2int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNID2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4257,13 +4222,13 @@ func (ec *executionContext) marshalNInsertResponse2ᚖauroraᚑstatsᚋapiᚋgra
 	return ec._InsertResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
+func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
+func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4333,6 +4298,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4741,6 +4721,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	return res
 }
 

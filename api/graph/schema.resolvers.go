@@ -9,50 +9,57 @@ import (
 	"aurora-stats/api/internal/people"
 	"aurora-stats/api/internal/wheel"
 	"context"
-	"strconv"
+	"time"
 )
 
 // CreatePerson is the resolver for the createPerson field.
 func (r *mutationResolver) CreatePerson(ctx context.Context, firstName string, lastName string) (*model.InsertResponse, error) {
-	// creates a person using the struct from people module (this is the struct that interacts with the database)
-	var person people.Person
-	// sets the person's name based on the input
-	person.FirstName = firstName
-	person.LastName = lastName
-	// saves the person to the database and is returned their id
-	personID := person.Save()
+	personID, err := people.CreatePerson(firstName, lastName)
+
+	if err != nil {
+		return nil, err
+	}
 
 	// returns the new person with their DB id
-	return &model.InsertResponse{ID: strconv.FormatInt(personID, 10)}, nil
+	return &model.InsertResponse{ID: personID}, nil
 }
 
 // DeletePerson is the resolver for the deletePerson field.
-func (r *mutationResolver) DeletePerson(ctx context.Context, id string) (*model.DeleteResponse, error) {
-	people.DeletePerson(id)
+func (r *mutationResolver) DeletePerson(ctx context.Context, id int64) (*model.DeleteResponse, error) {
+	err := people.DeletePerson(id)
+
+	if err != nil {
+		return &model.DeleteResponse{ID: id, Success: false}, err
+	}
 
 	return &model.DeleteResponse{ID: id, Success: true}, nil
 }
 
 // AddWheelOption is the resolver for the addWheelOption field.
 func (r *mutationResolver) AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error) {
-	wheelOptionID := wheel.SaveWheelOption(name)
+	wheelOptionID, err := wheel.SaveWheelOption(name)
 
-	return &model.InsertResponse{ID: strconv.FormatInt(wheelOptionID, 10)}, nil
+	return &model.InsertResponse{ID: wheelOptionID}, err
 }
 
 // AddWheelRun is the resolver for the addWheelRun field.
-func (r *mutationResolver) AddWheelRun(ctx context.Context, date string, winnerID int, resultID int) (*model.InsertResponse, error) {
-	wheelRunID := wheel.SaveWheelRun(date, winnerID, resultID)
+func (r *mutationResolver) AddWheelRun(ctx context.Context, date time.Time, winnerID int64, resultID int64) (*model.InsertResponse, error) {
+	wheelRunID, err := wheel.SaveWheelRun(date, winnerID, resultID)
 
-	return &model.InsertResponse{ID: strconv.FormatInt(wheelRunID, 10)}, nil
+	return &model.InsertResponse{ID: wheelRunID}, err
 }
 
 // People is the resolver for the people field.
 func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 	var resultsPeople []*model.Person
 
-	for _, person := range people.GetAll() {
-		resultsPeople = append(resultsPeople, &model.Person{ID: strconv.FormatInt(person.ID, 10), FirstName: person.FirstName, LastName: person.LastName})
+	allPeople, err := people.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, person := range allPeople {
+		resultsPeople = append(resultsPeople, mapPersonToGQL(person))
 	}
 
 	return resultsPeople, nil
@@ -62,31 +69,29 @@ func (r *queryResolver) People(ctx context.Context) ([]*model.Person, error) {
 func (r *queryResolver) WheelOptions(ctx context.Context) ([]*model.WheelOption, error) {
 	var resultsWheelOptions []*model.WheelOption
 
-	for _, wheelOption := range wheel.GetAllWheelOptions() {
-		resultsWheelOptions = append(resultsWheelOptions, &model.WheelOption{ID: strconv.FormatInt(wheelOption.ID, 10), Name: wheelOption.Name})
+	wheelOptions, err := wheel.GetAllWheelOptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wheelOption := range wheelOptions {
+		resultsWheelOptions = append(resultsWheelOptions, mapWheelOptionToGQL(wheelOption))
 	}
 
 	return resultsWheelOptions, nil
 }
 
 // WheelResults is the resolver for the wheelResults field.
-func (r *queryResolver) WheelResults(ctx context.Context, from string, to *string) ([]*model.WheelResult, error) {
+func (r *queryResolver) WheelResults(ctx context.Context, from time.Time, to *time.Time) ([]*model.WheelResult, error) {
 	var wheelWinResults []*model.WheelResult
 
-	for _, wheelWin := range wheel.GetWheelRuns(from, to) {
-		wheelWinResults = append(wheelWinResults, &model.WheelResult{
-			ID:   wheelWin.ID,
-			Date: wheelWin.Date,
-			Winner: &model.Person{
-				ID:        strconv.FormatInt(wheelWin.Winner.ID, 10),
-				FirstName: wheelWin.Winner.FirstName,
-				LastName:  wheelWin.Winner.LastName,
-			},
-			Prize: &model.WheelOption{
-				ID:   strconv.FormatInt(wheelWin.Prize.ID, 10),
-				Name: wheelWin.Prize.Name,
-			},
-		})
+	wheelResults, err := wheel.GetWheelRuns(from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wheelResult := range wheelResults {
+		wheelWinResults = append(wheelWinResults, mapDomainWheelResultToGQL(wheelResult))
 	}
 
 	return wheelWinResults, nil

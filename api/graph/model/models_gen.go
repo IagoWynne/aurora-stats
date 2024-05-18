@@ -2,25 +2,24 @@
 
 package model
 
-type AvailableOption struct {
-	OptionID int `json:"optionId"`
-	Count    int `json:"count"`
-}
+import (
+	"time"
+)
 
 type DeleteResponse struct {
-	ID      string `json:"id"`
-	Success bool   `json:"success"`
+	ID      int64 `json:"id"`
+	Success bool  `json:"success"`
 }
 
 type InsertResponse struct {
-	ID string `json:"id"`
+	ID int64 `json:"id"`
 }
 
 type Mutation struct {
 }
 
 type Person struct {
-	ID        string `json:"id"`
+	ID        int64  `json:"id"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 }
@@ -29,13 +28,13 @@ type Query struct {
 }
 
 type WheelOption struct {
-	ID   string `json:"id"`
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
 type WheelResult struct {
-	ID     string       `json:"id"`
-	Date   string       `json:"date"`
+	ID     int64        `json:"id"`
+	Date   time.Time    `json:"date"`
 	Winner *Person      `json:"winner"`
 	Prize  *WheelOption `json:"prize"`
 }

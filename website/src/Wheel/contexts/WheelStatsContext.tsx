@@ -18,12 +18,12 @@ export const WheelStatsContextProvider: (
   props: PropsWithChildren<{}>
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
   const [to, setTo] = useState(new Date());
-  const [from, setFrom] = useState(new Date(subDays(to, 14)));
+  const [from, setFrom] = useState(new Date(subDays(to, 28)));
 
   const { loading, error, data } = useQuery(GET_WHEEL_RESULTS_BETWEEN, {
     variables: {
-      from: `${formatDate(from, "yyyy-MM-dd")}`,
-      to: `${formatDate(to, "yyyy-MM-dd")}`,
+      from: from.toISOString(),
+      to: to.toISOString(),
     },
   });
 

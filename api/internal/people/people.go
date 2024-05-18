@@ -1,78 +1,54 @@
 package people
 
 import (
-	database "aurora-stats/api/internal/pkg/db/mysql"
+	customErrors "aurora-stats/api/internal/errors"
+	"errors"
 	"log"
 )
 
-// definition of a structure which represents a person
-type Person struct {
-	ID        int64  `json:"id"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
+var repo Repository
+
+func InitPeopleRepo(repository Repository) {
+	repo = repository
 }
 
 // function to save a person to the database
-func (person *Person) Save() int64 {
-	// mysql query to insert a person into the person table
-	stmt, err := database.Db.Prepare("INSERT INTO person(first_name, last_name) VALUES(?,?)")
-	if err != nil {
-		log.Fatal(err)
+func CreatePerson(firstName string, lastName string) (int64, error) {
+	if firstName == "" {
+		return 0, customErrors.NewRequiredValueMissingError("firstName")
 	}
 
-	// execute the query using person.fullname
-	res, err := stmt.Exec(person.FirstName, person.LastName)
-	if err != nil {
-		log.Fatal(err)
+	if lastName == "" {
+		return 0, customErrors.NewRequiredValueMissingError("lastName")
 	}
 
-	// get the last inserted id (in this case, the id of the new person)
-	id, err := res.LastInsertId()
+	id, err := repo.Create(firstName, lastName)
+
 	if err != nil {
-		log.Fatal("Error:", err.Error())
+		return 0, err
 	}
-	log.Print("Person inserted with name: ", person.FirstName, " ", person.LastName, " and id: ", id)
-	return id
+
+	return id, nil
 }
 
 // function to get all people from the database
-func GetAll() []Person {
-	stmt, err := database.Db.Prepare("SELECT id, first_name, last_name FROM person where deleted = 0")
+func GetAll() ([]DomainPerson, error) {
+	domainPeople, err := repo.GetAll()
+
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	var people []Person
-	for rows.Next() {
-		var person Person
-		err := rows.Scan(&person.ID, &person.FirstName, &person.LastName)
-		if err != nil {
-			log.Fatal(err)
-		}
-		people = append(people, person)
-	}
-	if err = rows.Err(); err != nil {
-		log.Fatal(err)
+		log.Printf("Error retrieving people from repo: %s", err)
+		return nil, errors.New("there was an error retrieving people")
 	}
 
-	return people
+	return domainPeople, nil
 }
 
-func DeletePerson(id string) {
-	stmt, err := database.Db.Prepare("UPDATE person SET deleted = 1 WHERE id = ?")
+func DeletePerson(id int64) error {
+	err := repo.Delete(id)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error deleting person: %s", err)
+		return errors.New("there was an error deleting this person")
 	}
 
-	_, err = stmt.Exec(id)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }

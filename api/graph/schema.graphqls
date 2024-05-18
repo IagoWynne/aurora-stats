@@ -1,5 +1,7 @@
 # https://gqlgen.com/getting-started/
 
+scalar Time
+
 type DeleteResponse {
   id: ID!
   success: Boolean!
@@ -24,54 +26,20 @@ type WheelOption {
 # Wheel Stats
 type WheelResult {
   id: ID!
-  date: String!
+  date: Time!
   winner: Person!
   prize: WheelOption!
 }
 
-# type WheelPersonTotal {
-#   person: Person!
-#   wins: Int!
-# }
-
-# type WheelOptionTotal {
-#   option: WheelOption!
-#   wins: Int!
-# }
-
-# type WheelPersonStats {
-#   person: Person!
-#   totalWins: Int!
-#   results: [WheelOptionTotal!]!
-# }
-
-# type WheelOptionStats {
-#   option: WheelOption!
-#   totalWins: Int!
-#   people: [WheelPersonTotal!]!
-# }
-
-# type WheelStats {
-#   people: [WheelPersonStats!]!
-#   results: [WheelOptionStats!]!
-#   totalWins: Int!
-# }
-
 type Query {
   people: [Person!]!
   wheelOptions: [WheelOption!]!
-  wheelResults(from: String!, to: String): [WheelResult!]!
-  # wheelStats(from: String!, to: String): WheelStats!
-}
-
-input AvailableOption {
-  optionId: Int!
-  count: Int!
+  wheelResults(from: Time!, to: Time): [WheelResult!]!
 }
 
 type Mutation {
   createPerson(firstName: String!, lastName: String!): InsertResponse!
   deletePerson(id: ID!): DeleteResponse!
   addWheelOption(name: String!): InsertResponse!
-  addWheelRun(date: String!, winnerId: Int!, resultId: Int!): InsertResponse!
+  addWheelRun(date: Time!, winnerId: Int!, resultId: Int!): InsertResponse!
 }

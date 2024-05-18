@@ -2,10 +2,12 @@ package main
 
 import (
 	"aurora-stats/api/graph"
+	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
+	"aurora-stats/api/internal/wheel"
 	"log"
-	"net/http"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -18,25 +20,23 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-
 func GetOutboundIP() net.IP {
-    conn, err := net.Dial("udp", "8.8.8.8:80")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer conn.Close()
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
 
-    localAddr := conn.LocalAddr().(*net.UDPAddr)
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
-    return localAddr.IP
+	return localAddr.IP
 }
 
 const defaultPort = "8080"
-const defaultHost = "localhost"
 
 func main() {
 	port := os.Getenv("PORT")
-	
+
 	if port == "" {
 		port = defaultPort
 	}
@@ -44,13 +44,16 @@ func main() {
 	database.InitDB()
 	defer database.CloseDB()
 
+	people.InitPeopleRepo(people.NewPersonRepository(database.Db))
+	wheel.InitWheelRepo(wheel.NewWheelRepository(database.Db))
+
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"*"}, //TODO - set this up to read from env variables
 		AllowCredentials: true,
 		Debug:            true,
 	}).Handler)
