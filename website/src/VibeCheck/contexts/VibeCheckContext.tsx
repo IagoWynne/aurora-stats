@@ -1,4 +1,4 @@
-import { PropsWithChildren, Suspense, createContext, useContext } from "react";
+import { PropsWithChildren, createContext, useContext } from "react";
 import { PersonType } from "../../types";
 import { useSuspenseQuery } from "@apollo/client";
 import GET_PEOPLE_QUERY from "../queries/getPeople";
