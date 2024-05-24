@@ -33,7 +33,7 @@ const NameRow = ({ people, togglePersonSelected }: Props): JSX.Element => {
               person.isSelected ? styles.selected : styles.notSelected,
             ].join(" ")}
           >
-            {person.firstName} {person.lastName}
+            {person.firstName}
           </Button>
         </td>
       ))}

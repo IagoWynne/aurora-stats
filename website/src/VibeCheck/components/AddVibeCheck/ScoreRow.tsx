@@ -3,7 +3,7 @@ import { VibeCheckPerson } from "../../types";
 
 const useStyles = createUseStyles({
     input: {
-        maxWidth: "120px"
+        maxWidth: "75px"
     }
 })
 

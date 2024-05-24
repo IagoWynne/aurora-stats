@@ -7,6 +7,7 @@ const useStyles = createUseStyles({
     background: "white",
     padding: "1rem",
     marginBottom: "1rem",
+    height: "100%",
   },
   title: {
     margin: 0,

@@ -1,19 +1,31 @@
 import { useState } from "react";
 import { useVibeCheckContext } from "../../contexts/VibeCheckContext";
 import { Button, DateInput, SectionContainer } from "../../../Common";
-import { createUseStyles } from "react-jss";
 import ADD_VIBE_CHECK_MUTATION from "../../queries/addVibeCheck";
 import { useMutation } from "@apollo/client";
 import { VibeCheckPerson } from "../../types";
 import NameRow from "./NameRow";
 import ScoreRow from "./ScoreRow";
+import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
 
-const AddVibeCheck = (): JSX.Element => {
+interface Props {
+  today: Date;
+  weekStart: Date;
+}
+
+const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
   const [vibeCheckPeople, setVibeCheckPeople] = useState<VibeCheckPerson[]>(
     people.map((p) => ({ ...p, isSelected: true }))
   );
-  const [addVibeCheck] = useMutation(ADD_VIBE_CHECK_MUTATION);
+  const [addVibeCheck] = useMutation(ADD_VIBE_CHECK_MUTATION, {
+    refetchQueries: [
+      {
+        query: GET_VIBE_CHECK_BETWEEN,
+        variables: { from: weekStart, to: today },
+      },
+    ],
+  });
   const [submitted, setSubmitted] = useState(false);
   const [date, setDate] = useState(new Date());
 
@@ -78,10 +90,12 @@ const AddVibeCheck = (): JSX.Element => {
               />
             </tbody>
           </table>
-          {vibeCheckPeople.filter(p => p.isSelected).length > 0 && <Button type="submit">Done</Button>}
+          {vibeCheckPeople.filter((p) => p.isSelected).length > 0 && (
+            <Button type="submit">Done</Button>
+          )}
         </form>
       )}
-      {submitted && <Button onClick={() => setSubmitted(false)}>Reset</Button>}
+      {submitted && <Button onClick={() => setSubmitted(false)}>New Vibe Check</Button>}
     </SectionContainer>
   );
 };
