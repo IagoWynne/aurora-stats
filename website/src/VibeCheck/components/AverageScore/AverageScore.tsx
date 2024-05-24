@@ -27,13 +27,16 @@ const useStyles = createUseStyles({
 });
 
 interface Props {
-  score: number;
+  score: number | null;
 }
 
 const AverageScore = ({ score }: Props): JSX.Element => {
   const styles = useStyles();
 
-  const getBackgroundColour = () => {
+  const getBackgroundColour = (): string => {
+    if (!score) {
+      return "";
+    }
     if (score > 9) {
       return styles.veryGood;
     }
@@ -53,7 +56,11 @@ const AverageScore = ({ score }: Props): JSX.Element => {
     return styles.veryBad;
   };
 
-  return <div className={`${styles.averageBox} ${getBackgroundColour()}`}>{score.toFixed(2)}</div>;
+  return (
+    <div className={`${styles.averageBox} ${getBackgroundColour()}`}>
+      {score ? score.toFixed(2) : "-"}
+    </div>
+  );
 };
 
 export default AverageScore;

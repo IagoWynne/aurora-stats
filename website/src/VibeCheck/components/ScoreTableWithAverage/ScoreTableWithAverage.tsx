@@ -53,12 +53,12 @@ const ScoreTableWithAverage = ({ from, to }: Props): JSX.Element => {
       <div className={styles.scoreBox}>
         <SectionContainer title="Average Score">
           <AverageScore
-            score={
+            score={data.vibeChecks.length ?
               data.vibeChecks.reduce(
                 (total: number, current: VibeCheck) =>
                   (total += current.averageScore),
                 0
-              ) / data.vibeChecks.length
+              ) / data.vibeChecks.length : null
             }
           />
         </SectionContainer>
