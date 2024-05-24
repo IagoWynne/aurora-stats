@@ -13,7 +13,7 @@ import { People } from "./People";
 import "./index.css";
 import { Wheel, WheelOptions } from "./Wheel";
 import WheelStats from "./Wheel/components/WheelStats/WheelStats";
-import { VibeCheck } from "./VibeCheck";
+import VibeCheck from "./VibeCheck";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

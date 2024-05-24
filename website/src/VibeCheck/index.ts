@@ -1,3 +1,3 @@
-import VibeCheck from "./components/VibeCheck/VibeCheck";
+import { VibeCheck } from "./components/VibeCheck";
 
-export { VibeCheck };
+export default VibeCheck;

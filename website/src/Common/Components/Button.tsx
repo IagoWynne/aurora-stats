@@ -17,17 +17,23 @@ const useStyles = createUseStyles({
 interface Props extends PropsWithChildren {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
+  additionalClasses?: string;
 }
 
-const Button = ({ onClick, type, children }: Props): JSX.Element => {
+const Button = ({
+  onClick,
+  type,
+  additionalClasses,
+  children,
+}: Props): JSX.Element => {
   const styles = useStyles();
 
+  const buttonClasses = additionalClasses
+    ? `${additionalClasses} ${styles.defaultButton}`
+    : styles.defaultButton;
+
   return (
-    <button
-      type={type ?? "button"}
-      onClick={onClick}
-      className={styles.defaultButton}
-    >
+    <button type={type ?? "button"} onClick={onClick} className={buttonClasses}>
       {children}
     </button>
   );
