@@ -5,9 +5,17 @@ import { VibeCheck } from "../../types";
 import PersonCell from "./PersonCell";
 
 const useStyles = createUseStyles({
-  tableBody: {
-    "& > * > td": {
+  table: {
+    "& td": {
       textAlign: "center",
+    },
+    "& thead": {
+      background: "#f0f0f0",
+    },
+    "& tbody": {
+      "& tr:nth-child(even)": {
+        background: "#f0f0f0",
+      },
     },
   },
 });
@@ -20,10 +28,11 @@ const ScoreTable = ({ vibeChecks }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
   const styles = useStyles();
 
-  const formatVibeCheckDate = (date: string) => formatDate(new Date(date), "dd/MM/yyyy");
+  const formatVibeCheckDate = (date: string) =>
+    formatDate(new Date(date), "dd/MM/yyyy");
 
   return (
-    <table>
+    <table className={styles.table}>
       <thead>
         <tr>
           <th>Date</th>
@@ -33,7 +42,7 @@ const ScoreTable = ({ vibeChecks }: Props): JSX.Element => {
           <th>Average</th>
         </tr>
       </thead>
-      <tbody className={styles.tableBody}>
+      <tbody>
         {vibeChecks.map((vibeCheck) => (
           <tr key={vibeCheck.date}>
             <td>{formatVibeCheckDate(vibeCheck.date)}</td>
