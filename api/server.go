@@ -4,6 +4,7 @@ import (
 	"aurora-stats/api/graph"
 	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
+	"aurora-stats/api/internal/vibecheck"
 	"aurora-stats/api/internal/wheel"
 	"log"
 	"net"
@@ -46,6 +47,7 @@ func main() {
 
 	people.InitPeopleRepo(people.NewPersonRepository(database.Db))
 	wheel.InitWheelRepo(wheel.NewWheelRepository(database.Db))
+	vibecheck.InitVibeCheckRepo(vibecheck.NewVibeCheckRepository(database.Db))
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)

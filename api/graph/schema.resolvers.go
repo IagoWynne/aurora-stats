@@ -7,6 +7,7 @@ package graph
 import (
 	"aurora-stats/api/graph/model"
 	"aurora-stats/api/internal/people"
+	"aurora-stats/api/internal/vibecheck"
 	"aurora-stats/api/internal/wheel"
 	"context"
 	"time"
@@ -47,6 +48,19 @@ func (r *mutationResolver) AddWheelRun(ctx context.Context, date time.Time, winn
 	wheelRunID, err := wheel.SaveWheelRun(date, winnerID, resultID)
 
 	return &model.InsertResponse{ID: wheelRunID}, err
+}
+
+// AddVibeCheck is the resolver for the addVibeCheck field.
+func (r *mutationResolver) AddVibeCheck(ctx context.Context, date time.Time, scores []*model.VibeCheckInputScore) (bool, error) {
+	var inputScores []vibecheck.DomainVibeCheckScore
+
+	for i := range scores {
+		inputScores = append(inputScores, mapGQLVibeCheckScoreToDomain(scores[i]))
+	}
+
+	err := vibecheck.SaveVibeCheck(date, inputScores)
+
+	return err == nil, err
 }
 
 // People is the resolver for the people field.
@@ -95,6 +109,21 @@ func (r *queryResolver) WheelResults(ctx context.Context, from time.Time, to *ti
 	}
 
 	return wheelWinResults, nil
+}
+
+// VibeChecks is the resolver for the vibeChecks field.
+func (r *queryResolver) VibeChecks(ctx context.Context, from time.Time, to time.Time) ([]*model.VibeCheck, error) {
+	results, err := vibecheck.GetVibeChecksBetween(from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	var vibeChecks []*model.VibeCheck
+	for _, result := range results {
+		vibeChecks = append(vibeChecks, mapDomainVibeCheckToGQL(result))
+	}
+
+	return vibeChecks, nil
 }
 
 // Mutation returns MutationResolver implementation.

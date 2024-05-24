@@ -58,6 +58,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		AddVibeCheck   func(childComplexity int, date time.Time, scores []*model.VibeCheckInputScore) int
 		AddWheelOption func(childComplexity int, name string) int
 		AddWheelRun    func(childComplexity int, date time.Time, winnerID int64, resultID int64) int
 		CreatePerson   func(childComplexity int, firstName string, lastName string) int
@@ -72,8 +73,21 @@ type ComplexityRoot struct {
 
 	Query struct {
 		People       func(childComplexity int) int
+		VibeChecks   func(childComplexity int, from time.Time, to time.Time) int
 		WheelOptions func(childComplexity int) int
 		WheelResults func(childComplexity int, from time.Time, to *time.Time) int
+	}
+
+	VibeCheck struct {
+		AverageScore func(childComplexity int) int
+		Date         func(childComplexity int) int
+		Scores       func(childComplexity int) int
+	}
+
+	VibeCheckScore struct {
+		ID     func(childComplexity int) int
+		Person func(childComplexity int) int
+		Score  func(childComplexity int) int
 	}
 
 	WheelOption struct {
@@ -94,11 +108,13 @@ type MutationResolver interface {
 	DeletePerson(ctx context.Context, id int64) (*model.DeleteResponse, error)
 	AddWheelOption(ctx context.Context, name string) (*model.InsertResponse, error)
 	AddWheelRun(ctx context.Context, date time.Time, winnerID int64, resultID int64) (*model.InsertResponse, error)
+	AddVibeCheck(ctx context.Context, date time.Time, scores []*model.VibeCheckInputScore) (bool, error)
 }
 type QueryResolver interface {
 	People(ctx context.Context) ([]*model.Person, error)
 	WheelOptions(ctx context.Context) ([]*model.WheelOption, error)
 	WheelResults(ctx context.Context, from time.Time, to *time.Time) ([]*model.WheelResult, error)
+	VibeChecks(ctx context.Context, from time.Time, to time.Time) ([]*model.VibeCheck, error)
 }
 
 type executableSchema struct {
@@ -140,6 +156,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.InsertResponse.ID(childComplexity), true
+
+	case "Mutation.addVibeCheck":
+		if e.complexity.Mutation.AddVibeCheck == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addVibeCheck_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddVibeCheck(childComplexity, args["date"].(time.Time), args["scores"].([]*model.VibeCheckInputScore)), true
 
 	case "Mutation.addWheelOption":
 		if e.complexity.Mutation.AddWheelOption == nil {
@@ -217,6 +245,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.People(childComplexity), true
 
+	case "Query.vibeChecks":
+		if e.complexity.Query.VibeChecks == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vibeChecks_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.VibeChecks(childComplexity, args["from"].(time.Time), args["to"].(time.Time)), true
+
 	case "Query.wheelOptions":
 		if e.complexity.Query.WheelOptions == nil {
 			break
@@ -235,6 +275,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.WheelResults(childComplexity, args["from"].(time.Time), args["to"].(*time.Time)), true
+
+	case "VibeCheck.averageScore":
+		if e.complexity.VibeCheck.AverageScore == nil {
+			break
+		}
+
+		return e.complexity.VibeCheck.AverageScore(childComplexity), true
+
+	case "VibeCheck.date":
+		if e.complexity.VibeCheck.Date == nil {
+			break
+		}
+
+		return e.complexity.VibeCheck.Date(childComplexity), true
+
+	case "VibeCheck.scores":
+		if e.complexity.VibeCheck.Scores == nil {
+			break
+		}
+
+		return e.complexity.VibeCheck.Scores(childComplexity), true
+
+	case "VibeCheckScore.id":
+		if e.complexity.VibeCheckScore.ID == nil {
+			break
+		}
+
+		return e.complexity.VibeCheckScore.ID(childComplexity), true
+
+	case "VibeCheckScore.person":
+		if e.complexity.VibeCheckScore.Person == nil {
+			break
+		}
+
+		return e.complexity.VibeCheckScore.Person(childComplexity), true
+
+	case "VibeCheckScore.score":
+		if e.complexity.VibeCheckScore.Score == nil {
+			break
+		}
+
+		return e.complexity.VibeCheckScore.Score(childComplexity), true
 
 	case "WheelOption.id":
 		if e.complexity.WheelOption.ID == nil {
@@ -285,7 +367,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputVibeCheckInputScore,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -401,6 +485,30 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_addVibeCheck_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 time.Time
+	if tmp, ok := rawArgs["date"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+		arg0, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["date"] = arg0
+	var arg1 []*model.VibeCheckInputScore
+	if tmp, ok := rawArgs["scores"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scores"))
+		arg1, err = ec.unmarshalNVibeCheckInputScore2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckInputScoreᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["scores"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_addWheelOption_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -500,6 +608,30 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_vibeChecks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 time.Time
+	if tmp, ok := rawArgs["from"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+		arg0, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["from"] = arg0
+	var arg1 time.Time
+	if tmp, ok := rawArgs["to"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["to"] = arg1
 	return args, nil
 }
 
@@ -935,6 +1067,61 @@ func (ec *executionContext) fieldContext_Mutation_addWheelRun(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_addVibeCheck(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addVibeCheck(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddVibeCheck(rctx, fc.Args["date"].(time.Time), fc.Args["scores"].([]*model.VibeCheckInputScore))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addVibeCheck(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addVibeCheck_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Person_id(ctx context.Context, field graphql.CollectedField, obj *model.Person) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Person_id(ctx, field)
 	if err != nil {
@@ -1234,6 +1421,69 @@ func (ec *executionContext) fieldContext_Query_wheelResults(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_vibeChecks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_vibeChecks(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().VibeChecks(rctx, fc.Args["from"].(time.Time), fc.Args["to"].(time.Time))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.VibeCheck)
+	fc.Result = res
+	return ec.marshalNVibeCheck2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_vibeChecks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "date":
+				return ec.fieldContext_VibeCheck_date(ctx, field)
+			case "scores":
+				return ec.fieldContext_VibeCheck_scores(ctx, field)
+			case "averageScore":
+				return ec.fieldContext_VibeCheck_averageScore(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VibeCheck", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_vibeChecks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -1358,6 +1608,286 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VibeCheck_date(ctx context.Context, field graphql.CollectedField, obj *model.VibeCheck) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VibeCheck_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VibeCheck_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VibeCheck",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VibeCheck_scores(ctx context.Context, field graphql.CollectedField, obj *model.VibeCheck) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VibeCheck_scores(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Scores, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.VibeCheckScore)
+	fc.Result = res
+	return ec.marshalNVibeCheckScore2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckScoreᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VibeCheck_scores(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VibeCheck",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_VibeCheckScore_id(ctx, field)
+			case "person":
+				return ec.fieldContext_VibeCheckScore_person(ctx, field)
+			case "score":
+				return ec.fieldContext_VibeCheckScore_score(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VibeCheckScore", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VibeCheck_averageScore(ctx context.Context, field graphql.CollectedField, obj *model.VibeCheck) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VibeCheck_averageScore(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AverageScore, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VibeCheck_averageScore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VibeCheck",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VibeCheckScore_id(ctx context.Context, field graphql.CollectedField, obj *model.VibeCheckScore) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VibeCheckScore_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VibeCheckScore_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VibeCheckScore",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VibeCheckScore_person(ctx context.Context, field graphql.CollectedField, obj *model.VibeCheckScore) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VibeCheckScore_person(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Person, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Person)
+	fc.Result = res
+	return ec.marshalNPerson2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐPerson(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VibeCheckScore_person(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VibeCheckScore",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Person_id(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Person_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Person_lastName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Person", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VibeCheckScore_score(ctx context.Context, field graphql.CollectedField, obj *model.VibeCheckScore) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VibeCheckScore_score(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VibeCheckScore_score(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VibeCheckScore",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3414,6 +3944,40 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputVibeCheckInputScore(ctx context.Context, obj interface{}) (model.VibeCheckInputScore, error) {
+	var it model.VibeCheckInputScore
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"personId", "score"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "personId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("personId"))
+			data, err := ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PersonID = data
+		case "score":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Score = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3548,6 +4112,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "addWheelRun":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_addWheelRun(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "addVibeCheck":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addVibeCheck(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3709,6 +4280,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "vibeChecks":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_vibeChecks(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -3717,6 +4310,104 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var vibeCheckImplementors = []string{"VibeCheck"}
+
+func (ec *executionContext) _VibeCheck(ctx context.Context, sel ast.SelectionSet, obj *model.VibeCheck) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vibeCheckImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VibeCheck")
+		case "date":
+			out.Values[i] = ec._VibeCheck_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "scores":
+			out.Values[i] = ec._VibeCheck_scores(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "averageScore":
+			out.Values[i] = ec._VibeCheck_averageScore(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var vibeCheckScoreImplementors = []string{"VibeCheckScore"}
+
+func (ec *executionContext) _VibeCheckScore(ctx context.Context, sel ast.SelectionSet, obj *model.VibeCheckScore) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vibeCheckScoreImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VibeCheckScore")
+		case "id":
+			out.Values[i] = ec._VibeCheckScore_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "person":
+			out.Values[i] = ec._VibeCheckScore_person(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "score":
+			out.Values[i] = ec._VibeCheckScore_score(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4193,6 +4884,21 @@ func (ec *executionContext) marshalNDeleteResponse2ᚖauroraᚑstatsᚋapiᚋgra
 	return ec._DeleteResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) unmarshalNID2int64(ctx context.Context, v interface{}) (int64, error) {
 	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4319,6 +5025,136 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNVibeCheck2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VibeCheck) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNVibeCheck2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheck(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNVibeCheck2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheck(ctx context.Context, sel ast.SelectionSet, v *model.VibeCheck) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VibeCheck(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNVibeCheckInputScore2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckInputScoreᚄ(ctx context.Context, v interface{}) ([]*model.VibeCheckInputScore, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.VibeCheckInputScore, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNVibeCheckInputScore2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckInputScore(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNVibeCheckInputScore2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckInputScore(ctx context.Context, v interface{}) (*model.VibeCheckInputScore, error) {
+	res, err := ec.unmarshalInputVibeCheckInputScore(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNVibeCheckScore2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckScoreᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VibeCheckScore) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNVibeCheckScore2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckScore(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNVibeCheckScore2ᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐVibeCheckScore(ctx context.Context, sel ast.SelectionSet, v *model.VibeCheckScore) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VibeCheckScore(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWheelOption2ᚕᚖauroraᚑstatsᚋapiᚋgraphᚋmodelᚐWheelOptionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WheelOption) graphql.Marshaler {

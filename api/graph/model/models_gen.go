@@ -27,6 +27,23 @@ type Person struct {
 type Query struct {
 }
 
+type VibeCheck struct {
+	Date         time.Time         `json:"date"`
+	Scores       []*VibeCheckScore `json:"scores"`
+	AverageScore float64           `json:"averageScore"`
+}
+
+type VibeCheckInputScore struct {
+	PersonID int64   `json:"personId"`
+	Score    float64 `json:"score"`
+}
+
+type VibeCheckScore struct {
+	ID     int64   `json:"id"`
+	Person *Person `json:"person"`
+	Score  float64 `json:"score"`
+}
+
 type WheelOption struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`

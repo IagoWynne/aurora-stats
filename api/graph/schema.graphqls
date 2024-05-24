@@ -11,7 +11,6 @@ type InsertResponse {
   id: ID!
 }
 
-# Options
 type Person {
   id: ID!
   firstName: String!
@@ -23,7 +22,6 @@ type WheelOption {
   name: String!
 }
 
-# Wheel Stats
 type WheelResult {
   id: ID!
   date: Time!
@@ -31,10 +29,28 @@ type WheelResult {
   prize: WheelOption!
 }
 
+type VibeCheckScore {
+  id: ID!
+  person: Person!
+  score: Float!
+}
+
+input VibeCheckInputScore {
+  personId: Int!,
+  score: Float!
+}
+
+type VibeCheck {
+  date: Time!
+  scores: [VibeCheckScore!]!
+  averageScore: Float!
+}
+
 type Query {
   people: [Person!]!
   wheelOptions: [WheelOption!]!
   wheelResults(from: Time!, to: Time): [WheelResult!]!
+  vibeChecks(from: Time!, to: Time!): [VibeCheck!]!
 }
 
 type Mutation {
@@ -42,4 +58,5 @@ type Mutation {
   deletePerson(id: ID!): DeleteResponse!
   addWheelOption(name: String!): InsertResponse!
   addWheelRun(date: Time!, winnerId: Int!, resultId: Int!): InsertResponse!
+  addVibeCheck(date: Time!, scores: [VibeCheckInputScore!]!): Boolean!
 }

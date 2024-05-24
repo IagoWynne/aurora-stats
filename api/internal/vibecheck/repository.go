@@ -42,7 +42,7 @@ func (m VibeCheckRepository) Create(date time.Time, scores []DomainVibeCheckScor
 	var records []mySqlVibeCheck
 
 	for _, domainScore := range scores {
-		records = append(records, mapScoreFromDomainToDb(domainScore))
+		records = append(records, mapScoreFromDomainToDb(domainScore, date))
 	}
 
 	err := database.BatchInsert(m.db, query, records, "vibe_check score")
@@ -53,15 +53,16 @@ func (m VibeCheckRepository) Create(date time.Time, scores []DomainVibeCheckScor
 	return nil
 }
 
-func mapScoreFromDomainToDb(domainScore DomainVibeCheckScore) mySqlVibeCheck {
+func mapScoreFromDomainToDb(domainScore DomainVibeCheckScore, date time.Time) mySqlVibeCheck {
 	return mySqlVibeCheck{
 		Score:    domainScore.Score,
 		PersonId: domainScore.Person.ID,
+		Date:     date,
 	}
 }
 
 func (m VibeCheckRepository) GetBetweenDates(from time.Time, to time.Time) ([]DomainVibeCheckScore, error) {
-	query := `SELECT id, person_id, score, first_name, last_name
+	query := `SELECT vibe_check.id as id, vibe_check_date, person_id, score, first_name, last_name
 	FROM vibe_check
 	INNER JOIN person on vibe_check.person_id = person.id
 	WHERE vibe_check_date BETWEEN ? AND ?`
