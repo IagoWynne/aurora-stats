@@ -1,6 +1,6 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { PersonType, WheelOptionType, WheelResultType } from "../../types";
-import { formatDate, subDays } from "date-fns";
+import { WheelResultType } from "../../types";
+import { subDays } from "date-fns";
 import { useQuery } from "@apollo/client";
 import { GET_WHEEL_RESULTS_BETWEEN } from "../queries";
 

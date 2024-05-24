@@ -65,6 +65,26 @@ func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType s
 	return id, nil
 }
 
+func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType string) error {
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		err = finishTransaction(err, tx)
+	}()
+
+	_, err = db.NamedExec(query, records)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("%d %s inserted", len(records), entityType)
+
+	return nil
+}
+
 func UpdateRecord[T any](db *sqlx.DB, query string, record T, entityType string) (T, error) {
 	tx, err := db.Beginx()
 	if err != nil {
