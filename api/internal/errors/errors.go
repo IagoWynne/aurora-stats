@@ -45,3 +45,19 @@ func NewMultipleRequiredValueMissingError(fields []string) error {
 		msg,
 	}
 }
+
+type InvalidValueError struct {
+	msg string
+}
+
+func (error *InvalidValueError) Error() string {
+	return error.msg
+}
+
+func NewInvalidValueError(field string, value any) error {
+	msg := fmt.Sprintf("%v is an invalid value for %s", value, field)
+
+	return &InvalidValueError{
+		msg,
+	}
+}
