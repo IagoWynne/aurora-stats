@@ -4,7 +4,7 @@ import {
   RECORD_WHEEL_WIN_MUTATION,
   GET_WHEEL_RESULTS_BETWEEN,
 } from "../queries";
-import { formatDate, subDays } from "date-fns";
+import { subDays } from "date-fns";
 
 export interface WheelRunState {
   runDate: Date;
@@ -36,7 +36,7 @@ export const WheelRunContextProvider: (
     resultId: number
   ) =>
     await addWheelWin({
-      variables: { date: formatDate(date, "yyyy-MM-dd"), winnerId, resultId },
+      variables: { date: date.toISOString(), winnerId, resultId },
     });
 
   if (addResultLoading) {

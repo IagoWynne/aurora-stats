@@ -4,7 +4,6 @@ import { useQuery } from "@apollo/client";
 import {
   GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY,
 } from "../queries";
-import { formatDate, subDays } from "date-fns";
 
 export interface WheelRunState {
   wheelOptions: WheelOptionType[];
