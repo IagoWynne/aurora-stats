@@ -1,24 +1,10 @@
 import React from "react";
 import { useWheelRunContext } from "../../contexts/WheelRunContext";
 import { Button, DateInput, Select } from "../../../Common";
-import { createUseStyles } from "react-jss";
+
 import { useWheelContext } from "../../contexts/WheelContext";
 
-const useStyles = createUseStyles({
-  container: {
-    padding: "0 0 1rem 0",
-    display: "flex",
-    justifyContent: "space-evenly",
-    alignContent: "stretch",
-    "& > div": {
-      width: "30%",
-    },
-    marginLeft: "-22px",
-  },
-});
-
 const AddResultForm = (): JSX.Element => {
-  const styles = useStyles();
   const { runDate, recordWheelWin } = useWheelRunContext();
   const { wheelOptions, people } = useWheelContext();
 
@@ -44,26 +30,18 @@ const AddResultForm = (): JSX.Element => {
     recordWheelWin(
       new Date(target.date.value),
       parseInt(target.winner.value),
-      parseInt(target.result.value)
+      parseInt(target.result.value),
     );
   };
 
   return (
     <form onSubmit={(event) => onSubmit(event)}>
-      <div className={styles.container}>
+      <div>
         <div>
-          <Select
-            id="winner"
-            options={availablePeople}
-            label="Winner"
-          />
+          <Select id="winner" options={availablePeople} label="Winner" />
         </div>
         <div>
-          <Select
-            id="result"
-            options={availableResults}
-            label="Result"
-          />
+          <Select id="result" options={availableResults} label="Result" />
         </div>
         <div>
           <DateInput id="date" label="Date" value={runDate} />

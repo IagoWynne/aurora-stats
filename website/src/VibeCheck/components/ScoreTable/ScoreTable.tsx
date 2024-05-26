@@ -1,24 +1,7 @@
-import { createUseStyles } from "react-jss";
 import { formatDate } from "date-fns";
 import { useVibeCheckContext } from "../../contexts/VibeCheckContext";
 import { VibeCheck } from "../../types";
 import PersonCell from "./PersonCell";
-
-const useStyles = createUseStyles({
-  table: {
-    "& td": {
-      textAlign: "center",
-    },
-    "& thead": {
-      background: "#f0f0f0",
-    },
-    "& tbody": {
-      "& tr:nth-child(even)": {
-        background: "#f0f0f0",
-      },
-    },
-  },
-});
 
 interface Props {
   vibeChecks: VibeCheck[];
@@ -26,13 +9,12 @@ interface Props {
 
 const ScoreTable = ({ vibeChecks }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
-  const styles = useStyles();
 
   const formatVibeCheckDate = (date: string) =>
     formatDate(new Date(date), "dd/MM/yyyy");
 
   return (
-    <table className={styles.table}>
+    <table>
       <thead>
         <tr>
           <th>Date</th>

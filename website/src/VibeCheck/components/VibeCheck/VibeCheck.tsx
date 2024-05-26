@@ -12,7 +12,7 @@ const VibeCheck = (): JSX.Element => {
   return (
     <Suspense fallback={<Loading />}>
       <VibeCheckContextProvider>
-        <AddVibeCheck today={today} weekStart={weekStart}/>
+        <AddVibeCheck today={today} weekStart={weekStart} />
         <Suspense>
           <ScoreTableWithAverage from={weekStart} to={today} />
         </Suspense>

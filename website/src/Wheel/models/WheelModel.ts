@@ -13,7 +13,7 @@ export default class WheelModel {
   constructor(
     private items: string[],
     private size: number,
-    private ctx: CanvasRenderingContext2D
+    private ctx: CanvasRenderingContext2D,
   ) {
     this.COLOURS = [
       AURORA_DARK_GREEN,
@@ -72,7 +72,7 @@ export default class WheelModel {
   private drawWedge(
     sectionNumber: number,
     arcStartPoint: number,
-    arcEndPoint: number
+    arcEndPoint: number,
   ) {
     this.ctx.save();
     this.ctx.fillStyle = this.getColour(sectionNumber);
@@ -86,7 +86,7 @@ export default class WheelModel {
       this.centreY,
       this.radius,
       arcStartPoint,
-      arcEndPoint
+      arcEndPoint,
     );
     this.ctx.moveTo(this.centreX, this.centreY);
     this.ctx.fill();

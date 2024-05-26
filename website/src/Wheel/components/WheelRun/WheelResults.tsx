@@ -1,4 +1,3 @@
-import { createUseStyles } from "react-jss";
 import { WheelRunContextProvider } from "../../contexts/WheelRunContext";
 import { SectionContainer } from "../../../Common";
 import WheelResultsTable from "../WheelStats/WheelResultsTable";
@@ -9,15 +8,14 @@ import { WheelContextProvider } from "../../contexts/WheelContext";
 import { WheelStatsContextProvider } from "../../contexts/WheelStatsContext";
 
 const WheelResults = (): JSX.Element => {
-
   return (
     <WheelContextProvider>
       <WheelRunContextProvider>
         <WheelStatsContextProvider>
           <Link to="/wheel/stats">Wheel Stats</Link>
           {/* <SectionContainer>
-        <p className={styles.title}>The Wheel</p>
-        <div className={styles.container}>
+        <p>The Wheel</p>
+        <div>
           <PeopleWheel />
         </div>
       </SectionContainer> */}

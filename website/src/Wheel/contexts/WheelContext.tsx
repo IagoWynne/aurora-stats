@@ -1,9 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { WheelOptionType, PersonType } from "../../types";
 import { useQuery } from "@apollo/client";
-import {
-  GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY,
-} from "../queries";
+import { GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY } from "../queries";
 
 export interface WheelRunState {
   wheelOptions: WheelOptionType[];
@@ -13,7 +11,7 @@ export interface WheelRunState {
 const WheelContext = createContext<WheelRunState | undefined>(undefined);
 
 export const WheelContextProvider: (
-  props: PropsWithChildren
+  props: PropsWithChildren,
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
   const { loading, error, data } = useQuery(GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY);
 
@@ -41,7 +39,7 @@ export const useWheelContext = () => {
   const context = useContext(WheelContext);
   if (context === undefined) {
     throw new Error(
-      "useWheelContext must be rendered in a tree within a WheelContextProvider"
+      "useWheelContext must be rendered in a tree within a WheelContextProvider",
     );
   }
   return context;

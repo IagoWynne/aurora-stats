@@ -16,7 +16,7 @@ interface Props {
 const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
   const [vibeCheckPeople, setVibeCheckPeople] = useState<VibeCheckPerson[]>(
-    people.map((p) => ({ ...p, isSelected: true }))
+    people.map((p) => ({ ...p, isSelected: true })),
   );
   const [addVibeCheck] = useMutation(ADD_VIBE_CHECK_MUTATION, {
     refetchQueries: [
@@ -34,16 +34,16 @@ const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
       vibeCheckPeople.map((person) =>
         person.id === personId
           ? { ...person, isSelected: !person.isSelected }
-          : person
-      )
+          : person,
+      ),
     );
   };
 
   const onScoreChange = (personId: number, score: number) => {
     setVibeCheckPeople(
       vibeCheckPeople.map((person) =>
-        person.id === personId ? { ...person, score } : person
-      )
+        person.id === personId ? { ...person, score } : person,
+      ),
     );
   };
 
@@ -65,7 +65,7 @@ const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
         ...person,
         isSelected: true,
         score: null,
-      }))
+      })),
     );
   };
 
@@ -95,7 +95,9 @@ const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
           )}
         </form>
       )}
-      {submitted && <Button onClick={() => setSubmitted(false)}>New Vibe Check</Button>}
+      {submitted && (
+        <Button onClick={() => setSubmitted(false)}>New Vibe Check</Button>
+      )}
     </SectionContainer>
   );
 };

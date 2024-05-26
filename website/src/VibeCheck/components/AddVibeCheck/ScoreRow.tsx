@@ -1,11 +1,4 @@
-import { createUseStyles } from "react-jss";
 import { VibeCheckPerson } from "../../types";
-
-const useStyles = createUseStyles({
-    input: {
-        maxWidth: "75px"
-    }
-})
 
 interface Props {
   people: VibeCheckPerson[];
@@ -13,7 +6,6 @@ interface Props {
 }
 
 const ScoreRow = ({ people, onScoreChange }: Props): JSX.Element => {
-    const styles = useStyles();
   return (
     <tr>
       {people.map((person) => (
@@ -25,7 +17,6 @@ const ScoreRow = ({ people, onScoreChange }: Props): JSX.Element => {
               min={1}
               max={10}
               step={1}
-              className={styles.input}
               onChange={(event) =>
                 onScoreChange(person.id, Number(event.target.value))
               }

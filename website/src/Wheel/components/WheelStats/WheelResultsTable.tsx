@@ -1,35 +1,7 @@
-import { useQuery } from "@apollo/client";
-import { GET_WHEEL_RESULTS_BETWEEN } from "../../queries/getWheelResults";
-import { PersonType } from "../../../types";
-import { formatDate, subDays } from "date-fns";
-import { createUseStyles } from "react-jss";
+import { formatDate } from "date-fns";
 import { useWheelStatsContext } from "../../contexts/WheelStatsContext";
 
-const useStyles = createUseStyles({
-  resultsTable: {
-    width: "100%",
-    "& td": {
-      textAlign: "center",
-    },
-    "& thead": {
-      background: "#f0f0f0",
-    },
-    "& tbody": {
-      "& tr:nth-child(even)": {
-        background: "#f0f0f0",
-      },
-    },
-  },
-  dateCell: {
-    width: "105px",
-  },
-  resultCell: {
-    width: "105px",
-  },
-});
-
 const WheelResultsTable = (): JSX.Element => {
-  const styles = useStyles();
   const { results } = useWheelStatsContext();
 
   const items = results.map((result) => ({
@@ -40,12 +12,12 @@ const WheelResultsTable = (): JSX.Element => {
   }));
 
   return (
-    <table className={styles.resultsTable}>
+    <table>
       <thead>
         <tr>
-          <th className={styles.dateCell}>Date</th>
+          <th>Date</th>
           <th>Winner</th>
-          <th className={styles.resultCell}>Prize</th>
+          <th>Prize</th>
         </tr>
       </thead>
       <tbody>
@@ -57,13 +29,11 @@ const WheelResultsTable = (): JSX.Element => {
             prize: string;
           }) => (
             <tr key={result.id}>
-              <td className={styles.dateCell}>
-                {formatDate(result.date, "dd-MM-yyyy")}
-              </td>
+              <td>{formatDate(result.date, "dd-MM-yyyy")}</td>
               <td>{result.winner}</td>
-              <td className={styles.resultCell}>{result.prize}</td>
+              <td>{result.prize}</td>
             </tr>
-          )
+          ),
         )}
       </tbody>
     </table>

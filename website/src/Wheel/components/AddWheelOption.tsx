@@ -1,5 +1,4 @@
 import { useMutation } from "@apollo/client";
-import { useFormStyles } from "../../Common";
 import {
   ADD_WHEEL_OPTION_MUTATION,
   GET_WHEEL_OPTIONS_QUERY,
@@ -18,9 +17,8 @@ const AddWheelOption = ({ onSuccess }: Props): JSX.Element => {
         { query: GET_WHEEL_OPTIONS_QUERY },
         { query: GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY },
       ],
-    }
+    },
   );
-  const styles = useFormStyles();
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,19 +45,11 @@ const AddWheelOption = ({ onSuccess }: Props): JSX.Element => {
   }
 
   return (
-    <form onSubmit={onSubmit} className={styles.form}>
+    <form onSubmit={onSubmit}>
       <label>
-        <input
-          type="text"
-          name="option"
-          placeholder="Option"
-          className={styles.input}
-          required
-        />
+        <input type="text" name="option" placeholder="Option" required />
       </label>
-      <button type="submit" className={styles.submitButton}>
-        +
-      </button>
+      <button type="submit">+</button>
     </form>
   );
 };

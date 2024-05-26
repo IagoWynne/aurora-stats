@@ -1,14 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { createUseStyles } from "react-jss";
-import { WheelModel } from "../../models";
 
-const useStyles = createUseStyles({
-  wheel: {
-    display: "block",
-    margin: "0 auto",
-  },
-  wheelContainer: {},
-});
+import { WheelModel } from "../../models";
 
 interface Props {
   items: string[];
@@ -29,7 +21,6 @@ const getSpeedModifier = (currentSpeed: number): number => {
 
 const Wheel = ({ items, size }: Props): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const styles = useStyles();
 
   const afterStopDelaySeconds = 5;
   const idleSpeed = 50;
@@ -66,30 +57,34 @@ const Wheel = ({ items, size }: Props): JSX.Element => {
 
   useEffect(() => {
     if (wheel) {
-      const interval = setInterval(() => {
-        const randomNumber = Math.random();
+      const interval = setInterval(
+        () => {
+          const randomNumber = Math.random();
 
-        if (speed <= 1) {
-          setWheelStopped(true);
-          setSpeed(0);
+          if (speed <= 1) {
+            setWheelStopped(true);
+            setSpeed(0);
 
-          setTimeout(() => {
-            setIsSpinning(false);
-            setWheelStopped(false);
-            setSpeed(idleSpeed);
-          }, afterStopDelaySeconds * 1000);
-        } else if (isSpinning) {
-          if (!wheelStopped) {
-            const speedModifier = getSpeedModifier(speed);
-            setSpeed(
-              speed -
-                (speed /
-                  (Math.floor(randomNumber * speedModifier) + speedModifier)) *
-                  10
-            );
+            setTimeout(() => {
+              setIsSpinning(false);
+              setWheelStopped(false);
+              setSpeed(idleSpeed);
+            }, afterStopDelaySeconds * 1000);
+          } else if (isSpinning) {
+            if (!wheelStopped) {
+              const speedModifier = getSpeedModifier(speed);
+              setSpeed(
+                speed -
+                  (speed /
+                    (Math.floor(randomNumber * speedModifier) +
+                      speedModifier)) *
+                    10,
+              );
+            }
           }
-        }
-      }, 1000 / (fps / 5));
+        },
+        1000 / (fps / 5),
+      );
 
       return () => {
         clearInterval(interval);
@@ -107,7 +102,6 @@ const Wheel = ({ items, size }: Props): JSX.Element => {
   return (
     <div>
       <canvas
-        className={styles.wheel}
         ref={canvasRef}
         width={`${size + 20}px`}
         height={size}

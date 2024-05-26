@@ -1,14 +1,11 @@
 import { useMutation } from "@apollo/client";
 import React from "react";
 import { ADD_PERSON_MUTATION, GET_PEOPLE_QUERY } from "../queries";
-import { useFormStyles } from "../../Common";
 
 const NewPerson = (): JSX.Element => {
   const [addPerson, { loading, error }] = useMutation(ADD_PERSON_MUTATION, {
     refetchQueries: [{ query: GET_PEOPLE_QUERY }],
   });
-
-  const styles = useFormStyles();
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,28 +32,14 @@ const NewPerson = (): JSX.Element => {
   }
 
   return (
-    <form onSubmit={onSubmit} className={styles.form}>
+    <form onSubmit={onSubmit}>
       <label>
-        <input
-          type="text"
-          name="firstName"
-          placeholder="First Name"
-          className={styles.input}
-          required
-        />
+        <input type="text" name="firstName" placeholder="First Name" required />
       </label>
       <label>
-        <input
-          type="text"
-          name="lastName"
-          placeholder="Last Name"
-          className={styles.input}
-          required
-        />
+        <input type="text" name="lastName" placeholder="Last Name" required />
       </label>
-      <button type="submit" className={styles.submitButton}>
-        +
-      </button>
+      <button type="submit">+</button>
     </form>
   );
 };

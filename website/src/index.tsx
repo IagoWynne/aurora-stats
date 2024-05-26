@@ -16,7 +16,7 @@ import WheelStats from "./Wheel/components/WheelStats/WheelStats";
 import VibeCheck from "./VibeCheck";
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById("root") as HTMLElement,
 );
 
 console.log(process.env);
@@ -53,8 +53,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/vibecheck",
-        element: <VibeCheck />
-      }
+        element: <VibeCheck />,
+      },
     ],
   },
 ]);
@@ -64,5 +64,5 @@ root.render(
     <ApolloProvider client={client}>
       <RouterProvider router={router} />
     </ApolloProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

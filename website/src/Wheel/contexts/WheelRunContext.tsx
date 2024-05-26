@@ -14,7 +14,7 @@ export interface WheelRunState {
 const WheelRunContext = createContext<WheelRunState | undefined>(undefined);
 
 export const WheelRunContextProvider: (
-  props: PropsWithChildren
+  props: PropsWithChildren,
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
   const [addWheelWin, { loading: addResultLoading, error: addResultError }] =
     useMutation(RECORD_WHEEL_WIN_MUTATION, {
@@ -33,7 +33,7 @@ export const WheelRunContextProvider: (
   const recordWheelWin = async (
     date: Date,
     winnerId: number,
-    resultId: number
+    resultId: number,
   ) =>
     await addWheelWin({
       variables: { date: date.toISOString(), winnerId, resultId },
@@ -63,7 +63,7 @@ export const useWheelRunContext = () => {
   const context = useContext(WheelRunContext);
   if (context === undefined) {
     throw new Error(
-      "useWheelRunContext must be rendered in a tree within a WheelRunContextProvider"
+      "useWheelRunContext must be rendered in a tree within a WheelRunContextProvider",
     );
   }
   return context;
