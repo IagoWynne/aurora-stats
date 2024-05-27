@@ -1,6 +1,7 @@
 import { useMutation } from "@apollo/client";
 import React from "react";
 import { ADD_PERSON_MUTATION, GET_PEOPLE_QUERY } from "../queries";
+import { Button } from "../../Common";
 
 const NewPerson = (): JSX.Element => {
   const [addPerson, { loading, error }] = useMutation(ADD_PERSON_MUTATION, {
@@ -34,12 +35,12 @@ const NewPerson = (): JSX.Element => {
   return (
     <form onSubmit={onSubmit}>
       <label>
-        <input type="text" name="firstName" placeholder="First Name" required />
+        <input type="text" name="firstName" placeholder="First Name" required className="border-b-[1px] border-slate-800 p-2 mr-2"/>
       </label>
       <label>
-        <input type="text" name="lastName" placeholder="Last Name" required />
+        <input type="text" name="lastName" placeholder="Last Name" required className="border-b-[1px] border-slate-800 p-2"/>
       </label>
-      <button type="submit">+</button>
+      <Button type="submit" className="w-10 ml-2">+</Button>
     </form>
   );
 };
