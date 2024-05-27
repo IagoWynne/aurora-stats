@@ -3,7 +3,7 @@ import Nav from "./Nav";
 
 function App() {
   return (
-    <div className="h-screen bg-gradient-to-tl from-emerald-500 from-5% via-green-400 to-40% to-white">
+    <div className="h-screen bg-gradient-to-tl from-secondary from-5% via-primary to-40% to-background">
       <Nav />
       <Outlet />
     </div>

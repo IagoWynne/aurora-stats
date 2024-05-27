@@ -8,7 +8,7 @@ const Nav = (): JSX.Element => {
   ];
 
   return (
-    <nav className="bg-gradient-to-l from-emerald-500 from-5% via-green-400 to-80% to-white h-auto border-b-2 border-b-black">
+    <nav className="bg-gradient-to-r from-white from-20% via-primary via-85% to-secondary h-auto border-b-2 border-b-black">
       <ul className="list-none">
         <li className="nav-link">
           <Link to="/">

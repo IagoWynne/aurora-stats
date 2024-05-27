@@ -20,7 +20,7 @@ const WheelResultsTable = ({
 
   return (
     <>
-      <div className="pb-2">
+      <div className="pb-2 m-2">
         <table className="w-full table-fixed text-center">
           <thead>
             <tr className="bg-gray-300">
