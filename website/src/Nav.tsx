@@ -8,13 +8,15 @@ const Nav = (): JSX.Element => {
   ];
 
   return (
-    <nav>
-      <Link to="/">
-        <img src="/aurora-logo.jpeg" height="51px" />
-      </Link>
-      <ul>
+    <nav className="bg-gradient-to-l from-emerald-500 from-5% via-green-400 to-80% to-white h-auto border-b-2 border-b-black">
+      <ul className="list-none">
+        <li className="nav-link">
+          <Link to="/">
+            <img src="/aurora-logo.jpeg" className="max-h-[50px] inline" />
+          </Link>
+        </li>
         {links.map((link) => (
-          <li key={link.to}>
+          <li key={link.to} className="nav-link">
             <Link to={link.to}>{link.label}</Link>
           </li>
         ))}
