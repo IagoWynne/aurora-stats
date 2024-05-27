@@ -1,32 +1,34 @@
-import { createUseStyles } from "react-jss";
 import { WheelRunContextProvider } from "../../contexts/WheelRunContext";
-import { SectionContainer } from "../../../Common";
+import { ContainerContent, SectionContainer } from "../../../Common";
 import WheelResultsTable from "../WheelStats/WheelResultsTable";
 import PeopleWheel from "./PeopleWheel";
 import AddResultForm from "./AddResultForm";
-import { Link } from "react-router-dom";
 import { WheelContextProvider } from "../../contexts/WheelContext";
 import { WheelStatsContextProvider } from "../../contexts/WheelStatsContext";
 
 const WheelResults = (): JSX.Element => {
-
   return (
     <WheelContextProvider>
       <WheelRunContextProvider>
         <WheelStatsContextProvider>
-          <Link to="/wheel/stats">Wheel Stats</Link>
-          {/* <SectionContainer>
-        <p className={styles.title}>The Wheel</p>
-        <div className={styles.container}>
+          <div className="m-auto max-w-screen-xl">
+            {/* <SectionContainer>
+        <p>The Wheel</p>
+        <div>
           <PeopleWheel />
         </div>
       </SectionContainer> */}
-          <SectionContainer title="Add Wheel Result">
-            <AddResultForm />
-          </SectionContainer>
-          <SectionContainer title="Recent Runs">
-            <WheelResultsTable />
-          </SectionContainer>
+            <SectionContainer title="Add Wheel Result">
+              <ContainerContent>
+                <AddResultForm />
+              </ContainerContent>
+            </SectionContainer>
+            <SectionContainer title="Recent Runs">
+              <ContainerContent>
+                <WheelResultsTable showFullStatsButton />
+              </ContainerContent>
+            </SectionContainer>
+          </div>
         </WheelStatsContextProvider>
       </WheelRunContextProvider>
     </WheelContextProvider>

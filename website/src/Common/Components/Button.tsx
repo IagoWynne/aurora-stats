@@ -1,39 +1,18 @@
-import { createUseStyles } from "react-jss";
-import { AURORA_LIGHT_GREEN } from "../../Colours";
-import { PropsWithChildren } from "react";
+import { HTMLProps, PropsWithChildren } from "react";
 
-const useStyles = createUseStyles({
-  defaultButton: {
-    background: AURORA_LIGHT_GREEN,
-    padding: "10px",
-    border: "none",
-    borderRadius: 0,
-    cursor: "pointer",
-    fontWeight: "bold",
-    width: "100%",
-  },
-});
-
-interface Props extends PropsWithChildren {
+interface Props extends PropsWithChildren<HTMLProps<HTMLButtonElement>> {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
-  additionalClasses?: string;
 }
 
 const Button = ({
   onClick,
   type,
-  additionalClasses,
   children,
+  ...rest
 }: Props): JSX.Element => {
-  const styles = useStyles();
-
-  const buttonClasses = additionalClasses
-    ? `${additionalClasses} ${styles.defaultButton}`
-    : styles.defaultButton;
-
   return (
-    <button type={type ?? "button"} onClick={onClick} className={buttonClasses}>
+    <button type={type ?? "button"} onClick={onClick} className={`button ${rest.className}`}>
       {children}
     </button>
   );

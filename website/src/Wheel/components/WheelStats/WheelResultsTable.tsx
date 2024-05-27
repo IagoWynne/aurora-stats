@@ -1,35 +1,14 @@
-import { useQuery } from "@apollo/client";
-import { GET_WHEEL_RESULTS_BETWEEN } from "../../queries/getWheelResults";
-import { PersonType } from "../../../types";
-import { formatDate, subDays } from "date-fns";
-import { createUseStyles } from "react-jss";
+import { formatDate } from "date-fns";
 import { useWheelStatsContext } from "../../contexts/WheelStatsContext";
+import { Link } from "react-router-dom";
 
-const useStyles = createUseStyles({
-  resultsTable: {
-    width: "100%",
-    "& td": {
-      textAlign: "center",
-    },
-    "& thead": {
-      background: "#f0f0f0",
-    },
-    "& tbody": {
-      "& tr:nth-child(even)": {
-        background: "#f0f0f0",
-      },
-    },
-  },
-  dateCell: {
-    width: "105px",
-  },
-  resultCell: {
-    width: "105px",
-  },
-});
+interface Props {
+  showFullStatsButton?: boolean;
+}
 
-const WheelResultsTable = (): JSX.Element => {
-  const styles = useStyles();
+const WheelResultsTable = ({
+  showFullStatsButton = false,
+}: Props): JSX.Element => {
   const { results } = useWheelStatsContext();
 
   const items = results.map((result) => ({
@@ -40,33 +19,45 @@ const WheelResultsTable = (): JSX.Element => {
   }));
 
   return (
-    <table className={styles.resultsTable}>
-      <thead>
-        <tr>
-          <th className={styles.dateCell}>Date</th>
-          <th>Winner</th>
-          <th className={styles.resultCell}>Prize</th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map(
-          (result: {
-            id: number;
-            date: Date;
-            winner: string;
-            prize: string;
-          }) => (
-            <tr key={result.id}>
-              <td className={styles.dateCell}>
-                {formatDate(result.date, "dd-MM-yyyy")}
-              </td>
-              <td>{result.winner}</td>
-              <td className={styles.resultCell}>{result.prize}</td>
+    <>
+      <div className="pb-2 m-2">
+        <table className="w-full table-fixed text-center alternating-rows">
+          <thead>
+            <tr>
+              <th className="w-1/6">Date</th>
+              <th>Winner</th>
+              <th className="w-1/6">Prize</th>
             </tr>
-          )
-        )}
-      </tbody>
-    </table>
+          </thead>
+          <tbody>
+            {items.map(
+              (result: {
+                id: number;
+                date: Date;
+                winner: string;
+                prize: string;
+              }) => (
+                <tr key={result.id}>
+                  <td>{formatDate(result.date, "dd-MM-yyyy")}</td>
+                  <td>{result.winner}</td>
+                  <td>{result.prize}</td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
+      </div>
+      {showFullStatsButton && (
+        <div className="m-2">
+          <Link
+            to="/wheel/stats"
+            className="button p-2 inline-block text-center"
+          >
+            View Full Stats
+          </Link>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -15,7 +15,7 @@ export interface WheelStatsState {
 const WheelStatsContext = createContext<WheelStatsState | undefined>(undefined);
 
 export const WheelStatsContextProvider: (
-  props: PropsWithChildren<{}>
+  props: PropsWithChildren<{}>,
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
   const [to, setTo] = useState(new Date());
   const [from, setFrom] = useState(new Date(subDays(to, 28)));
@@ -54,7 +54,7 @@ export const useWheelStatsContext = () => {
   const context = useContext(WheelStatsContext);
   if (context === undefined) {
     throw new Error(
-      "useWheelStatsContext must be used within a WheelStatsContextProvider"
+      "useWheelStatsContext must be used within a WheelStatsContextProvider",
     );
   }
   return context;

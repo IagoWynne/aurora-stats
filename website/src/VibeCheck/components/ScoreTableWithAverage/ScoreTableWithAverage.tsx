@@ -1,25 +1,11 @@
 import { formatDate } from "date-fns";
-import { SectionContainer } from "../../../Common";
+import { ContainerContent, SectionContainer } from "../../../Common";
 import ScoreTable from "../ScoreTable/ScoreTable";
 import { useSuspenseQuery } from "@apollo/client";
 import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
 import { VibeCheck } from "../../types";
-import { createUseStyles } from "react-jss";
-import AverageScore from "../AverageScore";
 
-const useStyles = createUseStyles({
-  container: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "stretch",
-  },
-  scoreTable: {
-    width: "65%",
-  },
-  scoreBox: {
-    width: "32%",
-  },
-});
+import AverageScore from "../AverageScore";
 
 interface Props {
   from: Date;
@@ -36,33 +22,35 @@ const ScoreTableWithAverage = ({ from, to }: Props): JSX.Element => {
       },
     }
   );
-  const styles = useStyles();
 
   return (
-    <div className={styles.container}>
-      <div className={styles.scoreTable}>
-        <SectionContainer
-          title={`Scores between ${formatDate(
-            from,
-            "dd/MM/yyyy"
-          )} and ${formatDate(to, "dd/MM/yyyy")}`}
-        >
+    <div className="flex justify-between items-stretch">
+      <SectionContainer
+        title={`Scores between ${formatDate(
+          from,
+          "dd/MM/yyyy"
+        )} and ${formatDate(to, "dd/MM/yyyy")}`}
+        className="basis-2/3"
+      >
+        <ContainerContent>
           <ScoreTable vibeChecks={data.vibeChecks} />
-        </SectionContainer>
-      </div>
-      <div className={styles.scoreBox}>
-        <SectionContainer title="Average Score">
+        </ContainerContent>
+      </SectionContainer>
+      <SectionContainer title="Average Score" className="basis-1/3">
+        <ContainerContent>
           <AverageScore
-            score={data.vibeChecks.length ?
-              data.vibeChecks.reduce(
-                (total: number, current: VibeCheck) =>
-                  (total += current.averageScore),
-                0
-              ) / data.vibeChecks.length : null
+            score={
+              data.vibeChecks.length
+                ? data.vibeChecks.reduce(
+                    (total: number, current: VibeCheck) =>
+                      (total += current.averageScore),
+                    0
+                  ) / data.vibeChecks.length
+                : null
             }
           />
-        </SectionContainer>
-      </div>
+        </ContainerContent>
+      </SectionContainer>
     </div>
   );
 };

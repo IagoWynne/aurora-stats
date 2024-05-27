@@ -1,21 +1,5 @@
 import { formatDate } from "date-fns";
 import React from "react";
-import { createUseStyles } from "react-jss";
-
-const useStyles = createUseStyles({
-  dateLabel: {
-    fontWeight: "bold",
-    display: "block",
-    marginBottom: "5px",
-  },
-  defaultDate: {
-    padding: "10px",
-    background: "none",
-    border: "1px solid lightgrey",
-    display: "block",
-    width: "100%",
-  },
-});
 
 interface Props {
   id: string;
@@ -32,17 +16,16 @@ const DateInput = ({
   value,
   required,
 }: Props): JSX.Element => {
-  const styles = useStyles();
   return (
     <>
-      {label && <label className={styles.dateLabel}>{label}</label>}
+      {label && <label className="block">{label}</label>}
       <input
         id={id}
-        className={styles.defaultDate}
         type="date"
         onChange={onChange}
         defaultValue={value ? formatDate(value, "yyyy-MM-dd") : undefined}
         required={required || false}
+        className="block w-full p-2 bg-gray-50 border-[1px] border-black h-[40px]"
       />
     </>
   );

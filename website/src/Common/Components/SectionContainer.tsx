@@ -1,30 +1,19 @@
-import React, { PropsWithChildren } from "react";
-import { createUseStyles } from "react-jss";
+import { HTMLProps, PropsWithChildren } from "react";
 
-const useStyles = createUseStyles({
-  container: {
-    border: "1px solid black",
-    background: "white",
-    padding: "1rem",
-    marginBottom: "1rem",
-    height: "100%",
-  },
-  title: {
-    margin: 0,
-    fontWeight: "bold",
-    paddingBottom: "1rem",
-  },
-});
-
-interface Props extends PropsWithChildren {
+interface Props extends PropsWithChildren<HTMLProps<HTMLDivElement>> {
   title?: string;
 }
 
-const SectionContainer = ({ title, children }: Props): JSX.Element => {
-  const styles = useStyles();
+const SectionContainer = ({ title, children, ...rest }: Props): JSX.Element => {
   return (
-    <div className={styles.container}>
-      {title && <p className={styles.title}>{title}</p>}
+    <div
+      className={`border-slate-800 border-[1px] m-1 mt-4 bg-slate-100 ${rest.className ? rest.className : ""}`}
+    >
+      {title && (
+        <div className="bg-slate-800 text-white p-2">
+          <p className="font-bold">{title}</p>
+        </div>
+      )}
       {children}
     </div>
   );

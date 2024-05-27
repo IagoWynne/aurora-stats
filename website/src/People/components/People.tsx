@@ -3,7 +3,7 @@ import { GET_PEOPLE_QUERY } from "../queries";
 import Person from "./Person";
 import { PersonType } from "../../types";
 import NewPerson from "./NewPerson";
-import { SectionContainer } from "../../Common";
+import { ContainerContent, SectionContainer } from "../../Common";
 
 interface Props {}
 
@@ -19,12 +19,14 @@ const People = ({}: Props): JSX.Element => {
   }
 
   return (
-    <SectionContainer>
-      {data &&
-        data.people.map((person: PersonType) => (
-          <Person key={person.id} person={person} />
-        ))}
-      <NewPerson />
+    <SectionContainer title="People">
+      <ContainerContent>
+        {data &&
+          data.people.map((person: PersonType) => (
+            <Person key={person.id} person={person} />
+          ))}
+        <NewPerson />
+      </ContainerContent>
     </SectionContainer>
   );
 };

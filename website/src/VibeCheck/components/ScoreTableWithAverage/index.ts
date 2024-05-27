@@ -1,3 +1,3 @@
-import ScoreTableWithAverage from "./ScoreTableWithAverage"
+import ScoreTableWithAverage from "./ScoreTableWithAverage";
 
 export default ScoreTableWithAverage;

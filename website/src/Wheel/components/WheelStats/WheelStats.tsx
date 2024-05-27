@@ -1,4 +1,4 @@
-import { SectionContainer } from "../../../Common";
+import { ContainerContent, SectionContainer } from "../../../Common";
 import WheelResultsTable from "./WheelResultsTable";
 import StatsDateRangeSelector from "./StatsDateRangeSelector";
 import { WheelContextProvider } from "../../contexts/WheelContext";
@@ -9,14 +9,20 @@ const WheelStats = (): JSX.Element => {
   return (
     <WheelContextProvider>
       <WheelStatsContextProvider>
-        <SectionContainer title="Show Stats Between">
-          <StatsDateRangeSelector />
+        <SectionContainer>
+          <ContainerContent>
+            <StatsDateRangeSelector />
+          </ContainerContent>
         </SectionContainer>
         <SectionContainer title="Wheel Results">
-          <WheelResultsTable />
+          <ContainerContent>
+            <WheelResultsTable />
+          </ContainerContent>
         </SectionContainer>
         <SectionContainer title="Wins Per Person">
-          <WinsPerPersonGraph />
+          <ContainerContent>
+            <WinsPerPersonGraph />
+          </ContainerContent>
         </SectionContainer>
       </WheelStatsContextProvider>
     </WheelContextProvider>

@@ -1,24 +1,8 @@
-import { createUseStyles } from "react-jss";
 import { formatDate } from "date-fns";
 import { useVibeCheckContext } from "../../contexts/VibeCheckContext";
 import { VibeCheck } from "../../types";
 import PersonCell from "./PersonCell";
-
-const useStyles = createUseStyles({
-  table: {
-    "& td": {
-      textAlign: "center",
-    },
-    "& thead": {
-      background: "#f0f0f0",
-    },
-    "& tbody": {
-      "& tr:nth-child(even)": {
-        background: "#f0f0f0",
-      },
-    },
-  },
-});
+import AverageScore from "../AverageScore";
 
 interface Props {
   vibeChecks: VibeCheck[];
@@ -26,16 +10,15 @@ interface Props {
 
 const ScoreTable = ({ vibeChecks }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
-  const styles = useStyles();
 
   const formatVibeCheckDate = (date: string) =>
     formatDate(new Date(date), "dd/MM/yyyy");
 
   return (
-    <table className={styles.table}>
+    <table className="w-full table-auto text-center alternating-rows">
       <thead>
         <tr>
-          <th>Date</th>
+          <th className="w-auto">Date</th>
           {people.map((person) => (
             <th key={person.id}>{person.firstName}</th>
           ))}
@@ -53,7 +36,7 @@ const ScoreTable = ({ vibeChecks }: Props): JSX.Element => {
                 personId={person.id}
               />
             ))}
-            <td>{vibeCheck.averageScore.toFixed(2)}</td>
+            <td><AverageScore score={vibeCheck.averageScore} textSize="base"/></td>
           </tr>
         ))}
       </tbody>

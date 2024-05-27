@@ -1,25 +1,12 @@
 import { Outlet } from "react-router-dom";
 import Nav from "./Nav";
-import { createUseStyles } from "react-jss";
-
-const useStyles = createUseStyles({
-  outlet: {
-    maxWidth: 1024,
-    margin: "auto",
-    padding: "1rem",
-  },
-});
 
 function App() {
-  const styles = useStyles();
-
   return (
-    <>
+    <div className="h-screen bg-gradient-to-tl from-secondary from-5% via-primary to-40% to-background">
       <Nav />
-      <div className={styles.outlet}>
-        <Outlet />
-      </div>
-    </>
+      <Outlet />
+    </div>
   );
 }
 

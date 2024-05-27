@@ -1,4 +1,4 @@
-import DateRangeSelector from "../../../Common/Components/DateRangeSelector";
+import { DateRangeSelector } from "../../../Common";
 import { useWheelStatsContext } from "../../contexts/WheelStatsContext";
 
 const StatsDateRangeSelector = (): JSX.Element => {

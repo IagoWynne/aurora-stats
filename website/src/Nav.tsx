@@ -1,59 +1,22 @@
-import { createUseStyles } from "react-jss";
 import { Link } from "react-router-dom";
-import { WHITE, AURORA_LIGHT_GREEN, AURORA_DARK_GREEN } from "./Colours";
-
-const useStyles = createUseStyles({
-  nav: {
-    background:
-      `linear-gradient(27deg, ${WHITE} 15%, ${AURORA_LIGHT_GREEN} 70%, ${AURORA_DARK_GREEN} 100%);`,
-    display: "flex",
-    justifyContent: "center",
-    padding: 0,
-    color: "#000",
-    borderBottom: "2px solid black",
-  },
-  logo: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-  },
-  menu: {
-    listStyle: "none",
-  },
-  menuItem: {
-    display: "inline",
-    margin: "0 1rem",
-    fontWeight: "bold",
-    "&:first-child": {
-      marginLeft:0
-    },
-    "& a": {
-      color: "#000",
-      textDecoration: "none",
-    //   "&:hover": {
-    //     color: "#123424",
-    //   },
-    },
-  },
-});
 
 const Nav = (): JSX.Element => {
-  const styles = useStyles();
-
   const links: { to: string; label: string }[] = [
-    { to: "/wheel", label: "Wheel"},
-    { to: "/vibecheck", label: "Vibe Check"},
+    { to: "/wheel", label: "Wheel" },
+    { to: "/vibecheck", label: "Vibe Check" },
     { to: "/people", label: "People" },
   ];
 
   return (
-    <nav className={styles.nav}>
-      <Link to="/" className={styles.logo}>
-        <img src="/aurora-logo.jpeg" height="51px" />
-      </Link>
-      <ul className={styles.menu}>
+    <nav className="bg-gradient-to-r from-white from-20% via-primary via-85% to-secondary h-auto border-b-2 border-b-black">
+      <ul className="list-none">
+        <li className="nav-link">
+          <Link to="/">
+            <img src="/aurora-logo.jpeg" className="h-16 inline" />
+          </Link>
+        </li>
         {links.map((link) => (
-          <li className={styles.menuItem} key={link.to}>
+          <li key={link.to} className="nav-link">
             <Link to={link.to}>{link.label}</Link>
           </li>
         ))}

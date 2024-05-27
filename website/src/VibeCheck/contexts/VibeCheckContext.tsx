@@ -10,7 +10,7 @@ export interface VibeCheckState {
 const VibeCheckContext = createContext<VibeCheckState | undefined>(undefined);
 
 export const VibeCheckContextProvider: (
-  props: PropsWithChildren
+  props: PropsWithChildren,
 ) => JSX.Element = ({ children }: PropsWithChildren) => {
   const { data } = useSuspenseQuery(GET_PEOPLE_QUERY);
 
@@ -25,7 +25,7 @@ export const useVibeCheckContext = () => {
   const context = useContext(VibeCheckContext);
   if (context === undefined) {
     throw new Error(
-      "useVibeCheckContext must be rendered in a tree within a VibeCheckContextProvider"
+      "useVibeCheckContext must be rendered in a tree within a VibeCheckContextProvider",
     );
   }
   return context;

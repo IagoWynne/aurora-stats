@@ -1,24 +1,10 @@
 import React from "react";
 import { useWheelRunContext } from "../../contexts/WheelRunContext";
 import { Button, DateInput, Select } from "../../../Common";
-import { createUseStyles } from "react-jss";
+
 import { useWheelContext } from "../../contexts/WheelContext";
 
-const useStyles = createUseStyles({
-  container: {
-    padding: "0 0 1rem 0",
-    display: "flex",
-    justifyContent: "space-evenly",
-    alignContent: "stretch",
-    "& > div": {
-      width: "30%",
-    },
-    marginLeft: "-22px",
-  },
-});
-
 const AddResultForm = (): JSX.Element => {
-  const styles = useStyles();
   const { runDate, recordWheelWin } = useWheelRunContext();
   const { wheelOptions, people } = useWheelContext();
 
@@ -50,26 +36,20 @@ const AddResultForm = (): JSX.Element => {
 
   return (
     <form onSubmit={(event) => onSubmit(event)}>
-      <div className={styles.container}>
-        <div>
-          <Select
-            id="winner"
-            options={availablePeople}
-            label="Winner"
-          />
+      <div className="flex flex-row justify-items-stretch">
+        <div className="basis-1/3 p-2">
+          <Select id="winner" options={availablePeople} label="Winner" />
         </div>
-        <div>
-          <Select
-            id="result"
-            options={availableResults}
-            label="Result"
-          />
+        <div className="basis-1/3 p-2">
+          <Select id="result" options={availableResults} label="Result" />
         </div>
-        <div>
+        <div className="basis-1/3 p-2">
           <DateInput id="date" label="Date" value={runDate} />
         </div>
       </div>
-      <Button type="submit">Add Result</Button>
+      <div className="m-2">
+        <Button type="submit">Add Result</Button>
+      </div>
     </form>
   );
 };

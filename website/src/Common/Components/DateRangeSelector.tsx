@@ -1,16 +1,4 @@
-import { createUseStyles } from "react-jss";
 import DateInput from "./DateInput";
-
-const useStyles = createUseStyles({
-  container: {
-    display: "flex",
-    justifyContent: "space-evenly",
-    marginLeft: "-22px",
-    "& > div": {
-      width: "45%",
-    },
-  },
-});
 
 interface Props {
   from: Date;
@@ -25,11 +13,9 @@ const DateRangeSelector = ({
   fromChanged,
   toChanged,
 }: Props): JSX.Element => {
-  const styles = useStyles();
-
   return (
-    <div className={styles.container}>
-      <div>
+    <div className="flex justify-between">
+      <div className="basis-1/2 p-2">
         <DateInput
           id="from"
           label="From"
@@ -37,7 +23,7 @@ const DateRangeSelector = ({
           value={from}
         />
       </div>
-      <div>
+      <div className="basis-1/2 p-2">
         <DateInput
           id="to"
           label="To"
