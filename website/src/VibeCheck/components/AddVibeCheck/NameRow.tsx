@@ -11,8 +11,8 @@ const NameRow = ({ people, togglePersonSelected }: Props): JSX.Element => {
   return (
     <tr>
       {people.map((person) => (
-        <td key={person.id}>
-          <Button onClick={() => togglePersonSelected(person.id)}>
+        <td key={person.id} className={`w-[${100/people.length}%]`}>
+          <Button onClick={() => togglePersonSelected(person.id)} className={`${person.isSelected ? "": "bg-transparent" }`}>
             {person.firstName}
           </Button>
         </td>

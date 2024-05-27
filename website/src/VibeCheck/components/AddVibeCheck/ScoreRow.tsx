@@ -1,3 +1,4 @@
+import { NumberInput } from "../../../Common";
 import { VibeCheckPerson } from "../../types";
 
 interface Props {
@@ -11,15 +12,14 @@ const ScoreRow = ({ people, onScoreChange }: Props): JSX.Element => {
       {people.map((person) => (
         <td key={person.id}>
           {person.isSelected && (
-            <input
-              type="number"
-              required
+            <NumberInput
               min={1}
               max={10}
               step={1}
               onChange={(event) =>
-                onScoreChange(person.id, Number(event.target.value))
+                onScoreChange(person.id, Number((event.target as any).value))
               }
+              required
             />
           )}
         </td>

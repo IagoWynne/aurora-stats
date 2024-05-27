@@ -1,5 +1,5 @@
 import { formatDate } from "date-fns";
-import { SectionContainer } from "../../../Common";
+import { ContainerContent, SectionContainer } from "../../../Common";
 import ScoreTable from "../ScoreTable/ScoreTable";
 import { useSuspenseQuery } from "@apollo/client";
 import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
@@ -20,36 +20,37 @@ const ScoreTableWithAverage = ({ from, to }: Props): JSX.Element => {
         from: from.toISOString(),
         to: to.toISOString(),
       },
-    },
+    }
   );
 
   return (
-    <div>
-      <div>
-        <SectionContainer
-          title={`Scores between ${formatDate(
-            from,
-            "dd/MM/yyyy",
-          )} and ${formatDate(to, "dd/MM/yyyy")}`}
-        >
+    <div className="flex justify-between items-stretch">
+      <SectionContainer
+        title={`Scores between ${formatDate(
+          from,
+          "dd/MM/yyyy"
+        )} and ${formatDate(to, "dd/MM/yyyy")}`}
+        className="basis-2/3"
+      >
+        <ContainerContent>
           <ScoreTable vibeChecks={data.vibeChecks} />
-        </SectionContainer>
-      </div>
-      <div>
-        <SectionContainer title="Average Score">
+        </ContainerContent>
+      </SectionContainer>
+      <SectionContainer title="Average Score" className="basis-1/3">
+        <ContainerContent>
           <AverageScore
             score={
               data.vibeChecks.length
                 ? data.vibeChecks.reduce(
                     (total: number, current: VibeCheck) =>
                       (total += current.averageScore),
-                    0,
+                    0
                   ) / data.vibeChecks.length
                 : null
             }
           />
-        </SectionContainer>
-      </div>
+        </ContainerContent>
+      </SectionContainer>
     </div>
   );
 };

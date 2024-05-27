@@ -1,5 +1,5 @@
 import { WheelRunContextProvider } from "../../contexts/WheelRunContext";
-import { SectionContainer } from "../../../Common";
+import { ContainerContent, SectionContainer } from "../../../Common";
 import WheelResultsTable from "../WheelStats/WheelResultsTable";
 import PeopleWheel from "./PeopleWheel";
 import AddResultForm from "./AddResultForm";
@@ -19,10 +19,14 @@ const WheelResults = (): JSX.Element => {
         </div>
       </SectionContainer> */}
             <SectionContainer title="Add Wheel Result">
-              <AddResultForm />
+              <ContainerContent>
+                <AddResultForm />
+              </ContainerContent>
             </SectionContainer>
             <SectionContainer title="Recent Runs">
-              <WheelResultsTable showFullStatsButton />
+              <ContainerContent>
+                <WheelResultsTable showFullStatsButton />
+              </ContainerContent>
             </SectionContainer>
           </div>
         </WheelStatsContextProvider>

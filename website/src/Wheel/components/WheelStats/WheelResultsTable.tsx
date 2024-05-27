@@ -21,9 +21,9 @@ const WheelResultsTable = ({
   return (
     <>
       <div className="pb-2 m-2">
-        <table className="w-full table-fixed text-center">
+        <table className="w-full table-fixed text-center alternating-rows">
           <thead>
-            <tr className="bg-gray-300">
+            <tr>
               <th className="w-1/6">Date</th>
               <th>Winner</th>
               <th className="w-1/6">Prize</th>
@@ -37,7 +37,7 @@ const WheelResultsTable = ({
                 winner: string;
                 prize: string;
               }) => (
-                <tr key={result.id} className="even:bg-gray-300 odd:bg-gray-100">
+                <tr key={result.id}>
                   <td>{formatDate(result.date, "dd-MM-yyyy")}</td>
                   <td>{result.winner}</td>
                   <td>{result.prize}</td>

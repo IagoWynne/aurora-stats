@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { isMonday, previousMonday, startOfDay, addMinutes } from "date-fns";
+import { isMonday, previousMonday, startOfDay, addMinutes, endOfToday } from "date-fns";
 import { VibeCheckContextProvider } from "../../contexts/VibeCheckContext";
 import { Loading } from "../../../Common";
 import AddVibeCheck from "../AddVibeCheck/AddVibeCheck";
@@ -14,7 +14,7 @@ const VibeCheck = (): JSX.Element => {
       <VibeCheckContextProvider>
         <AddVibeCheck today={today} weekStart={weekStart} />
         <Suspense>
-          <ScoreTableWithAverage from={weekStart} to={today} />
+          <ScoreTableWithAverage from={weekStart} to={endOfToday()} />
         </Suspense>
       </VibeCheckContextProvider>
     </Suspense>

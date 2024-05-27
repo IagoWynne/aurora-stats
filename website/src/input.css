@@ -35,4 +35,24 @@ code {
   .button {
     @apply bg-green-400 w-full h-10 hover:bg-green-300
   }
+
+  .alternating-rows thead tr {
+    @apply bg-gray-300
+  }
+
+  .alternating-rows td {
+    @apply border-x-2 border-background
+  }
+
+  .alternating-rows th {
+    @apply border-x-2 border-background
+  }
+
+  .alternating-rows tbody tr{
+    @apply even:bg-gray-300 odd:bg-gray-100
+  }
+
+  .h-full-section-container {
+    @apply h-[calc(100%-40px)]
+  }
 }
