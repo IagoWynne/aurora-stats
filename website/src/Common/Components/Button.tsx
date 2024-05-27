@@ -1,21 +1,18 @@
-import { PropsWithChildren } from "react";
+import { HTMLProps, PropsWithChildren } from "react";
 
-interface Props extends PropsWithChildren {
+interface Props extends PropsWithChildren<HTMLProps<HTMLButtonElement>> {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
-  additionalClasses?: string;
 }
 
 const Button = ({
   onClick,
   type,
-  additionalClasses,
   children,
+  ...rest
 }: Props): JSX.Element => {
-  const buttonClasses = additionalClasses ? `${additionalClasses}` : "";
-
   return (
-    <button type={type ?? "button"} onClick={onClick} className={buttonClasses}>
+    <button type={type ?? "button"} onClick={onClick} className={`button ${rest.className}`}>
       {children}
     </button>
   );

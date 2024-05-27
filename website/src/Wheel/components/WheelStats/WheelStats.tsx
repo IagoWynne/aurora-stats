@@ -9,7 +9,7 @@ const WheelStats = (): JSX.Element => {
   return (
     <WheelContextProvider>
       <WheelStatsContextProvider>
-        <SectionContainer title="Show Stats Between">
+        <SectionContainer>
           <StatsDateRangeSelector />
         </SectionContainer>
         <SectionContainer title="Wheel Results">

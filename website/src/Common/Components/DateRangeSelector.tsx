@@ -14,8 +14,8 @@ const DateRangeSelector = ({
   toChanged,
 }: Props): JSX.Element => {
   return (
-    <div>
-      <div>
+    <div className="flex justify-between">
+      <div className="basis-1/2 p-2">
         <DateInput
           id="from"
           label="From"
@@ -23,7 +23,7 @@ const DateRangeSelector = ({
           value={from}
         />
       </div>
-      <div>
+      <div className="basis-1/2 p-2">
         <DateInput
           id="to"
           label="To"

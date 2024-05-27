@@ -18,13 +18,14 @@ const DateInput = ({
 }: Props): JSX.Element => {
   return (
     <>
-      {label && <label>{label}</label>}
+      {label && <label className="block">{label}</label>}
       <input
         id={id}
         type="date"
         onChange={onChange}
         defaultValue={value ? formatDate(value, "yyyy-MM-dd") : undefined}
         required={required || false}
+        className="block w-full p-2 bg-gray-50 border-[1px] border-black h-[40px]"
       />
     </>
   );

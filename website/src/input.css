@@ -23,10 +23,6 @@ code {
     monospace;
 } */
 
-table {
-  width: 100%;
-}
-
 @layer components {
   .nav-link {
     @apply inline pt-5 pb-5
@@ -34,5 +30,9 @@ table {
 
   .nav-link + .nav-link {
     @apply pl-5
+  }
+
+  .button {
+    @apply bg-green-400 w-full h-10 hover:bg-green-300
   }
 }

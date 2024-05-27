@@ -12,7 +12,7 @@ const Nav = (): JSX.Element => {
       <ul className="list-none">
         <li className="nav-link">
           <Link to="/">
-            <img src="/aurora-logo.jpeg" className="max-h-[50px] inline" />
+            <img src="/aurora-logo.jpeg" className="h-16 inline" />
           </Link>
         </li>
         {links.map((link) => (

@@ -18,8 +18,8 @@ const Select = ({
 }: Props): JSX.Element => {
   return (
     <>
-      {label && <label htmlFor={id}>{label}</label>}
-      <select id={id} onChange={onChange} required={required || false}>
+      {label && <label htmlFor={id} className="block">{label}</label>}
+      <select id={id} onChange={onChange} required={required || false} className="block w-full p-2 bg-gray-50 border-black border-[1px]">
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.label}

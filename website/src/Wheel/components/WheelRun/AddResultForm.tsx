@@ -30,24 +30,26 @@ const AddResultForm = (): JSX.Element => {
     recordWheelWin(
       new Date(target.date.value),
       parseInt(target.winner.value),
-      parseInt(target.result.value),
+      parseInt(target.result.value)
     );
   };
 
   return (
     <form onSubmit={(event) => onSubmit(event)}>
-      <div>
-        <div>
+      <div className="flex flex-row justify-items-stretch">
+        <div className="basis-1/3 p-2">
           <Select id="winner" options={availablePeople} label="Winner" />
         </div>
-        <div>
+        <div className="basis-1/3 p-2">
           <Select id="result" options={availableResults} label="Result" />
         </div>
-        <div>
+        <div className="basis-1/3 p-2">
           <DateInput id="date" label="Date" value={runDate} />
         </div>
       </div>
-      <Button type="submit">Add Result</Button>
+      <div className="m-2">
+        <Button type="submit">Add Result</Button>
+      </div>
     </form>
   );
 };
