@@ -55,4 +55,12 @@ code {
   .h-full-section-container {
     @apply h-[calc(100%-40px)]
   }
+
+  .button-link {
+    @apply button p-2 inline-block text-center
+  }
+
+  .spacer-row {
+    @apply border-b-slate-800 border-b-2 border-double h-0 my-1
+  }
 }

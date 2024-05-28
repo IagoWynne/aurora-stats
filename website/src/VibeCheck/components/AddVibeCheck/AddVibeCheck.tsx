@@ -27,7 +27,7 @@ const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
     refetchQueries: [
       {
         query: GET_VIBE_CHECK_BETWEEN,
-        variables: { from: weekStart, to: today },
+        variables: { from: weekStart, to: new Date().toISOString() },
       },
     ],
   });

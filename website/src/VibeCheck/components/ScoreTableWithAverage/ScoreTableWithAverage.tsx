@@ -1,18 +1,20 @@
 import { formatDate } from "date-fns";
 import { ContainerContent, SectionContainer } from "../../../Common";
-import ScoreTable from "../ScoreTable/ScoreTable";
+import ScoreTable from "../ScoreTable";
 import { useSuspenseQuery } from "@apollo/client";
 import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
 import { VibeCheck } from "../../types";
 
 import AverageScore from "../AverageScore";
+import { Link } from "react-router-dom";
 
 interface Props {
   from: Date;
   to: Date;
+  showFullStatsButton?: boolean
 }
 
-const ScoreTableWithAverage = ({ from, to }: Props): JSX.Element => {
+const ScoreTableWithAverage = ({ from, to, showFullStatsButton = false }: Props): JSX.Element => {
   const { data } = useSuspenseQuery<{ vibeChecks: VibeCheck[] }>(
     GET_VIBE_CHECK_BETWEEN,
     {
@@ -34,6 +36,7 @@ const ScoreTableWithAverage = ({ from, to }: Props): JSX.Element => {
       >
         <ContainerContent>
           <ScoreTable vibeChecks={data.vibeChecks} />
+          {showFullStatsButton && <Link to="/vibecheck/stats" className="button-link mt-2">View Full Stats</Link>}
         </ContainerContent>
       </SectionContainer>
       <SectionContainer title="Average Score" className="basis-1/3">

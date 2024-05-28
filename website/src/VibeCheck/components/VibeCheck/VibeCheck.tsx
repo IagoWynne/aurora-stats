@@ -14,7 +14,7 @@ const VibeCheck = (): JSX.Element => {
       <VibeCheckContextProvider>
         <AddVibeCheck today={today} weekStart={weekStart} />
         <Suspense>
-          <ScoreTableWithAverage from={weekStart} to={endOfToday()} />
+          <ScoreTableWithAverage from={weekStart} to={endOfToday()} showFullStatsButton/>
         </Suspense>
       </VibeCheckContextProvider>
     </Suspense>
