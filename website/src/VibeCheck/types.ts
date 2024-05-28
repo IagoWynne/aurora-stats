@@ -1,3 +1,9 @@
+export interface VibeCheckDTO {
+  date: string;
+  scores: VibeCheckScore[];
+  averageScore: number;
+}
+
 export interface VibeCheckPerson {
   id: number;
   firstName: string;
@@ -7,7 +13,7 @@ export interface VibeCheckPerson {
 }
 
 export interface VibeCheck {
-  date: string;
+  date: Date;
   scores: VibeCheckScore[];
   averageScore: number;
 }
@@ -17,4 +23,10 @@ export interface VibeCheckScore {
     id: number;
   };
   score: number;
+}
+
+export interface VibeCheckWeek {
+  weekStart: Date;
+  vibeChecks: VibeCheck[];
+  weekAverage: number;
 }

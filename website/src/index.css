@@ -697,6 +697,26 @@ video {
   height: 100vh;
 }
 
+.max-h-\[400px\] {
+  max-height: 400px;
+}
+
+.max-h-\[410px\] {
+  max-height: 410px;
+}
+
+.max-h-\[420px\] {
+  max-height: 420px;
+}
+
+.max-h-\[450px\] {
+  max-height: 450px;
+}
+
+.max-h-\[300px\] {
+  max-height: 300px;
+}
+
 .w-1\/6 {
   width: 16.666667%;
 }
@@ -763,6 +783,10 @@ video {
 
 .justify-items-stretch {
   justify-items: stretch;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
 }
 
 .border-\[1px\] {

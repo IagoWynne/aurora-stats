@@ -14,11 +14,10 @@ import ScoreRow from "./ScoreRow";
 import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
 
 interface Props {
-  today: Date;
   weekStart: Date;
 }
 
-const AddVibeCheck = ({ today, weekStart }: Props): JSX.Element => {
+const AddVibeCheck = ({ weekStart }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
   const [vibeCheckPeople, setVibeCheckPeople] = useState<VibeCheckPerson[]>(
     people.map((p) => ({ ...p, isSelected: true }))

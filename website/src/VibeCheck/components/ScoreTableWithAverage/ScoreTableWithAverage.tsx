@@ -3,27 +3,24 @@ import { ContainerContent, SectionContainer } from "../../../Common";
 import ScoreTable from "../ScoreTable";
 import { useSuspenseQuery } from "@apollo/client";
 import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
-import { VibeCheck } from "../../types";
+import { VibeCheckWeek } from "../../types";
 
 import AverageScore from "../AverageScore";
 import { Link } from "react-router-dom";
+import useVibeChecksQuery from "../../hooks/useVibeChecksQuery";
 
 interface Props {
   from: Date;
   to: Date;
-  showFullStatsButton?: boolean
+  showFullStatsButton?: boolean;
 }
 
-const ScoreTableWithAverage = ({ from, to, showFullStatsButton = false }: Props): JSX.Element => {
-  const { data } = useSuspenseQuery<{ vibeChecks: VibeCheck[] }>(
-    GET_VIBE_CHECK_BETWEEN,
-    {
-      variables: {
-        from: from.toISOString(),
-        to: to.toISOString(),
-      },
-    }
-  );
+const ScoreTableWithAverage = ({
+  from,
+  to,
+  showFullStatsButton = false,
+}: Props): JSX.Element => {
+  const vibeCheckWeeks = useVibeChecksQuery(from, to);
 
   return (
     <div className="flex justify-between items-stretch">
@@ -35,20 +32,24 @@ const ScoreTableWithAverage = ({ from, to, showFullStatsButton = false }: Props)
         className="basis-2/3"
       >
         <ContainerContent>
-          <ScoreTable vibeChecks={data.vibeChecks} />
-          {showFullStatsButton && <Link to="/vibecheck/stats" className="button-link mt-2">View Full Stats</Link>}
+          <ScoreTable vibeCheckWeeks={vibeCheckWeeks} />
+          {showFullStatsButton && (
+            <Link to="/vibecheck/stats" className="button-link mt-2">
+              View Full Stats
+            </Link>
+          )}
         </ContainerContent>
       </SectionContainer>
       <SectionContainer title="Average Score" className="basis-1/3">
         <ContainerContent>
           <AverageScore
             score={
-              data.vibeChecks.length
-                ? data.vibeChecks.reduce(
-                    (total: number, current: VibeCheck) =>
-                      (total += current.averageScore),
+              vibeCheckWeeks.length
+                ? vibeCheckWeeks.reduce(
+                    (total: number, current: VibeCheckWeek) =>
+                      (total += current.weekAverage),
                     0
-                  ) / data.vibeChecks.length
+                  ) / vibeCheckWeeks.length
                 : null
             }
           />

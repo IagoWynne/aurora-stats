@@ -17,9 +17,6 @@ const ScoreTableBody = ({
   showWeeklyAverageColumn,
   addSpacerRow,
 }: Props): JSX.Element => {
-  const formatVibeCheckDate = (date: string) =>
-    formatDate(new Date(date), "dd/MM/yyyy");
-
   const getWeeklyAverage = () =>
     vibeChecks.reduce(
       (total: number, vibeCheck: VibeCheck) =>
@@ -37,8 +34,8 @@ const ScoreTableBody = ({
         </tr>
       )}
       {vibeChecks.map((vibeCheck, idx) => (
-        <tr key={vibeCheck.date} className="h-full">
-          <td>{formatVibeCheckDate(vibeCheck.date)}</td>
+        <tr key={vibeCheck.date.getDate()} className="h-full">
+          <td>{formatDate(vibeCheck.date, "EEE dd/MM/yyyy")}</td>
           {people.map((person) => (
             <PersonCell
               key={person.id}
