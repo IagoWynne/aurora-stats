@@ -1,9 +1,17 @@
 import { Suspense } from "react";
-import { isMonday, startOfWeek, startOfDay, addMinutes, endOfToday } from "date-fns";
+import {
+  isMonday,
+  startOfWeek,
+  startOfDay,
+  addMinutes,
+  endOfToday,
+  formatDate,
+} from "date-fns";
 import { VibeCheckContextProvider } from "../../contexts/VibeCheckContext";
 import { Loading } from "../../../Common";
 import AddVibeCheck from "../AddVibeCheck/AddVibeCheck";
 import ScoreTableWithAverage from "../ScoreTableWithAverage";
+import { VibeCheckStatsContextProvider } from "../../contexts/VibeCheckStatsContext";
 
 const VibeCheck = (): JSX.Element => {
   const today = getTodayAtMidnightUTC();
@@ -14,7 +22,15 @@ const VibeCheck = (): JSX.Element => {
       <VibeCheckContextProvider>
         <AddVibeCheck weekStart={weekStart} />
         <Suspense>
-          <ScoreTableWithAverage from={weekStart} to={endOfToday()} showFullStatsButton/>
+          <VibeCheckStatsContextProvider from={weekStart} to={endOfToday()}>
+            <ScoreTableWithAverage
+              title={`Scores between ${formatDate(
+                weekStart,
+                "dd/MM/yyyy"
+              )} and ${formatDate(endOfToday(), "dd/MM/yyyy")}`}
+              showFullStatsButton
+            />
+          </VibeCheckStatsContextProvider>
         </Suspense>
       </VibeCheckContextProvider>
     </Suspense>

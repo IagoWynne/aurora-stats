@@ -1,38 +1,31 @@
-import { formatDate } from "date-fns";
 import { ContainerContent, SectionContainer } from "../../../Common";
 import ScoreTable from "../ScoreTable";
-import { useSuspenseQuery } from "@apollo/client";
-import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
 import { VibeCheckWeek } from "../../types";
-
 import AverageScore from "../AverageScore";
 import { Link } from "react-router-dom";
-import useVibeChecksQuery from "../../hooks/useVibeChecksQuery";
+import { useVibeCheckStatsContext } from "../../contexts/VibeCheckStatsContext";
 
 interface Props {
-  from: Date;
-  to: Date;
+  title: string;
   showFullStatsButton?: boolean;
+  showWeeklyAverageColumn?: boolean;
 }
 
 const ScoreTableWithAverage = ({
-  from,
-  to,
+  title,
   showFullStatsButton = false,
+  showWeeklyAverageColumn = false
 }: Props): JSX.Element => {
-  const vibeCheckWeeks = useVibeChecksQuery(from, to);
+  const {vibeCheckWeeks} = useVibeCheckStatsContext()
 
   return (
     <div className="flex justify-between items-stretch">
       <SectionContainer
-        title={`Scores between ${formatDate(
-          from,
-          "dd/MM/yyyy"
-        )} and ${formatDate(to, "dd/MM/yyyy")}`}
+        title={title}
         className="basis-2/3"
       >
         <ContainerContent>
-          <ScoreTable vibeCheckWeeks={vibeCheckWeeks} />
+          <ScoreTable showWeeklyAverageColumn={showWeeklyAverageColumn}/>
           {showFullStatsButton && (
             <Link to="/vibecheck/stats" className="button-link mt-2">
               View Full Stats

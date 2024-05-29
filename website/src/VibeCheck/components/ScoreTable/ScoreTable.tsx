@@ -1,18 +1,16 @@
-import { startOfWeek } from "date-fns";
 import { useVibeCheckContext } from "../../contexts/VibeCheckContext";
-import { VibeCheckWeek } from "../../types";
 import ScoreTableBody from "./ScoreTableBody";
+import { useVibeCheckStatsContext } from "../../contexts/VibeCheckStatsContext";
 
 interface Props {
-  vibeCheckWeeks: VibeCheckWeek[];
   showWeeklyAverageColumn?: boolean;
 }
 
 const ScoreTable = ({
-  vibeCheckWeeks,
   showWeeklyAverageColumn = false,
 }: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
+  const { vibeCheckWeeks } = useVibeCheckStatsContext();
 
   return (
     <table className="w-full table-auto text-center alternating-rows h-1">
@@ -22,15 +20,16 @@ const ScoreTable = ({
           {people.map((person) => (
             <th key={person.id}>{person.firstName}</th>
           ))}
-          <th>Average</th>
+          <th>Day Average</th>
           {showWeeklyAverageColumn && <th>Weekly Average</th>}
         </tr>
       </thead>
-      {vibeCheckWeeks.map(({ vibeChecks }, idx) => (
+      {vibeCheckWeeks.map(({ vibeChecks, weekAverage }, idx) => (
         <ScoreTableBody
           vibeChecks={vibeChecks}
           people={people}
           showWeeklyAverageColumn={showWeeklyAverageColumn}
+          weekAverage={weekAverage}
           addSpacerRow={idx > 0}
           key={idx}
         />

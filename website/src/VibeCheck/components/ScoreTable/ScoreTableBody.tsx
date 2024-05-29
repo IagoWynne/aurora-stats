@@ -8,6 +8,7 @@ interface Props {
   vibeChecks: VibeCheck[];
   people: PersonType[];
   showWeeklyAverageColumn: boolean;
+  weekAverage: number;
   addSpacerRow: boolean;
 }
 
@@ -15,15 +16,9 @@ const ScoreTableBody = ({
   vibeChecks,
   people,
   showWeeklyAverageColumn,
+  weekAverage,
   addSpacerRow,
 }: Props): JSX.Element => {
-  const getWeeklyAverage = () =>
-    vibeChecks.reduce(
-      (total: number, vibeCheck: VibeCheck) =>
-        (total += vibeCheck.averageScore),
-      0
-    ) / vibeChecks.length;
-
   return (
     <tbody>
       {addSpacerRow && (
@@ -48,7 +43,7 @@ const ScoreTableBody = ({
           </td>
           {showWeeklyAverageColumn && idx === 0 && (
             <td rowSpan={vibeChecks.length}>
-              <AverageScore score={getWeeklyAverage()} />
+              <AverageScore score={weekAverage} />
             </td>
           )}
         </tr>

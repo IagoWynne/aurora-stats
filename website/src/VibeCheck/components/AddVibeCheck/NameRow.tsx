@@ -1,6 +1,5 @@
 import { Button } from "../../../Common";
 import { VibeCheckPerson } from "../../types";
-import { AURORA_DARK_GREEN } from "../../../Colours";
 
 interface Props {
   people: VibeCheckPerson[];
@@ -12,7 +11,7 @@ const NameRow = ({ people, togglePersonSelected }: Props): JSX.Element => {
     <tr>
       {people.map((person) => (
         <td key={person.id} className={`w-[${100/people.length}%]`}>
-          <Button onClick={() => togglePersonSelected(person.id)} className={`${person.isSelected ? "": "bg-transparent" }`}>
+          <Button onClick={() => togglePersonSelected(person.id)} className={`${person.isSelected ? "": "bg-red-400 hover:bg-red-300" }`}>
             {person.firstName}
           </Button>
         </td>

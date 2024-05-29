@@ -15,7 +15,8 @@ export interface VibeCheckPerson {
 export interface VibeCheck {
   date: Date;
   scores: VibeCheckScore[];
-  averageScore: number;
+  averageScore: number | null;
+  formattedDate: string;
 }
 
 export interface VibeCheckScore {

@@ -1,10 +1,8 @@
-import { useSuspenseQuery } from "@apollo/client";
-import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
-import { VibeCheckDTO } from "../../types";
-import ScoreTable from "../ScoreTable";
 import { VibeCheckContextProvider } from "../../contexts/VibeCheckContext";
 import { ContainerContent, SectionContainer } from "../../../Common";
-import useVibeChecksQuery from "../../hooks/useVibeChecksQuery";
+import { VibeCheckStatsContextProvider } from "../../contexts/VibeCheckStatsContext";
+import ScoreTableWithAverage from "../ScoreTableWithAverage";
+import { DailyAverageGraph } from "./Charts";
 
 interface Props {
   from: Date;
@@ -12,16 +10,29 @@ interface Props {
 }
 
 const StatsContainer = ({ from, to }: Props): JSX.Element => {
-  const vibeCheckWeeks = useVibeChecksQuery(from, to);
-
   return (
     <>
       <VibeCheckContextProvider>
-        <SectionContainer title="Vibe Check Scores Table">
-          <ContainerContent>
-            <ScoreTable vibeCheckWeeks={vibeCheckWeeks} showWeeklyAverageColumn />
-          </ContainerContent>
-        </SectionContainer>
+        <VibeCheckStatsContextProvider from={from} to={to}>
+          <ScoreTableWithAverage
+            title="Vibe Check Scores Table"
+            showWeeklyAverageColumn
+          />
+          <SectionContainer title="Daily Averages over Time">
+            <ContainerContent>
+              <DailyAverageGraph />
+            </ContainerContent>
+          </SectionContainer>
+          <SectionContainer title="Weekly Averages over Time">
+            <ContainerContent></ContainerContent>
+          </SectionContainer>
+          <SectionContainer title="Average Score on Day of Week">
+            <ContainerContent></ContainerContent>
+          </SectionContainer>
+          <SectionContainer title="Average Score per Person">
+            <ContainerContent></ContainerContent>
+          </SectionContainer>
+        </VibeCheckStatsContextProvider>
       </VibeCheckContextProvider>
     </>
   );

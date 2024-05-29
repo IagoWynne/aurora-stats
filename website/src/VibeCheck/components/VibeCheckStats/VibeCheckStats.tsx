@@ -14,7 +14,7 @@ const VibeCheckStats = (): JSX.Element => {
 
   return (
     <>
-      <SectionContainer title="Vibe Check Stats Between">
+      <SectionContainer title="Vibe Check Stats Between" className="sticky">
         <ContainerContent>
           <DateRangeSelector
             from={from}

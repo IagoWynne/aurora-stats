@@ -1,9 +1,18 @@
 import { useSuspenseQuery } from "@apollo/client";
 import { GET_VIBE_CHECK_BETWEEN } from "../queries/getVibeCheckBetween";
 import { VibeCheck, VibeCheckDTO, VibeCheckWeek } from "../types";
-import { startOfWeek } from "date-fns";
+import {
+  addDays,
+  formatDate,
+  isSaturday,
+  isSunday,
+  startOfWeek,
+} from "date-fns";
 
-const useVibeChecksQuery = (from: Date, to: Date): VibeCheckWeek[] => {
+const useVibeChecksQuery = (
+  from: Date,
+  to: Date
+): { vibeChecks: VibeCheck[]; vibeCheckWeeks: VibeCheckWeek[] } => {
   const { data } = useSuspenseQuery<{ vibeChecks: VibeCheckDTO[] }>(
     GET_VIBE_CHECK_BETWEEN,
     {
@@ -14,7 +23,13 @@ const useVibeChecksQuery = (from: Date, to: Date): VibeCheckWeek[] => {
     }
   );
 
-  return mapVibeChecksToWeeks(mapVibeChecksFromDTO(data.vibeChecks));
+  const vibeChecks = mapVibeChecksFromDTO(data.vibeChecks);
+  const statsVibeChecks = fillMissingVibeCheckDates(vibeChecks);
+
+  return {
+    vibeChecks: statsVibeChecks,
+    vibeCheckWeeks: mapVibeChecksToWeeks(vibeChecks),
+  };
 };
 
 const mapVibeChecksFromDTO = (vibeChecks: VibeCheckDTO[]): VibeCheck[] =>
@@ -22,7 +37,41 @@ const mapVibeChecksFromDTO = (vibeChecks: VibeCheckDTO[]): VibeCheck[] =>
     date: new Date(dto.date),
     scores: dto.scores,
     averageScore: dto.averageScore,
+    formattedDate: formatDate(new Date(dto.date), "dd/MM/yyyy"),
   }));
+
+const fillMissingVibeCheckDates = (vibeChecks: VibeCheck[]): VibeCheck[] => {
+  const dateArray: Date[] = [];
+
+  let currentDate = vibeChecks[0].date;
+  while (currentDate <= vibeChecks[vibeChecks.length - 1].date) {
+    if (!isSunday(currentDate) && !isSaturday(currentDate)) {
+      dateArray.push(new Date(currentDate));
+    }
+
+    currentDate = addDays(currentDate, 1);
+  }
+
+  const statsVibeChecks: VibeCheck[] = dateArray.map((date: Date) => {
+    const formattedDate = formatDate(date, "dd/MM/yyyy");
+    const vibeCheck = vibeChecks.find(
+      (vc) => vc.formattedDate === formattedDate
+    );
+
+    if (vibeCheck) {
+      return vibeCheck;
+    }
+
+    return {
+      date,
+      formattedDate,
+      scores: [],
+      averageScore: null,
+    };
+  });
+
+  return statsVibeChecks;
+};
 
 const mapVibeChecksToWeeks = (vibeChecks: VibeCheck[]): VibeCheckWeek[] => {
   let vibeCheckWeeks: VibeCheckWeek[] = [];
@@ -62,8 +111,9 @@ const newVibeCheckWeek = (date: Date): VibeCheckWeek => ({
 
 const calculateAverageScore = (vibeChecks: VibeCheck[]): number =>
   vibeChecks.reduce(
-    (total: number, vibeCheck: VibeCheck) => (total += vibeCheck.averageScore),
+    (total: number, vibeCheck: VibeCheck) =>
+      vibeCheck.averageScore ? (total += vibeCheck.averageScore) : total,
     0
-  ) / vibeChecks.length;
+  ) / vibeChecks.filter((vibeCheck) => vibeCheck.averageScore !== null).length;
 
 export default useVibeChecksQuery;
