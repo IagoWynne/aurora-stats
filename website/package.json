@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/colors": "^7.0.2",
     "@apollo/client": "^3.9.11",
     "@craco/craco": "^7.1.0",
     "@million/lint": "^1.0.0-rc.13",

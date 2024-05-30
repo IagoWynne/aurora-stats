@@ -1,40 +1,41 @@
-import { VibeCheckContextProvider } from "../../contexts/VibeCheckContext";
 import { ContainerContent, SectionContainer } from "../../../Common";
-import { VibeCheckStatsContextProvider } from "../../contexts/VibeCheckStatsContext";
 import ScoreTableWithAverage from "../ScoreTableWithAverage";
-import { DailyAverageGraph } from "./Charts";
+import {
+  DailyScoresGraph,
+  DayOfWeekAverageTable,
+  PersonAverageTable,
+} from "./Charts";
 
-interface Props {
-  from: Date;
-  to: Date;
-}
-
-const StatsContainer = ({ from, to }: Props): JSX.Element => {
+const StatsContainer = (): JSX.Element => {
   return (
-    <>
-      <VibeCheckContextProvider>
-        <VibeCheckStatsContextProvider from={from} to={to}>
-          <ScoreTableWithAverage
-            title="Vibe Check Scores Table"
-            showWeeklyAverageColumn
-          />
-          <SectionContainer title="Daily Averages over Time">
-            <ContainerContent>
-              <DailyAverageGraph />
-            </ContainerContent>
-          </SectionContainer>
-          <SectionContainer title="Weekly Averages over Time">
-            <ContainerContent></ContainerContent>
-          </SectionContainer>
-          <SectionContainer title="Average Score on Day of Week">
-            <ContainerContent></ContainerContent>
-          </SectionContainer>
-          <SectionContainer title="Average Score per Person">
-            <ContainerContent></ContainerContent>
-          </SectionContainer>
-        </VibeCheckStatsContextProvider>
-      </VibeCheckContextProvider>
-    </>
+    <div className="flex flex-wrap justify-between items-stretch">
+      <ScoreTableWithAverage
+        title="Vibe Check Scores Table"
+        showWeeklyAverageColumn
+        className="basis-full"
+      />
+      <SectionContainer title="Average Score per Person" className="basis-1/3">
+        <ContainerContent>
+          <PersonAverageTable />
+        </ContainerContent>
+      </SectionContainer>
+      <SectionContainer title="Daily Scores over Time" className="basis-2/3">
+        <ContainerContent>
+          <DailyScoresGraph />
+        </ContainerContent>
+      </SectionContainer>
+      <SectionContainer title="Weekly Averages over Time" className="basis-2/3">
+        <ContainerContent></ContainerContent>
+      </SectionContainer>
+      <SectionContainer
+        title="Average Score on Day of Week"
+        className="basis-1/3"
+      >
+        <ContainerContent>
+          <DayOfWeekAverageTable />
+        </ContainerContent>
+      </SectionContainer>
+    </div>
   );
 };
 

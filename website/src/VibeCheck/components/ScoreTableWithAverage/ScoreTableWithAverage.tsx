@@ -4,8 +4,9 @@ import { VibeCheckWeek } from "../../types";
 import AverageScore from "../AverageScore";
 import { Link } from "react-router-dom";
 import { useVibeCheckStatsContext } from "../../contexts/VibeCheckStatsContext";
+import { HTMLProps } from "react";
 
-interface Props {
+interface Props extends HTMLProps<HTMLDivElement>{
   title: string;
   showFullStatsButton?: boolean;
   showWeeklyAverageColumn?: boolean;
@@ -14,12 +15,13 @@ interface Props {
 const ScoreTableWithAverage = ({
   title,
   showFullStatsButton = false,
-  showWeeklyAverageColumn = false
+  showWeeklyAverageColumn = false,
+  ...rest
 }: Props): JSX.Element => {
   const {vibeCheckWeeks} = useVibeCheckStatsContext()
 
   return (
-    <div className="flex justify-between items-stretch">
+    <div className={`flex justify-between items-stretch ${rest.className}`}>
       <SectionContainer
         title={title}
         className="basis-2/3"

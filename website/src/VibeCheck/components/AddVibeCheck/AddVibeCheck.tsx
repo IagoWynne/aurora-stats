@@ -12,6 +12,7 @@ import { VibeCheckPerson } from "../../types";
 import NameRow from "./NameRow";
 import ScoreRow from "./ScoreRow";
 import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
+import { endOfToday } from "date-fns";
 
 interface Props {
   weekStart: Date;
@@ -26,7 +27,7 @@ const AddVibeCheck = ({ weekStart }: Props): JSX.Element => {
     refetchQueries: [
       {
         query: GET_VIBE_CHECK_BETWEEN,
-        variables: { from: weekStart, to: new Date().toISOString() },
+        variables: { from: weekStart, to: endOfToday().toISOString() },
       },
     ],
   });

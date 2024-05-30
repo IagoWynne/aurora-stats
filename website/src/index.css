@@ -734,6 +734,14 @@ video {
   flex-basis: 66.666667%;
 }
 
+.basis-full {
+  flex-basis: 100%;
+}
+
+.basis-1\/4 {
+  flex-basis: 25%;
+}
+
 .table-auto {
   table-layout: auto;
 }
@@ -754,6 +762,10 @@ video {
   flex-direction: column;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .items-stretch {
   align-items: stretch;
 }
@@ -764,6 +776,10 @@ video {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
 }
 
 .justify-items-stretch {

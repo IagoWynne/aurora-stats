@@ -6,3 +6,4 @@ export { default as Loading } from "./Components/Loading";
 export { default as NumberInput } from "./Components/NumberInput";
 export { default as DateRangeSelector } from "./Components/DateRangeSelector";
 export { default as ContainerContent } from "./Components/ContainerContent";
+export { default as getColour } from "./Utils/getColour";

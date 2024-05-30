@@ -1,1 +1,3 @@
-export {default as DailyAverageGraph} from "./DailyAverageGraph";
+export { default as DailyScoresGraph } from "./DailyScoresGraph";
+export { default as PersonAverageTable } from "./PersonAverageTable";
+export { default as DayOfWeekAverageTable } from "./DayOfWeekAverageTable";

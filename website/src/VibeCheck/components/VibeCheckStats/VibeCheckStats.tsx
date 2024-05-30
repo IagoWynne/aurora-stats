@@ -5,12 +5,14 @@ import {
   Loading,
   SectionContainer,
 } from "../../../Common";
-import { subDays } from "date-fns";
+import { isMonday, previousMonday, subDays } from "date-fns";
 import StatsContainer from "./StatsContainer";
+import { VibeCheckContextProvider } from "../../contexts/VibeCheckContext";
+import { VibeCheckStatsContextProvider } from "../../contexts/VibeCheckStatsContext";
 
 const VibeCheckStats = (): JSX.Element => {
   const [to, setTo] = useState(new Date());
-  const [from, setFrom] = useState(new Date(subDays(to, 28)));
+  const [from, setFrom] = useState(isMonday(to) ? new Date(subDays(to, 28)) : new Date(subDays(previousMonday(to), 28)));
 
   return (
     <>
@@ -25,7 +27,12 @@ const VibeCheckStats = (): JSX.Element => {
         </ContainerContent>
       </SectionContainer>
       <Suspense fallback={<Loading />}>
-        <StatsContainer from={from} to={to}/>
+
+    <VibeCheckContextProvider>
+      <VibeCheckStatsContextProvider from={from} to={to}>
+        <StatsContainer/>
+      </VibeCheckStatsContextProvider>
+    </VibeCheckContextProvider>
       </Suspense>
     </>
   );

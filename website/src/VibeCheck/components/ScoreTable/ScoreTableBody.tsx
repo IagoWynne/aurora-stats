@@ -43,7 +43,7 @@ const ScoreTableBody = ({
           </td>
           {showWeeklyAverageColumn && idx === 0 && (
             <td rowSpan={vibeChecks.length}>
-              <AverageScore score={weekAverage} />
+              <AverageScore score={weekAverage} textSize="base"/>
             </td>
           )}
         </tr>
