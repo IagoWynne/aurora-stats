@@ -37,3 +37,5 @@ api-js/*
 
 # local db volume
 mysql/db/*
+
+.env
