@@ -4,7 +4,8 @@ networks:
 
 services:
   db:
-    image: mysql:latest
+    build:
+      dockerfile: docker/db.dockerfile
     networks:
       - aurora
     command: ["--authentication_policy=caching_sha2_password"]
@@ -18,7 +19,6 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./mysql/init:/docker-entrypoint-initdb.d
       - ./mysql/db:/var/lib/mysql
       - ./mysql/conf.d:/etc/mysql/conf.d
     restart: unless-stopped
@@ -58,7 +58,6 @@ services:
     volumes:
       - ./website:/app
     command: yarn start
-      # context: ./website
     environment:
       REACT_APP_API: ${API_URL}
       REACT_APP_API_PORT: ${API_PORT}
