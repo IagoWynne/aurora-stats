@@ -1,12 +1,7 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { useWheelContext } from "../../../contexts/WheelContext";
 import { useWheelStatsContext } from "../../../contexts/WheelStatsContext";
-import {
-  AURORA_BLUE,
-  AURORA_DARK_GREEN,
-  AURORA_LIGHT_GREEN,
-  AURORA_LIGHT_HOVER,
-} from "../../../../Colours";
+import { getColour } from "../../../../Common";
 
 const OptionWonFrequencyGraph = (): JSX.Element => {
   const { wheelOptions } = useWheelContext();
@@ -61,14 +56,13 @@ const OptionWonFrequencyGraph = (): JSX.Element => {
           data={winsPerOption}
           dataKey="value"
           nameKey="name"
-          fill={AURORA_LIGHT_GREEN}
           label={renderCustomizedLabel}
           labelLine={false}
         >
-          {winsPerOption.map((entry, index) => (
+          {winsPerOption.map((_, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={COLOURS[index % COLOURS.length]}
+              fill={getColour(index)}
             />
           ))}
         </Pie>

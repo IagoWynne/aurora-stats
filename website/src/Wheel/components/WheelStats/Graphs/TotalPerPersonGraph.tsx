@@ -1,7 +1,7 @@
 import { Bar, BarChart, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useWheelContext } from "../../../contexts/WheelContext";
 import { useWheelStatsContext } from "../../../contexts/WheelStatsContext";
-import { AURORA_DARK_GREEN } from "../../../../Colours";
+import { getColour } from "../../../../Common";
 
 const TotalPerPersonGraph = (): JSX.Element => {
   const { people } = useWheelContext();
@@ -18,7 +18,7 @@ const TotalPerPersonGraph = (): JSX.Element => {
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip />
-        <Bar fill={AURORA_DARK_GREEN} dataKey="value" />
+        <Bar fill={getColour(4)} dataKey="value" />
       </BarChart>
       {/* <PieChart>
         <Pie
