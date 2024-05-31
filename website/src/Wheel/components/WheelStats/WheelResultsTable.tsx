@@ -51,7 +51,7 @@ const WheelResultsTable = ({
         <div className="m-2">
           <Link
             to="/wheel/stats"
-            className="button p-2 inline-block text-center"
+            className="button-link"
           >
             View Full Stats
           </Link>

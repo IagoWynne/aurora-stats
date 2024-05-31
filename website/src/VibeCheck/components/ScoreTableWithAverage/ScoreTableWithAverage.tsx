@@ -1,51 +1,50 @@
-import { formatDate } from "date-fns";
 import { ContainerContent, SectionContainer } from "../../../Common";
-import ScoreTable from "../ScoreTable/ScoreTable";
-import { useSuspenseQuery } from "@apollo/client";
-import { GET_VIBE_CHECK_BETWEEN } from "../../queries/getVibeCheckBetween";
-import { VibeCheck } from "../../types";
-
+import ScoreTable from "../ScoreTable";
+import { VibeCheckWeek } from "../../types";
 import AverageScore from "../AverageScore";
+import { Link } from "react-router-dom";
+import { useVibeCheckStatsContext } from "../../contexts/VibeCheckStatsContext";
+import { HTMLProps } from "react";
 
-interface Props {
-  from: Date;
-  to: Date;
+interface Props extends HTMLProps<HTMLDivElement>{
+  title: string;
+  showFullStatsButton?: boolean;
+  showWeeklyAverageColumn?: boolean;
 }
 
-const ScoreTableWithAverage = ({ from, to }: Props): JSX.Element => {
-  const { data } = useSuspenseQuery<{ vibeChecks: VibeCheck[] }>(
-    GET_VIBE_CHECK_BETWEEN,
-    {
-      variables: {
-        from: from.toISOString(),
-        to: to.toISOString(),
-      },
-    }
-  );
+const ScoreTableWithAverage = ({
+  title,
+  showFullStatsButton = false,
+  showWeeklyAverageColumn = false,
+  ...rest
+}: Props): JSX.Element => {
+  const {vibeCheckWeeks} = useVibeCheckStatsContext()
 
   return (
-    <div className="flex justify-between items-stretch">
+    <div className={`flex justify-between items-stretch ${rest.className}`}>
       <SectionContainer
-        title={`Scores between ${formatDate(
-          from,
-          "dd/MM/yyyy"
-        )} and ${formatDate(to, "dd/MM/yyyy")}`}
+        title={title}
         className="basis-2/3"
       >
         <ContainerContent>
-          <ScoreTable vibeChecks={data.vibeChecks} />
+          <ScoreTable showWeeklyAverageColumn={showWeeklyAverageColumn}/>
+          {showFullStatsButton && (
+            <Link to="/vibecheck/stats" className="button-link mt-2">
+              View Full Stats
+            </Link>
+          )}
         </ContainerContent>
       </SectionContainer>
       <SectionContainer title="Average Score" className="basis-1/3">
         <ContainerContent>
           <AverageScore
             score={
-              data.vibeChecks.length
-                ? data.vibeChecks.reduce(
-                    (total: number, current: VibeCheck) =>
-                      (total += current.averageScore),
+              vibeCheckWeeks.length
+                ? vibeCheckWeeks.reduce(
+                    (total: number, current: VibeCheckWeek) =>
+                      (total += current.weekAverage),
                     0
-                  ) / data.vibeChecks.length
+                  ) / vibeCheckWeeks.length
                 : null
             }
           />

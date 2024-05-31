@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/colors": "^7.0.2",
     "@apollo/client": "^3.9.11",
     "@craco/craco": "^7.1.0",
+    "@million/lint": "^1.0.0-rc.13",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -15,6 +17,7 @@
     "apexcharts": "^3.49.0",
     "date-fns": "^3.6.0",
     "graphql": "^16.8.1",
+    "million": "^3.1.6",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.2.0",
@@ -25,6 +28,7 @@
   },
   "scripts": {
     "tailwind": "npx tailwindcss -i ./src/input.css -o ./src/index.css --watch",
+    "perfcheck-setup": "npx @million/lint@latest",
     "start": "npx tailwindcss -i ./src/input.css -o ./src/index.css && craco start",
     "build": "npx tailwindcss -i ./src/input.css -o ./src/index.css && craco build",
     "test": "craco test",

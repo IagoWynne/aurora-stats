@@ -5,9 +5,7 @@ import { PersonType } from "../../types";
 import NewPerson from "./NewPerson";
 import { ContainerContent, SectionContainer } from "../../Common";
 
-interface Props {}
-
-const People = ({}: Props): JSX.Element => {
+const People = (): JSX.Element => {
   const { loading, error, data } = useQuery(GET_PEOPLE_QUERY);
 
   if (loading) {

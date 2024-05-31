@@ -1,4 +1,4 @@
-import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { PropsWithChildren, createContext, useContext } from "react";
 import { WheelOptionType, PersonType } from "../../types";
 import { useQuery } from "@apollo/client";
 import { GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY } from "../queries";

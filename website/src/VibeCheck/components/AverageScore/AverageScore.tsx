@@ -28,9 +28,11 @@ const AverageScore = ({ score, textSize }: Props): JSX.Element => {
     return "bg-green-300";
   };
 
+  const getTextSize = (): string => textSize ? `text-${textSize}` : "text-5xl";
+
   return (
     <div className={`flex flex-col h-full justify-center ${getBgColourClass()}`}>
-      <div className={`text-center text-${textSize ? textSize : "5xl"}`}>
+      <div className={`text-center ${getTextSize()}`}>
         {score ? score.toFixed(2) : "-"}
       </div>
     </div>

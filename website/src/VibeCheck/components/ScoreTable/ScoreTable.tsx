@@ -1,45 +1,39 @@
-import { formatDate } from "date-fns";
 import { useVibeCheckContext } from "../../contexts/VibeCheckContext";
-import { VibeCheck } from "../../types";
-import PersonCell from "./PersonCell";
-import AverageScore from "../AverageScore";
+import ScoreTableBody from "./ScoreTableBody";
+import { useVibeCheckStatsContext } from "../../contexts/VibeCheckStatsContext";
 
 interface Props {
-  vibeChecks: VibeCheck[];
+  showWeeklyAverageColumn?: boolean;
 }
 
-const ScoreTable = ({ vibeChecks }: Props): JSX.Element => {
+const ScoreTable = ({
+  showWeeklyAverageColumn = false,
+}: Props): JSX.Element => {
   const { people } = useVibeCheckContext();
-
-  const formatVibeCheckDate = (date: string) =>
-    formatDate(new Date(date), "dd/MM/yyyy");
+  const { vibeCheckWeeks } = useVibeCheckStatsContext();
 
   return (
-    <table className="w-full table-auto text-center alternating-rows">
+    <table className="w-full table-auto text-center alternating-rows h-1">
       <thead>
         <tr>
           <th className="w-auto">Date</th>
           {people.map((person) => (
             <th key={person.id}>{person.firstName}</th>
           ))}
-          <th>Average</th>
+          <th>Day Average</th>
+          {showWeeklyAverageColumn && <th>Weekly Average</th>}
         </tr>
       </thead>
-      <tbody>
-        {vibeChecks.map((vibeCheck) => (
-          <tr key={vibeCheck.date}>
-            <td>{formatVibeCheckDate(vibeCheck.date)}</td>
-            {people.map((person) => (
-              <PersonCell
-                key={person.id}
-                scores={vibeCheck.scores}
-                personId={person.id}
-              />
-            ))}
-            <td><AverageScore score={vibeCheck.averageScore} textSize="base"/></td>
-          </tr>
-        ))}
-      </tbody>
+      {vibeCheckWeeks.map(({ vibeChecks, weekAverage }, idx) => (
+        <ScoreTableBody
+          vibeChecks={vibeChecks}
+          people={people}
+          showWeeklyAverageColumn={showWeeklyAverageColumn}
+          weekAverage={weekAverage}
+          addSpacerRow={idx > 0}
+          key={idx}
+        />
+      ))}
     </table>
   );
 };
