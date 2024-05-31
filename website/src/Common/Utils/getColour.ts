@@ -23,7 +23,7 @@ const colours = [
 ];
 
 const getColour = (idx?: number): string => {
-  if (!idx) {
+  if (idx === null || idx === undefined) {
     return colours[Math.round(Math.random() * (colours.length - 1))];
   }
   while (idx > colours.length - 1) {

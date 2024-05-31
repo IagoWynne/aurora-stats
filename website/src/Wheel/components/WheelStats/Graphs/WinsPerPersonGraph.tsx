@@ -7,14 +7,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useWheelContext } from "../../contexts/WheelContext";
-import { useWheelStatsContext } from "../../contexts/WheelStatsContext";
-import {
-  AURORA_BLUE,
-  AURORA_DARK_GREEN,
-  AURORA_LIGHT_GREEN,
-  AURORA_LIGHT_HOVER,
-} from "../../../Colours";
+import { useWheelContext } from "../../../contexts/WheelContext";
+import { useWheelStatsContext } from "../../../contexts/WheelStatsContext";
+import { getColour } from "../../../../Common";
 
 const WinsPerPersonGraph = (): JSX.Element => {
   const { people, wheelOptions } = useWheelContext();
@@ -33,13 +28,6 @@ const WinsPerPersonGraph = (): JSX.Element => {
     return result;
   });
 
-  const COLOURS = [
-    AURORA_LIGHT_GREEN,
-    AURORA_BLUE,
-    AURORA_LIGHT_HOVER,
-    AURORA_DARK_GREEN,
-  ];
-
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={winsPerPerson}>
@@ -48,7 +36,7 @@ const WinsPerPersonGraph = (): JSX.Element => {
         <Tooltip />
         <Legend />
         {wheelOptionNames.map((optionName, i) => (
-          <Bar key={i} dataKey={optionName} fill={COLOURS[i]} />
+          <Bar key={i} dataKey={optionName} fill={getColour(i)} />
         ))}
       </BarChart>
     </ResponsiveContainer>
