@@ -30,7 +30,7 @@ const WheelResultsTable = ({
             </tr>
           </thead>
           <tbody>
-            {items.map(
+            {items.sort((a, b) => b.date.getTime() - a.date.getTime()).map(
               (result: {
                 id: number;
                 date: Date;
