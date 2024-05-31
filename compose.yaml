@@ -7,22 +7,28 @@ services:
     image: mysql:latest
     networks:
       - aurora
-    command: --authentication_policy=caching_sha2_password
+    command: ["--authentication_policy=caching_sha2_password"]
     environment:
       MYSQL_ROOT_PASSWORD: dbpass
-      MYSQL_DATABASE: aurora-stats
+      MYSQL_DATABASE: ${DATABASE}
+      FLYWAY_USER: ${DB_FLYWAY_USER}
+      FLYWAY_PASSWORD: ${DB_FLYWAY_PASSWORD}
+      API_USER: ${DB_API_USER}
+      API_PASSWORD: ${DB_API_PASSWORD}
     ports:
       - 3306:3306
     volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
       - ./mysql/db:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
     restart: unless-stopped
-  
+
   flyway:
     image: flyway/flyway
     networks:
       - aurora
-    command: -url=jdbc:mysql://db:3306 -schemas=aurora-stats -user=root -password=dbpass -connectRetries=50 migrate
-    volumes: 
+    command: -url=jdbc:mysql://db:3306 -schemas=${DATABASE} -user=${DB_FLYWAY_USER} -password=${DB_FLYWAY_PASSWORD} -connectRetries=50 migrate
+    volumes:
       - ./mysql/migrations:/flyway/sql
     depends_on:
       - db
@@ -31,14 +37,15 @@ services:
     networks:
       - aurora
     build:
-      dockerfile: api.dockerfile
+      dockerfile: docker/api.dockerfile
     environment:
       DB_HOST: db
-      DB_USER: root
-      DB_PASS: dbpass
-      PORT: 8080
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_API_USER}
+      DB_PASS: ${DB_API_PASSWORD}
+      PORT: ${API_PORT}
     ports:
-      - 8080:8080
+      - ${API_PORT}:${API_PORT}
     depends_on:
       - db
     restart: unless-stopped
@@ -47,16 +54,16 @@ services:
     networks:
       - aurora
     build:
-      dockerfile: website-dev.dockerfile
-      # context: ./website
-    command: yarn start
-    environment:
-      REACT_APP_API: localhost
-      REACT_APP_API_PORT: 8080
+      dockerfile: docker/website-dev.dockerfile
     volumes:
       - ./website:/app
+    command: yarn start
+      # context: ./website
+    environment:
+      REACT_APP_API: ${API_URL}
+      REACT_APP_API_PORT: ${API_PORT}
     ports:
-      - 3000:3000
+      - ${WEBSITE_PORT}:${WEBSITE_PORT}
     depends_on:
       - api
     restart: unless-stopped

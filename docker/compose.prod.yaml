@@ -1,0 +1,9 @@
+services:
+  website:
+    build:
+      dockerfile: docker/website.dockerfile
+      args:
+        REACT_APP_API: ${API_URL}
+        REACT_APP_API_PORT: ${API_PORT}
+    command:
+    volumes:

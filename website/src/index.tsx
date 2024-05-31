@@ -19,7 +19,6 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 
-console.log(process.env);
 const api = process.env.REACT_APP_API;
 const apiPort = process.env.REACT_APP_API_PORT;
 const httpLink = createHttpLink({ uri: `http://${api}:${apiPort}/query` });

@@ -24,8 +24,9 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
+    "tailwind": "npx tailwindcss -i ./src/input.css -o ./src/index.css --watch",
+    "start": "npx tailwindcss -i ./src/input.css -o ./src/index.css && craco start",
+    "build": "npx tailwindcss -i ./src/input.css -o ./src/index.css && craco build",
     "test": "craco test",
     "eject": "react-scripts eject"
   },

@@ -14,7 +14,7 @@ import (
 var Db *sqlx.DB
 
 func InitDB() {
-	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), "3306", "aurora-stats")
+	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), "3306", os.Getenv("DB_NAME"))
 
 	err := retry.Do(
 		func() error {
