@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose -f compose.resolved.yaml convert -v
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose -f compose.resolved.yaml convert -v
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/aurora: "true"
+        io.kompose.service: api
+    spec:
+      containers:
+        - env:
+            - name: DB_HOST
+              value: db
+            - name: DB_NAME
+              value: aurora
+            - name: DB_PASS
+              value: 
+            - name: DB_USER
+              value: 
+            - name: PORT
+              value: "8080"
+          image: aurora-stats-api
+          name: api
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+status: {}

@@ -1,3 +1,5 @@
+version: "3"
+
 networks:
   aurora:
     external: false
@@ -8,7 +10,6 @@ services:
       dockerfile: docker/db.dockerfile
     networks:
       - aurora
-    command: ["--authentication_policy=caching_sha2_password"]
     environment:
       MYSQL_ROOT_PASSWORD: dbpass
       MYSQL_DATABASE: ${DATABASE}
@@ -55,8 +56,6 @@ services:
       - aurora
     build:
       dockerfile: docker/website-dev.dockerfile
-    volumes:
-      - ./website:/app
     command: yarn start
     environment:
       REACT_APP_API: ${API_URL}

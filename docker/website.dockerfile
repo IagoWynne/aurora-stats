@@ -8,16 +8,16 @@ COPY ./website/yarn.lock yarn.lock
 
 RUN yarn install
 
-ARG REACT_APP_API REACT_APP_API_PORT
-ENV REACT_APP_API $REACT_APP_API 
-ENV REACT_APP_API_PORT $REACT_APP_API_PORT
-
 COPY ./website .
+RUN rm ./src/config.json
+# TODO: find a way to avoid hard coding this
+RUN echo '{"api_host": "localhost", "api_port": 8080}' > ./src/config.json
 
 RUN yarn build
 
 # production environment
 FROM nginx:stable-alpine
+
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 3000

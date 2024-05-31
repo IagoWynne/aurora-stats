@@ -7,6 +7,7 @@ import {
   createHttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import config from "./config.json";
 import App from "./App";
 import ErrorPage from "./ErrorPage";
 import { People } from "./People";
@@ -20,8 +21,8 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 
-const api = process.env.REACT_APP_API;
-const apiPort = process.env.REACT_APP_API_PORT;
+const api = config.api_host;
+const apiPort = config.api_port;
 const httpLink = createHttpLink({ uri: `http://${api}:${apiPort}/query` });
 
 const client = new ApolloClient({
