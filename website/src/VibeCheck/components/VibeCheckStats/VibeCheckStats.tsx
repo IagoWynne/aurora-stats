@@ -12,7 +12,11 @@ import { VibeCheckStatsContextProvider } from "../../contexts/VibeCheckStatsCont
 
 const VibeCheckStats = (): JSX.Element => {
   const [to, setTo] = useState(new Date());
-  const [from, setFrom] = useState(isMonday(to) ? new Date(subDays(to, 28)) : new Date(subDays(previousMonday(to), 28)));
+  const [from, setFrom] = useState(
+    isMonday(to)
+      ? new Date(subDays(to, 28))
+      : new Date(subDays(previousMonday(to), 28))
+  );
 
   return (
     <>
@@ -27,12 +31,11 @@ const VibeCheckStats = (): JSX.Element => {
         </ContainerContent>
       </SectionContainer>
       <Suspense fallback={<Loading />}>
-
-    <VibeCheckContextProvider>
-      <VibeCheckStatsContextProvider from={from} to={to}>
-        <StatsContainer/>
-      </VibeCheckStatsContextProvider>
-    </VibeCheckContextProvider>
+        <VibeCheckContextProvider>
+          <VibeCheckStatsContextProvider from={from} to={to}>
+            <StatsContainer />
+          </VibeCheckStatsContextProvider>
+        </VibeCheckContextProvider>
       </Suspense>
     </>
   );

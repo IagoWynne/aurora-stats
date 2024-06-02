@@ -41,6 +41,10 @@ const mapVibeChecksFromDTO = (vibeChecks: VibeCheckDTO[]): VibeCheck[] =>
   }));
 
 const fillMissingVibeCheckDates = (vibeChecks: VibeCheck[]): VibeCheck[] => {
+  if (!vibeChecks.length) {
+    return []
+  }
+
   const dateArray: Date[] = [];
 
   let currentDate = vibeChecks[0].date;
@@ -74,6 +78,10 @@ const fillMissingVibeCheckDates = (vibeChecks: VibeCheck[]): VibeCheck[] => {
 };
 
 const mapVibeChecksToWeeks = (vibeChecks: VibeCheck[]): VibeCheckWeek[] => {
+  if (!vibeChecks.length) {
+    return []
+  }
+  
   let vibeCheckWeeks: VibeCheckWeek[] = [];
 
   let vcWeek = newVibeCheckWeek(vibeChecks[0].date);
