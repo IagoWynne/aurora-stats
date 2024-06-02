@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import {
   isMonday,
-  startOfWeek,
   startOfDay,
   addMinutes,
   endOfToday,
   formatDate,
+  previousMonday,
 } from "date-fns";
 import { VibeCheckContextProvider } from "../../contexts/VibeCheckContext";
 import { Loading } from "../../../Common";
@@ -15,7 +15,7 @@ import { VibeCheckStatsContextProvider } from "../../contexts/VibeCheckStatsCont
 
 const VibeCheck = (): JSX.Element => {
   const today = getTodayAtMidnightUTC();
-  const weekStart = isMonday(today) ? today : new Date(startOfWeek(today));
+  const weekStart = isMonday(today) ? today : new Date(previousMonday(today));
 
   return (
     <Suspense fallback={<Loading />}>

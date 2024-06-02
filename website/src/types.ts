@@ -28,3 +28,7 @@ export interface WheelPersonWins {
   totalWins: number;
   winsByOption: WheelStat[];
 }
+
+export interface ChartData {
+  [key: string]: string | number | null;
+}

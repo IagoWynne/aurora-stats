@@ -7,24 +7,19 @@ import {
   DailyScoresGraph,
   DayOfWeekAverageTable,
   PersonAverageTable,
+  WeeklyAveragesGraph,
 } from "./Charts";
 
 const StatsContainer = (): JSX.Element => {
   const { vibeCheckWeeks } = useVibeCheckStatsContext();
   return (
-    <div className="grid grid-cols-12 gap-2 grid-rows-1">
-      <SectionContainer
-        title="Vibe Check Scores Table"
-        className="col-span-8 mt-1"
-      >
+    <div className="grid grid-cols-12 gap-1 grid-rows-1">
+      <SectionContainer title="Vibe Check Scores Table" className="col-span-8">
         <ContainerContent>
           <ScoreTable />
         </ContainerContent>
       </SectionContainer>
-      <SectionContainer
-        title="Average Score"
-        className="col-span-4 mt-1"
-      >
+      <SectionContainer title="Average Score" className="col-span-4">
         <ContainerContent>
           <AverageScore
             score={calculateMean(
@@ -37,22 +32,27 @@ const StatsContainer = (): JSX.Element => {
           />
         </ContainerContent>
       </SectionContainer>
-      <SectionContainer title="Average Score per Person" className="col-span-3 mt-1">
+      <SectionContainer title="Average Score per Person" className="col-span-3">
         <ContainerContent>
           <PersonAverageTable />
         </ContainerContent>
       </SectionContainer>
-      <SectionContainer title="Daily Scores over Time" className="col-span-9 mt-1">
+      <SectionContainer title="Daily Scores over Time" className="col-span-9">
         <ContainerContent>
           <DailyScoresGraph />
         </ContainerContent>
       </SectionContainer>
-      <SectionContainer title="Weekly Averages over Time" className="col-span-9 mt-1">
-        <ContainerContent></ContainerContent>
+      <SectionContainer
+        title="Weekly Averages over Time"
+        className="col-span-9"
+      >
+        <ContainerContent>
+          <WeeklyAveragesGraph />
+        </ContainerContent>
       </SectionContainer>
       <SectionContainer
         title="Average Score on Day of Week"
-        className="col-span-3 mt-1"
+        className="col-span-3"
       >
         <ContainerContent>
           <DayOfWeekAverageTable />
