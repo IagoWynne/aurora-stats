@@ -32,8 +32,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-api-js/*
+website/src/index.css
 
 # local db volume
 mysql/db/*
