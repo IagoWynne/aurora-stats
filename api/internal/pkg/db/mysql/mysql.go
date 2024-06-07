@@ -11,38 +11,26 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type DB struct {
-	readConn  *sqlx.DB
-	writeConn *sqlx.DB
-}
-
-func InitDB() *DB {
-	return &DB{
-		readConn:  initReadConn(),
-		writeConn: initWriteConn(),
-	}
-}
-
-func initReadConn() *sqlx.DB { 
-	userName := os.Getenv("DB_READ_USER")
+func initReadConn() *sqlx.DB {
+	username := os.Getenv("DB_READ_USER")
 	password := os.Getenv("DB_READ_PASSWORD")
 	host := os.Getenv("DB_READ_HOST")
 
-	return initConn(userName, password, host)
+	return initConn(username, password, host)
 }
 
-func initWriteConn() *sqlx.DB { 
-	userName := os.Getenv("DB_WRITE_USER")
+func initWriteConn() *sqlx.DB {
+	username := os.Getenv("DB_WRITE_USER")
 	password := os.Getenv("DB_WRITE_PASSWORD")
-	host := os.Getenv("DB_WRITE_HOST");
+	host := os.Getenv("DB_WRITE_HOST")
 
-	return initWriteConn(username, password, host)
+	return initConn(username, password, host)
 }
 
-func initConn(username string, password string, host string) *sqlx.DB { 
+func initConn(username string, password string, host string) *sqlx.DB {
 	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, username, password, host, "3306", os.Getenv("DB_NAME"))
 
-	var conn *sqlx.DB
+	var dbConn *sqlx.DB
 
 	err := retry.Do(
 		func() error {
@@ -54,29 +42,37 @@ func initConn(username string, password string, host string) *sqlx.DB {
 			if err = conn.Ping(); err != nil {
 				return err
 			}
+
+			if conn == nil {
+				log.Panic("no connection")
+			}
+
+			dbConn = conn
+
 			return nil
 		},
 	)
 
-	if err != nil {
+	if err != nil || dbConn == nil {
 		log.Panic(err)
 	}
 
-	return conn
+	return dbConn
 }
 
-func (m DB) CloseDB() error {
-	err := m.readConn.Close()
-	
+func closeConnection(conn *sqlx.DB) {
+	err := conn.Close()
+
 	if err != nil {
 		panic(err)
 	}
-
-	return m.writeConn.Close()
 }
 
-func (m DB) InsertRecordAndReturnId(query string, record any, entityType string) (int64, error) {
-	tx, err := m.writeConn.Beginx()
+func InsertRecordAndReturnId[T any](query string, record T, entityType string) (int64, error) {
+	writeConn := initWriteConn()
+	defer closeConnection(writeConn)
+
+	tx, err := writeConn.Beginx()
 	if err != nil {
 		return 0, err
 	}
@@ -85,7 +81,7 @@ func (m DB) InsertRecordAndReturnId(query string, record any, entityType string)
 		err = finishTransaction(err, tx)
 	}()
 
-	result, err := m.writeConn.NamedExec(query, record)
+	result, err := writeConn.NamedExec(query, record)
 	if err != nil {
 		return 0, err
 	}
@@ -100,8 +96,11 @@ func (m DB) InsertRecordAndReturnId(query string, record any, entityType string)
 	return id, nil
 }
 
-func (m DB) BatchInsert[T any](query string, records []T, entityType string) error {
-	tx, err := m.writeConn.Beginx()
+func BatchInsert[T any](query string, records []T, entityType string) error {
+	writeConn := initWriteConn()
+	defer closeConnection(writeConn)
+
+	tx, err := writeConn.Beginx()
 	if err != nil {
 		return err
 	}
@@ -110,7 +109,7 @@ func (m DB) BatchInsert[T any](query string, records []T, entityType string) err
 		err = finishTransaction(err, tx)
 	}()
 
-	_, err = m.writeConn.NamedExec(query, records)
+	_, err = writeConn.NamedExec(query, records)
 	if err != nil {
 		return err
 	}
@@ -120,8 +119,11 @@ func (m DB) BatchInsert[T any](query string, records []T, entityType string) err
 	return nil
 }
 
-func (m DB) UpdateRecord[T any](query string, record T, entityType string) (T, error) {
-	tx, err := m.writeConn.Beginx()
+func UpdateRecord[T any](query string, record T, entityType string) (any, error) {
+	writeConn := initWriteConn()
+	defer closeConnection(writeConn)
+
+	tx, err := writeConn.Beginx()
 	if err != nil {
 		return record, err
 	}
@@ -157,33 +159,45 @@ func finishTransaction(err error, tx *sqlx.Tx) error {
 	}
 }
 
-func (m DB) FindById(fields []string, id int64, table string, dest interface{}, forUpdate bool) error {
+func FindById(fields []string, id int64, table string, dest interface{}, forUpdate bool) error {
 	query := "SELECT " + strings.Join(fields, ", ") + " FROM " + table + " WHERE id = ?"
 
 	if forUpdate {
 		query += " FOR UPDATE"
 	}
 
-	return m.readConn.Get(&dest, query, id)
+	readConn := initReadConn()
+	defer closeConnection(readConn)
+
+	return readConn.Get(&dest, query, id)
 }
 
-func (m DB) GetMultiple[T any, U any](query string, mapFn func(U) T, args ...interface{}) ([]T, error) {
-	rows, err := m.readConn.Queryx(query, args...)
+func GetMultiple[T any](query string, args ...interface{}) ([]T, error) {
+	readConn := initReadConn()
+	defer closeConnection(readConn)
+
+	log.Printf("running query %s", query)
+
+	rows, err := readConn.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
 
 	var results []T
 
+	log.Print("mapping rows to objects...")
+
 	for rows.Next() {
-		var result U
+		var result T
 		err := rows.StructScan(&result)
 		if err != nil {
 			return nil, err
 		}
 
-		results = append(results, mapFn(result))
+		results = append(results, result)
 	}
+
+	log.Print("returning results...")
 
 	return results, nil
 }

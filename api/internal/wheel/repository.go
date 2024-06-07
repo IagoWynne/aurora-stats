@@ -3,11 +3,9 @@ package wheel
 import (
 	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
-	"log"
+	"aurora-stats/api/internal/utils"
 	"strings"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type mysqlWheelOption struct {
@@ -31,9 +29,7 @@ type mysqlWheelResult struct {
 	OptionName string    `db:"option_name"`
 }
 
-type WheelRepository struct {
-	db *database.DB
-}
+type WheelRepository struct{}
 
 type Repository interface {
 	CreateOption(optionName string) (int64, error)
@@ -42,12 +38,8 @@ type Repository interface {
 	GetWheelResults(filters GetWheelRunFilters) ([]DomainWheelResult, error)
 }
 
-func NewWheelRepository(db *database.DB) *WheelRepository {
-	if db == nil {
-		log.Panic("missing db")
-	}
-
-	return &WheelRepository{db: db}
+func NewWheelRepository() *WheelRepository {
+	return &WheelRepository{}
 }
 
 func (m WheelRepository) CreateOption(optionName string) (int64, error) {
@@ -60,7 +52,7 @@ func (m WheelRepository) createOption(optionName string) (int64, error) {
 		OptionName: optionName,
 	}
 
-	return m.db.InsertRecordAndReturnId(query, option, "wheel_option")
+	return database.InsertRecordAndReturnId(query, option, "wheel_option")
 }
 
 func (m WheelRepository) CreateWheelRun(date time.Time, winnerId int64, resultId int64) (int64, error) {
@@ -75,7 +67,7 @@ func (m WheelRepository) createWheelRun(date time.Time, winnerId int64, resultId
 		PrizeId:  resultId,
 	}
 
-	return m.db.InsertRecordAndReturnId(db, query, wheelRun, "wheel_run")
+	return database.InsertRecordAndReturnId(query, wheelRun, "wheel_run")
 }
 
 func (m WheelRepository) GetOptions() ([]DomainWheelOption, error) {
@@ -85,7 +77,12 @@ func (m WheelRepository) GetOptions() ([]DomainWheelOption, error) {
 func (m WheelRepository) getOptions() ([]DomainWheelOption, error) {
 	query := "SELECT id, option_name FROM wheel_option"
 
-	return database.GetMultiple(db, query, mapOptionFromDbToDomain)
+	results, err := database.GetMultiple[mysqlWheelOption](query)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapArray(results, mapOptionFromDbToDomain), nil
 }
 
 func mapOptionFromDbToDomain(sqlOption mysqlWheelOption) DomainWheelOption {
@@ -122,7 +119,12 @@ func (m WheelRepository) getWheelResults(filters GetWheelRunFilters) ([]DomainWh
 		query += " WHERE " + strings.Join(whereClauses, " AND ")
 	}
 
-	return database.GetMultiple(db, query, mapWheelResultFromDbToDomain, filterVars...)
+	results, err := database.GetMultiple[mysqlWheelResult](query, filterVars...)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapArray(results, mapWheelResultFromDbToDomain), nil
 }
 
 func mapWheelResultFromDbToDomain(sqlResult mysqlWheelResult) DomainWheelResult {

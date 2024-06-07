@@ -3,11 +3,9 @@ package main
 import (
 	"aurora-stats/api/graph"
 	"aurora-stats/api/internal/people"
-	database "aurora-stats/api/internal/pkg/db/mysql"
 	"aurora-stats/api/internal/vibecheck"
 	"aurora-stats/api/internal/wheel"
 	"log"
-	"net"
 	"net/http"
 	"os"
 
@@ -21,18 +19,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-func GetOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP
-}
-
 const defaultPort = "8080"
 
 func main() {
@@ -42,12 +28,9 @@ func main() {
 		port = defaultPort
 	}
 
-	db := database.InitDB()
-	defer db.CloseDB()
-
-	people.InitPeopleRepo(people.NewPersonRepository(db))
-	wheel.InitWheelRepo(wheel.NewWheelRepository(db))
-	vibecheck.InitVibeCheckRepo(vibecheck.NewVibeCheckRepository(db))
+	people.InitPeopleRepo(people.NewPersonRepository())
+	wheel.InitWheelRepo(wheel.NewWheelRepository())
+	vibecheck.InitVibeCheckRepo(vibecheck.NewVibeCheckRepository())
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
@@ -75,8 +58,5 @@ func main() {
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
-	host := GetOutboundIP()
-
-	log.Printf("connect to http://%s:%s/ for GraphQL playground", host, port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
