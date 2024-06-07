@@ -14,7 +14,7 @@ const WeeklyAveragesGraph = (): JSX.Element => {
     () =>
       vibeCheckWeeks.map((vcw) => {
         const chartData: ChartData = {
-          weekStart: formatDate(vcw.weekStart, "dd/MM/yyyy"),
+          date: formatDate(vcw.weekStart, "dd/MM/yyyy"),
           Average: vcw.weekAverage,
         };
 

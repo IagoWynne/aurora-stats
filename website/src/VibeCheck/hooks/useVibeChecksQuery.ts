@@ -4,8 +4,10 @@ import { VibeCheck, VibeCheckDTO, VibeCheckWeek } from "../types";
 import {
   addDays,
   formatDate,
+  isMonday,
   isSaturday,
   isSunday,
+  previousMonday,
   startOfWeek,
 } from "date-fns";
 
@@ -42,7 +44,7 @@ const mapVibeChecksFromDTO = (vibeChecks: VibeCheckDTO[]): VibeCheck[] =>
 
 const fillMissingVibeCheckDates = (vibeChecks: VibeCheck[]): VibeCheck[] => {
   if (!vibeChecks.length) {
-    return []
+    return [];
   }
 
   const dateArray: Date[] = [];
@@ -79,9 +81,9 @@ const fillMissingVibeCheckDates = (vibeChecks: VibeCheck[]): VibeCheck[] => {
 
 const mapVibeChecksToWeeks = (vibeChecks: VibeCheck[]): VibeCheckWeek[] => {
   if (!vibeChecks.length) {
-    return []
+    return [];
   }
-  
+
   let vibeCheckWeeks: VibeCheckWeek[] = [];
 
   let vcWeek = newVibeCheckWeek(vibeChecks[0].date);
@@ -109,10 +111,10 @@ const mapVibeChecksToWeeks = (vibeChecks: VibeCheck[]): VibeCheckWeek[] => {
 };
 
 const isNewWeek = (prevDate: Date, currentDate: Date) =>
-  prevDate.getDate() < startOfWeek(currentDate).getDate();
+  prevDate.getTime() < startOfWeek(currentDate).getTime();
 
 const newVibeCheckWeek = (date: Date): VibeCheckWeek => ({
-  weekStart: startOfWeek(date),
+  weekStart: isMonday(date) ? date : previousMonday(date),
   vibeChecks: [],
   weekAverage: 0,
 });
