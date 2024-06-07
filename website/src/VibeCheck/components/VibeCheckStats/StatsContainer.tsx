@@ -14,9 +14,17 @@ const StatsContainer = (): JSX.Element => {
   const { vibeCheckWeeks } = useVibeCheckStatsContext();
   return (
     <div className="grid grid-cols-12 gap-1 grid-rows-1">
-      <SectionContainer title="Vibe Check Scores Table" className="col-span-8">
+      <SectionContainer title="Daily Scores over Time" className="col-span-6">
         <ContainerContent>
-          <ScoreTable />
+          <DailyScoresGraph />
+        </ContainerContent>
+      </SectionContainer>
+      <SectionContainer
+        title="Weekly Averages over Time"
+        className="col-span-6"
+      >
+        <ContainerContent>
+          <WeeklyAveragesGraph />
         </ContainerContent>
       </SectionContainer>
       <SectionContainer title="Average Score" className="col-span-4">
@@ -32,30 +40,22 @@ const StatsContainer = (): JSX.Element => {
           />
         </ContainerContent>
       </SectionContainer>
-      <SectionContainer title="Average Score per Person" className="col-span-3">
+      <SectionContainer title="Average Score per Person" className="col-span-4">
         <ContainerContent>
           <PersonAverageTable />
         </ContainerContent>
       </SectionContainer>
-      <SectionContainer title="Daily Scores over Time" className="col-span-9">
-        <ContainerContent>
-          <DailyScoresGraph />
-        </ContainerContent>
-      </SectionContainer>
-      <SectionContainer
-        title="Weekly Averages over Time"
-        className="col-span-9"
-      >
-        <ContainerContent>
-          <WeeklyAveragesGraph />
-        </ContainerContent>
-      </SectionContainer>
       <SectionContainer
         title="Average Score on Day of Week"
-        className="col-span-3"
+        className="col-span-4"
       >
         <ContainerContent>
           <DayOfWeekAverageTable />
+        </ContainerContent>
+      </SectionContainer>
+      <SectionContainer title="Vibe Check Scores Table" className="col-span-12">
+        <ContainerContent>
+          <ScoreTable />
         </ContainerContent>
       </SectionContainer>
     </div>
