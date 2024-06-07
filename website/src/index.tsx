@@ -7,6 +7,7 @@ import {
   createHttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import config from "./config.json";
 import App from "./App";
 import ErrorPage from "./ErrorPage";
 import { People } from "./People";
@@ -20,9 +21,11 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 
-const api = process.env.REACT_APP_API;
-const apiPort = process.env.REACT_APP_API_PORT;
-const httpLink = createHttpLink({ uri: `http://${api}:${apiPort}/query` });
+const api = config.api.host;
+const apiPort = config.api.port;
+const prefix = api?.startsWith("http") ? "" : "http://";
+const apiUri = `${prefix}${api}${apiPort ? `:${apiPort}`:""}/query`
+const httpLink = createHttpLink({ uri: apiUri });
 
 const client = new ApolloClient({
   link: httpLink,
@@ -31,32 +34,32 @@ const client = new ApolloClient({
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: `${config.baseUrl}/`,
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/people",
+        path: `${config.baseUrl}/people`,
         element: <People />,
       },
       {
-        path: "/wheel",
+        path: `${config.baseUrl}/wheel`,
         element: <Wheel />,
       },
       {
-        path: "/wheel/options",
+        path: `${config.baseUrl}/wheel/options`,
         element: <WheelOptions />,
       },
       {
-        path: "/wheel/stats",
+        path: `${config.baseUrl}/wheel/stats`,
         element: <WheelStats />,
       },
       {
-        path: "/vibecheck",
+        path: `${config.baseUrl}/vibecheck`,
         element: <VibeCheck />,
       },
       {
-        path: "/vibecheck/stats",
+        path: `${config.baseUrl}/vibecheck/stats`,
         element: <VibeCheckStats />
       }
     ],

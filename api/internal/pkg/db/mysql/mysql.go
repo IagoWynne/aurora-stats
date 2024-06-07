@@ -11,37 +11,68 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var Db *sqlx.DB
+func initReadConn() *sqlx.DB {
+	username := os.Getenv("DB_READ_USER")
+	password := os.Getenv("DB_READ_PASSWORD")
+	host := os.Getenv("DB_READ_HOST")
 
-func InitDB() {
-	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), "3306", os.Getenv("DB_NAME"))
+	return initConn(username, password, host)
+}
+
+func initWriteConn() *sqlx.DB {
+	username := os.Getenv("DB_WRITE_USER")
+	password := os.Getenv("DB_WRITE_PASSWORD")
+	host := os.Getenv("DB_WRITE_HOST")
+
+	return initConn(username, password, host)
+}
+
+func initConn(username string, password string, host string) *sqlx.DB {
+	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, username, password, host, "3306", os.Getenv("DB_NAME"))
+
+	var dbConn *sqlx.DB
 
 	err := retry.Do(
 		func() error {
-			db, err := sqlx.Connect("mysql", connectionString)
+			conn, err := sqlx.Connect("mysql", connectionString)
 			if err != nil {
 				return err
 			}
 
-			if err = db.Ping(); err != nil {
+			if err = conn.Ping(); err != nil {
 				return err
 			}
-			Db = db
+
+			if conn == nil {
+				log.Panic("no connection")
+			}
+
+			dbConn = conn
+
 			return nil
 		},
 	)
 
-	if err != nil {
+	if err != nil || dbConn == nil {
 		log.Panic(err)
+	}
+
+	return dbConn
+}
+
+func closeConnection(conn *sqlx.DB) {
+	err := conn.Close()
+
+	if err != nil {
+		panic(err)
 	}
 }
 
-func CloseDB() error {
-	return Db.Close()
-}
+func InsertRecordAndReturnId[T any](query string, record T, entityType string) (int64, error) {
+	writeConn := initWriteConn()
+	defer closeConnection(writeConn)
 
-func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType string) (int64, error) {
-	tx, err := db.Beginx()
+	tx, err := writeConn.Beginx()
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +81,7 @@ func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType s
 		err = finishTransaction(err, tx)
 	}()
 
-	result, err := db.NamedExec(query, record)
+	result, err := writeConn.NamedExec(query, record)
 	if err != nil {
 		return 0, err
 	}
@@ -65,8 +96,11 @@ func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType s
 	return id, nil
 }
 
-func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType string) error {
-	tx, err := db.Beginx()
+func BatchInsert[T any](query string, records []T, entityType string) error {
+	writeConn := initWriteConn()
+	defer closeConnection(writeConn)
+
+	tx, err := writeConn.Beginx()
 	if err != nil {
 		return err
 	}
@@ -75,7 +109,7 @@ func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType strin
 		err = finishTransaction(err, tx)
 	}()
 
-	_, err = db.NamedExec(query, records)
+	_, err = writeConn.NamedExec(query, records)
 	if err != nil {
 		return err
 	}
@@ -85,8 +119,11 @@ func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType strin
 	return nil
 }
 
-func UpdateRecord[T any](db *sqlx.DB, query string, record T, entityType string) (T, error) {
-	tx, err := db.Beginx()
+func UpdateRecord[T any](query string, record T, entityType string) (any, error) {
+	writeConn := initWriteConn()
+	defer closeConnection(writeConn)
+
+	tx, err := writeConn.Beginx()
 	if err != nil {
 		return record, err
 	}
@@ -122,33 +159,45 @@ func finishTransaction(err error, tx *sqlx.Tx) error {
 	}
 }
 
-func FindById(db *sqlx.DB, fields []string, id int64, table string, dest interface{}, forUpdate bool) error {
+func FindById(fields []string, id int64, table string, dest interface{}, forUpdate bool) error {
 	query := "SELECT " + strings.Join(fields, ", ") + " FROM " + table + " WHERE id = ?"
 
 	if forUpdate {
 		query += " FOR UPDATE"
 	}
 
-	return db.Get(&dest, query, id)
+	readConn := initReadConn()
+	defer closeConnection(readConn)
+
+	return readConn.Get(&dest, query, id)
 }
 
-func GetMultiple[T any, U any](db *sqlx.DB, query string, mapFn func(U) T, args ...interface{}) ([]T, error) {
-	rows, err := db.Queryx(query, args...)
+func GetMultiple[T any](query string, args ...interface{}) ([]T, error) {
+	readConn := initReadConn()
+	defer closeConnection(readConn)
+
+	log.Printf("running query %s", query)
+
+	rows, err := readConn.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}
 
 	var results []T
 
+	log.Print("mapping rows to objects...")
+
 	for rows.Next() {
-		var result U
+		var result T
 		err := rows.StructScan(&result)
 		if err != nil {
 			return nil, err
 		}
 
-		results = append(results, mapFn(result))
+		results = append(results, result)
 	}
+
+	log.Print("returning results...")
 
 	return results, nil
 }

@@ -38,3 +38,10 @@ next-env.d.ts
 mysql/db/*
 
 .env
+
+*/.rip
+*/helm
+*/build.json
+
+k8s.compose.yaml
+docker/*release.dockerfile

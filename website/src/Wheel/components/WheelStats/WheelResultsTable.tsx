@@ -1,4 +1,5 @@
 import { formatDate } from "date-fns";
+import config from "../../../config.json";
 import { useWheelStatsContext } from "../../contexts/WheelStatsContext";
 import { Link } from "react-router-dom";
 
@@ -50,7 +51,7 @@ const WheelResultsTable = ({
       {showFullStatsButton && (
         <div className="m-2">
           <Link
-            to="/wheel/stats"
+            to={`${config.baseUrl}/wheel/stats`}
             className="button-link"
           >
             View Full Stats

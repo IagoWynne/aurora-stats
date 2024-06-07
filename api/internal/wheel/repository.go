@@ -3,11 +3,9 @@ package wheel
 import (
 	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
-	"log"
+	"aurora-stats/api/internal/utils"
 	"strings"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type mysqlWheelOption struct {
@@ -31,9 +29,7 @@ type mysqlWheelResult struct {
 	OptionName string    `db:"option_name"`
 }
 
-type WheelRepository struct {
-	db *sqlx.DB
-}
+type WheelRepository struct{}
 
 type Repository interface {
 	CreateOption(optionName string) (int64, error)
@@ -42,32 +38,28 @@ type Repository interface {
 	GetWheelResults(filters GetWheelRunFilters) ([]DomainWheelResult, error)
 }
 
-func NewWheelRepository(db *sqlx.DB) *WheelRepository {
-	if db == nil {
-		log.Panic("missing db")
-	}
-
-	return &WheelRepository{db: db}
+func NewWheelRepository() *WheelRepository {
+	return &WheelRepository{}
 }
 
 func (m WheelRepository) CreateOption(optionName string) (int64, error) {
-	return m.createOption(m.db, optionName)
+	return m.createOption(optionName)
 }
 
-func (m WheelRepository) createOption(db *sqlx.DB, optionName string) (int64, error) {
+func (m WheelRepository) createOption(optionName string) (int64, error) {
 	query := "INSERT INTO wheel_option(option_name) VALUES (:option_name)"
 	option := mysqlWheelOption{
 		OptionName: optionName,
 	}
 
-	return database.InsertRecordAndReturnId(db, query, option, "wheel_option")
+	return database.InsertRecordAndReturnId(query, option, "wheel_option")
 }
 
 func (m WheelRepository) CreateWheelRun(date time.Time, winnerId int64, resultId int64) (int64, error) {
-	return m.createWheelRun(m.db, date, winnerId, resultId)
+	return m.createWheelRun(date, winnerId, resultId)
 }
 
-func (m WheelRepository) createWheelRun(db *sqlx.DB, date time.Time, winnerId int64, resultId int64) (int64, error) {
+func (m WheelRepository) createWheelRun(date time.Time, winnerId int64, resultId int64) (int64, error) {
 	query := "INSERT INTO wheel_run(run_date, winner_id, prize_id) VALUES (:run_date, :winner_id, :prize_id)"
 	wheelRun := mysqlWheelRun{
 		Date:     date,
@@ -75,17 +67,22 @@ func (m WheelRepository) createWheelRun(db *sqlx.DB, date time.Time, winnerId in
 		PrizeId:  resultId,
 	}
 
-	return database.InsertRecordAndReturnId(db, query, wheelRun, "wheel_run")
+	return database.InsertRecordAndReturnId(query, wheelRun, "wheel_run")
 }
 
 func (m WheelRepository) GetOptions() ([]DomainWheelOption, error) {
-	return m.getOptions(m.db)
+	return m.getOptions()
 }
 
-func (m WheelRepository) getOptions(db *sqlx.DB) ([]DomainWheelOption, error) {
+func (m WheelRepository) getOptions() ([]DomainWheelOption, error) {
 	query := "SELECT id, option_name FROM wheel_option"
 
-	return database.GetMultiple(db, query, mapOptionFromDbToDomain)
+	results, err := database.GetMultiple[mysqlWheelOption](query)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapArray(results, mapOptionFromDbToDomain), nil
 }
 
 func mapOptionFromDbToDomain(sqlOption mysqlWheelOption) DomainWheelOption {
@@ -96,10 +93,10 @@ func mapOptionFromDbToDomain(sqlOption mysqlWheelOption) DomainWheelOption {
 }
 
 func (m WheelRepository) GetWheelResults(filters GetWheelRunFilters) ([]DomainWheelResult, error) {
-	return m.getWheelResults(m.db, filters)
+	return m.getWheelResults(filters)
 }
 
-func (m WheelRepository) getWheelResults(db *sqlx.DB, filters GetWheelRunFilters) ([]DomainWheelResult, error) {
+func (m WheelRepository) getWheelResults(filters GetWheelRunFilters) ([]DomainWheelResult, error) {
 	query := `SELECT wheel_run.id as id, run_date, winner_id, prize_id, first_name, last_name, option_name 
 	FROM wheel_run 
 	INNER JOIN wheel_option on wheel_run.prize_id = wheel_option.id
@@ -122,7 +119,12 @@ func (m WheelRepository) getWheelResults(db *sqlx.DB, filters GetWheelRunFilters
 		query += " WHERE " + strings.Join(whereClauses, " AND ")
 	}
 
-	return database.GetMultiple(db, query, mapWheelResultFromDbToDomain, filterVars...)
+	results, err := database.GetMultiple[mysqlWheelResult](query, filterVars...)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapArray(results, mapWheelResultFromDbToDomain), nil
 }
 
 func mapWheelResultFromDbToDomain(sqlResult mysqlWheelResult) DomainWheelResult {
