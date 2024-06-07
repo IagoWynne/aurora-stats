@@ -42,12 +42,12 @@ func main() {
 		port = defaultPort
 	}
 
-	database.InitDB()
-	defer database.CloseDB()
+	db := database.InitDB()
+	defer db.CloseDB()
 
-	people.InitPeopleRepo(people.NewPersonRepository(database.Db))
-	wheel.InitWheelRepo(wheel.NewWheelRepository(database.Db))
-	vibecheck.InitVibeCheckRepo(vibecheck.NewVibeCheckRepository(database.Db))
+	people.InitPeopleRepo(people.NewPersonRepository(db))
+	wheel.InitWheelRepo(wheel.NewWheelRepository(db))
+	vibecheck.InitVibeCheckRepo(vibecheck.NewVibeCheckRepository(db))
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)

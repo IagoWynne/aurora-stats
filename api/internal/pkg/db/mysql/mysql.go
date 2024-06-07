@@ -11,22 +11,49 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var Db *sqlx.DB
+type DB struct {
+	readConn  *sqlx.DB
+	writeConn *sqlx.DB
+}
 
-func InitDB() {
-	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), "3306", os.Getenv("DB_NAME"))
+func InitDB() *DB {
+	return &DB{
+		readConn:  initReadConn(),
+		writeConn: initWriteConn(),
+	}
+}
+
+func initReadConn() *sqlx.DB { 
+	userName := os.Getenv("DB_READ_USER")
+	password := os.Getenv("DB_READ_PASSWORD")
+	host := os.Getenv("DB_READ_HOST")
+
+	return initConn(userName, password, host)
+}
+
+func initWriteConn() *sqlx.DB { 
+	userName := os.Getenv("DB_WRITE_USER")
+	password := os.Getenv("DB_WRITE_PASSWORD")
+	host := os.Getenv("DB_WRITE_HOST");
+
+	return initWriteConn(username, password, host)
+}
+
+func initConn(username string, password string, host string) *sqlx.DB { 
+	connectionString := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`, username, password, host, "3306", os.Getenv("DB_NAME"))
+
+	var conn *sqlx.DB
 
 	err := retry.Do(
 		func() error {
-			db, err := sqlx.Connect("mysql", connectionString)
+			conn, err := sqlx.Connect("mysql", connectionString)
 			if err != nil {
 				return err
 			}
 
-			if err = db.Ping(); err != nil {
+			if err = conn.Ping(); err != nil {
 				return err
 			}
-			Db = db
 			return nil
 		},
 	)
@@ -34,14 +61,22 @@ func InitDB() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	return conn
 }
 
-func CloseDB() error {
-	return Db.Close()
+func (m DB) CloseDB() error {
+	err := m.readConn.Close()
+	
+	if err != nil {
+		panic(err)
+	}
+
+	return m.writeConn.Close()
 }
 
-func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType string) (int64, error) {
-	tx, err := db.Beginx()
+func (m DB) InsertRecordAndReturnId(query string, record any, entityType string) (int64, error) {
+	tx, err := m.writeConn.Beginx()
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +85,7 @@ func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType s
 		err = finishTransaction(err, tx)
 	}()
 
-	result, err := db.NamedExec(query, record)
+	result, err := m.writeConn.NamedExec(query, record)
 	if err != nil {
 		return 0, err
 	}
@@ -65,8 +100,8 @@ func InsertRecordAndReturnId(db *sqlx.DB, query string, record any, entityType s
 	return id, nil
 }
 
-func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType string) error {
-	tx, err := db.Beginx()
+func (m DB) BatchInsert[T any](query string, records []T, entityType string) error {
+	tx, err := m.writeConn.Beginx()
 	if err != nil {
 		return err
 	}
@@ -75,7 +110,7 @@ func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType strin
 		err = finishTransaction(err, tx)
 	}()
 
-	_, err = db.NamedExec(query, records)
+	_, err = m.writeConn.NamedExec(query, records)
 	if err != nil {
 		return err
 	}
@@ -85,8 +120,8 @@ func BatchInsert[T any](db *sqlx.DB, query string, records []T, entityType strin
 	return nil
 }
 
-func UpdateRecord[T any](db *sqlx.DB, query string, record T, entityType string) (T, error) {
-	tx, err := db.Beginx()
+func (m DB) UpdateRecord[T any](query string, record T, entityType string) (T, error) {
+	tx, err := m.writeConn.Beginx()
 	if err != nil {
 		return record, err
 	}
@@ -122,18 +157,18 @@ func finishTransaction(err error, tx *sqlx.Tx) error {
 	}
 }
 
-func FindById(db *sqlx.DB, fields []string, id int64, table string, dest interface{}, forUpdate bool) error {
+func (m DB) FindById(fields []string, id int64, table string, dest interface{}, forUpdate bool) error {
 	query := "SELECT " + strings.Join(fields, ", ") + " FROM " + table + " WHERE id = ?"
 
 	if forUpdate {
 		query += " FOR UPDATE"
 	}
 
-	return db.Get(&dest, query, id)
+	return m.readConn.Get(&dest, query, id)
 }
 
-func GetMultiple[T any, U any](db *sqlx.DB, query string, mapFn func(U) T, args ...interface{}) ([]T, error) {
-	rows, err := db.Queryx(query, args...)
+func (m DB) GetMultiple[T any, U any](query string, mapFn func(U) T, args ...interface{}) ([]T, error) {
+	rows, err := m.readConn.Queryx(query, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -14,8 +14,10 @@ services:
       MYSQL_DATABASE: ${DATABASE}
       FLYWAY_USER: ${DB_FLYWAY_USER}
       FLYWAY_PASSWORD: ${DB_FLYWAY_PASSWORD}
-      API_USER: ${DB_API_USER}
-      API_PASSWORD: ${DB_API_PASSWORD}
+      READ_USER: ${DB_READ_USER}
+      READ_PASSWORD: ${DB_READ_PASSWORD}
+      WRITE_USER: ${DB_WRITE_USER}
+      WRITE_PASSWORD: ${DB_WRITE_PASSWORD}
     ports:
       - 3306:3306
     volumes:
@@ -39,10 +41,13 @@ services:
     build:
       dockerfile: docker/api.dockerfile
     environment:
-      DB_HOST: db
       DB_NAME: ${DATABASE}
-      DB_USER: ${DB_API_USER}
-      DB_PASS: ${DB_API_PASSWORD}
+      DB_WRITE_USER: ${DB_WRITE_USER}
+      DB_READ_USER: ${DB_READ_USER}
+      DB_WRITE_HOST: db
+      DB_READ_HOST: db
+      DB_WRITE_PASSWORD: ${DB_WRITE_PASSWORD}
+      DB_READ_PASSWORD: ${DB_READ_PASSWORD}
       PORT: ${API_PORT}
     ports:
       - ${API_PORT}:${API_PORT}
