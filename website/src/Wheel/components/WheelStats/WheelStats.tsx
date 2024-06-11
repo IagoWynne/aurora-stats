@@ -10,7 +10,7 @@ const WheelStats = (): JSX.Element => {
   return (
     <WheelContextProvider>
       <WheelStatsContextProvider>
-        <SectionContainer>
+        <SectionContainer className="sticky-date-range-picker">
           <ContainerContent>
             <StatsDateRangeSelector />
           </ContainerContent>

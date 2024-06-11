@@ -63,4 +63,8 @@ code {
   .spacer-row {
     @apply border-b-slate-800 border-b-2 border-double h-0 my-1
   }
+
+  .sticky-date-range-picker {
+    @apply sticky top-[65px] z-10
+  }
 }
