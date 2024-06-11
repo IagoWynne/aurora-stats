@@ -7,6 +7,7 @@ interface Props {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   value?: Date;
   required?: boolean;
+  inlineLabel?: boolean;
 }
 
 const DateInput = ({
@@ -15,19 +16,20 @@ const DateInput = ({
   onChange,
   value,
   required,
+  inlineLabel,
 }: Props): JSX.Element => {
   return (
-    <>
-      {label && <label className="block">{label}</label>}
+    <div className={inlineLabel ? "flex justify-between items-center" : ""}>
+      {label && <label className={inlineLabel ? "basis-1/12" : "block"}>{label}</label>}
       <input
         id={id}
         type="date"
         onChange={onChange}
         defaultValue={value ? formatDate(value, "yyyy-MM-dd") : undefined}
         required={required || false}
-        className="block w-full p-2 bg-gray-50 border-[1px] border-black h-[40px]"
+        className={`${inlineLabel ? "basis-11/12" : "w-full block p-2"} bg-gray-50 border-[1px] border-black h-[40px]`}
       />
-    </>
+    </div>
   );
 };
 
