@@ -1,4 +1,4 @@
-import { AURORA_DARK_GREEN, AURORA_LIGHT_GREEN } from "../../Colours";
+
 
 export default class WheelModel {
   private COLOURS: string[];
@@ -16,10 +16,7 @@ export default class WheelModel {
     private ctx: CanvasRenderingContext2D,
   ) {
     this.COLOURS = [
-      AURORA_DARK_GREEN,
-      AURORA_LIGHT_GREEN,
-      "#4ddabd",
-      "#ffffff",
+      
     ];
     this.fontColour = "#000000";
 

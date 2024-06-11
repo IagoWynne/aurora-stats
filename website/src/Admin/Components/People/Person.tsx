@@ -1,4 +1,4 @@
-import { PersonType } from "../../types";
+import { PersonType } from "../../../types";
 
 interface Props {
   person: PersonType;
