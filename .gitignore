@@ -38,3 +38,7 @@ next-env.d.ts
 mysql/db/*
 
 .env
+
+*/.rip
+*/helm
+*/build.json

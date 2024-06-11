@@ -3,10 +3,8 @@ package vibecheck
 import (
 	"aurora-stats/api/internal/people"
 	database "aurora-stats/api/internal/pkg/db/mysql"
-	"log"
+	"aurora-stats/api/internal/utils"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type mySqlVibeCheck struct {
@@ -18,9 +16,7 @@ type mySqlVibeCheck struct {
 	LastName  string    `db:"last_name"`
 }
 
-type VibeCheckRepository struct {
-	db *sqlx.DB
-}
+type VibeCheckRepository struct{}
 
 type Repository interface {
 	Create(date time.Time, scores []DomainVibeCheckScore) error
@@ -28,12 +24,8 @@ type Repository interface {
 	Update(id int64, score float64) error
 }
 
-func NewVibeCheckRepository(db *sqlx.DB) *VibeCheckRepository {
-	if db == nil {
-		log.Panic("missing db")
-	}
-
-	return &VibeCheckRepository{db: db}
+func NewVibeCheckRepository() *VibeCheckRepository {
+	return &VibeCheckRepository{}
 }
 
 func (m VibeCheckRepository) Create(date time.Time, scores []DomainVibeCheckScore) error {
@@ -45,7 +37,7 @@ func (m VibeCheckRepository) Create(date time.Time, scores []DomainVibeCheckScor
 		records = append(records, mapScoreFromDomainToDb(domainScore, date))
 	}
 
-	err := database.BatchInsert(m.db, query, records, "vibe_check score")
+	err := database.BatchInsert(query, records, "vibe_check score")
 	if err != nil {
 		return err
 	}
@@ -69,7 +61,12 @@ func (m VibeCheckRepository) GetBetweenDates(from time.Time, to time.Time) ([]Do
 
 	filterVars := []any{from, to}
 
-	return database.GetMultiple(m.db, query, mapScoreFromDbToDomain, filterVars...)
+	results, err := database.GetMultiple[mySqlVibeCheck](query, filterVars...)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapArray(results, mapScoreFromDbToDomain), nil
 }
 
 func mapScoreFromDbToDomain(dbScore mySqlVibeCheck) DomainVibeCheckScore {
@@ -96,6 +93,6 @@ func (m VibeCheckRepository) Update(id int64, score float64) error {
 		Score: score,
 	}
 
-	_, err := database.UpdateRecord(m.db, query, record, "vibe_check score")
+	_, err := database.UpdateRecord(query, record, "vibe_check score")
 	return err
 }

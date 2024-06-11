@@ -2,11 +2,10 @@ package people
 
 import (
 	database "aurora-stats/api/internal/pkg/db/mysql"
+	"aurora-stats/api/internal/utils"
 	"database/sql"
 	"errors"
 	"log"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type mysqlPerson struct {
@@ -16,9 +15,7 @@ type mysqlPerson struct {
 	Deleted   bool   `db:"deleted"`
 }
 
-type PersonRepository struct {
-	db *sqlx.DB
-}
+type PersonRepository struct{}
 
 type Repository interface {
 	Create(firstName string, lastName string) (int64, error)
@@ -27,32 +24,28 @@ type Repository interface {
 	Delete(id int64) error
 }
 
-func NewPersonRepository(db *sqlx.DB) *PersonRepository {
-	if db == nil {
-		log.Panic("missing db")
-	}
-
-	return &PersonRepository{db: db}
+func NewPersonRepository() *PersonRepository {
+	return &PersonRepository{}
 }
 
 func (m PersonRepository) Create(firstName string, lastName string) (int64, error) {
-	return m.create(m.db, firstName, lastName)
+	return m.create(firstName, lastName)
 }
 
-func (m PersonRepository) create(db *sqlx.DB, firstName string, lastName string) (int64, error) {
+func (m PersonRepository) create(firstName string, lastName string) (int64, error) {
 	query := "INSERT INTO person(first_name, last_name) VALUES(:first_name, :last_name)"
 
 	person := mysqlPerson{
 		FirstName: firstName,
 		LastName:  lastName}
 
-	return database.InsertRecordAndReturnId(db, query, person, "person")
+	return database.InsertRecordAndReturnId(query, person, "person")
 }
 
-func (m PersonRepository) get(db *sqlx.DB, id int64, forUpdate bool) (*mysqlPerson, error) {
+func (m PersonRepository) get(id int64, forUpdate bool) (*mysqlPerson, error) {
 	dbPerson := mysqlPerson{}
 
-	err := database.FindById(db, []string{"id", "first_name", "last_name", "deleted"}, id, "person", dbPerson, forUpdate)
+	err := database.FindById([]string{"id", "first_name", "last_name", "deleted"}, id, "person", dbPerson, forUpdate)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, err
@@ -64,13 +57,18 @@ func (m PersonRepository) get(db *sqlx.DB, id int64, forUpdate bool) (*mysqlPers
 }
 
 func (m PersonRepository) GetAll() ([]DomainPerson, error) {
-	return m.getAll(m.db)
+	return m.getAll()
 }
 
-func (m PersonRepository) getAll(db *sqlx.DB) ([]DomainPerson, error) {
+func (m PersonRepository) getAll() ([]DomainPerson, error) {
 	query := "SELECT id, first_name, last_name FROM person WHERE deleted = 0"
 
-	return database.GetMultiple(db, query, mapPersonFromDbToDomain)
+	results, err := database.GetMultiple[mysqlPerson](query)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.MapArray(results, mapPersonFromDbToDomain), nil
 }
 
 func mapPersonFromDbToDomain(dbPerson mysqlPerson) DomainPerson {
@@ -81,29 +79,32 @@ func mapPersonFromDbToDomain(dbPerson mysqlPerson) DomainPerson {
 	}
 }
 
-func (m PersonRepository) update(db *sqlx.DB, person *mysqlPerson) (mysqlPerson, error) {
+func (m PersonRepository) update(person *mysqlPerson) (mysqlPerson, error) {
 	query := `INSERT INTO person (id, first_name, last_name, deleted)
 	VALUES(:id, :first_name, :last_name, :deleted)
 		ON DUPLICATE KEY UPDATE
 	first_name = :first_name, last_name = :last_name, deleted = :deleted`
 
-	updatedPerson, err := database.UpdateRecord(db, query, person, "person")
+	updatedPerson, err := database.UpdateRecord(query, person, "person")
+	if err != nil {
+		return mysqlPerson{}, err
+	}
 
-	return *updatedPerson, err
+	return updatedPerson.(mysqlPerson), nil
 }
 
 func (m PersonRepository) Delete(id int64) error {
-	return m.delete(m.db, id)
+	return m.delete(id)
 }
 
-func (m PersonRepository) delete(db *sqlx.DB, id int64) error {
-	person, err := m.get(db, id, true)
+func (m PersonRepository) delete(id int64) error {
+	person, err := m.get(id, true)
 	if err != nil {
 		return err
 	}
 
 	person.Deleted = true
-	_, err = m.update(db, person)
+	_, err = m.update(person)
 
 	return err
 }

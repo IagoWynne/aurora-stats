@@ -1,0 +1,24 @@
+apiVersion: mysql.skybet.io/v1alpha1
+kind: MySQL
+metadata:
+  name: aurora-stats
+spec:
+  storageClass: "fast"
+  replicas: 3
+  resources:
+      cpu: "4000m"
+      memory: "4Gi"
+      storage: "75Gi"
+  mysqlPodAnnotations:
+    sidecar.istio.io/inject: "false"
+  managerPodAnnotations:
+    sidecar.istio.io/inject: "false"
+  backup:
+    resources:
+      storage: 25Gi
+      memory: 4Gi
+      cpu: 4000m
+    schedules:
+      - name: "weekly"
+        schedule: 30 5 * * 1
+        keep: 5
