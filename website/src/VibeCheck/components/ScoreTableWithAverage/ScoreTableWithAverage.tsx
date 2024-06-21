@@ -1,3 +1,4 @@
+import config from "../../../config.json";
 import { ContainerContent, SectionContainer } from "../../../Common";
 import ScoreTable from "../ScoreTable";
 import { VibeCheckWeek } from "../../types";
@@ -29,7 +30,7 @@ const ScoreTableWithAverage = ({
         <ContainerContent>
           <ScoreTable showWeeklyAverageColumn={showWeeklyAverageColumn}/>
           {showFullStatsButton && (
-            <Link to="/vibecheck/stats" className="button-link mt-2">
+            <Link to={`${config.baseUrl}/vibecheck/stats`} className="button-link mt-2">
               View Full Stats
             </Link>
           )}

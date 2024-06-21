@@ -58,5 +58,8 @@ func main() {
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
+	// http.Handle("/metrics", promhttp.Handler())
+	// http.ListenAndServe(":8081", nil)
+
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

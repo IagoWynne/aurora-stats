@@ -42,3 +42,6 @@ mysql/db/*
 */.rip
 */helm
 */build.json
+
+k8s.compose.yaml
+docker/*release.dockerfile
