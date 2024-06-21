@@ -41,7 +41,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
+        path: LINKS.home,
         element: <Dashboard />
       },
       {
