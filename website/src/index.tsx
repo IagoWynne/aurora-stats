@@ -17,6 +17,7 @@ import VibeCheck from "./VibeCheck";
 import VibeCheckStats from "./VibeCheck/components/VibeCheckStats";
 import { LINKS } from "./Common";
 import { Admin } from "./Admin";
+import { Dashboard } from "./Dashboard";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -41,7 +42,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <div>Hello World</div>
+        element: <Dashboard />
       },
       {
         path: LINKS.admin,
