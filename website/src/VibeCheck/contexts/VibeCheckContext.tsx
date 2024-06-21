@@ -15,7 +15,7 @@ export const VibeCheckContextProvider: (
   const { data } = useSuspenseQuery(GET_PEOPLE_QUERY);
 
   return (
-    <VibeCheckContext.Provider value={{ people: (data as any).people }}>
+    <VibeCheckContext.Provider value={{ people: [...(data as any).people].sort((a: PersonType, b: PersonType) => a.firstName.localeCompare(b.firstName)) }}>
       {children}
     </VibeCheckContext.Provider>
   );

@@ -27,7 +27,7 @@ export const WheelContextProvider: (
     <WheelContext.Provider
       value={{
         wheelOptions: data.wheelOptions,
-        people: data.people,
+        people: [...data.people].sort((a: PersonType, b: PersonType) => a.firstName.localeCompare(b.firstName)),
       }}
     >
       {children}

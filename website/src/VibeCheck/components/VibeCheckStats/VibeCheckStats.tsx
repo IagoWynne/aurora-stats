@@ -20,7 +20,7 @@ const VibeCheckStats = (): JSX.Element => {
 
   return (
     <>
-      <SectionContainer title="Vibe Check Stats Between" className="sticky">
+      <SectionContainer className="sticky-date-range-picker">
         <ContainerContent>
           <DateRangeSelector
             from={from}

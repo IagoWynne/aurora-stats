@@ -1,5 +1,4 @@
-import config from "../../../config.json";
-import { ContainerContent, SectionContainer } from "../../../Common";
+import { ContainerContent, LINKS, SectionContainer } from "../../../Common";
 import ScoreTable from "../ScoreTable";
 import { VibeCheckWeek } from "../../types";
 import AverageScore from "../AverageScore";
@@ -7,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useVibeCheckStatsContext } from "../../contexts/VibeCheckStatsContext";
 import { HTMLProps } from "react";
 
-interface Props extends HTMLProps<HTMLDivElement>{
+interface Props extends HTMLProps<HTMLDivElement> {
   title: string;
   showFullStatsButton?: boolean;
   showWeeklyAverageColumn?: boolean;
@@ -19,18 +18,15 @@ const ScoreTableWithAverage = ({
   showWeeklyAverageColumn = false,
   ...rest
 }: Props): JSX.Element => {
-  const {vibeCheckWeeks} = useVibeCheckStatsContext()
+  const { vibeCheckWeeks } = useVibeCheckStatsContext();
 
   return (
     <div className={`flex justify-between items-stretch ${rest.className}`}>
-      <SectionContainer
-        title={title}
-        className="basis-2/3"
-      >
+      <SectionContainer title={title} className="basis-2/3">
         <ContainerContent>
-          <ScoreTable showWeeklyAverageColumn={showWeeklyAverageColumn}/>
+          <ScoreTable showWeeklyAverageColumn={showWeeklyAverageColumn} />
           {showFullStatsButton && (
-            <Link to={`${config.baseUrl}/vibecheck/stats`} className="button-link mt-2">
+            <Link to={LINKS.vibeCheckStats} className="button-link mt-2">
               View Full Stats
             </Link>
           )}

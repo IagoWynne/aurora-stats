@@ -10,12 +10,14 @@ import {
 import config from "./config.json";
 import App from "./App";
 import ErrorPage from "./ErrorPage";
-import { People } from "./People";
 import "./index.css";
-import { Wheel, WheelOptions } from "./Wheel";
+import { Wheel } from "./Wheel";
 import WheelStats from "./Wheel/components/WheelStats/WheelStats";
 import VibeCheck from "./VibeCheck";
 import VibeCheckStats from "./VibeCheck/components/VibeCheckStats";
+import { LINKS } from "./Common";
+import { Admin } from "./Admin";
+import { Dashboard } from "./Dashboard";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -39,27 +41,27 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: `${config.baseUrl}/people`,
-        element: <People />,
+        path: "/",
+        element: <Dashboard />
       },
       {
-        path: `${config.baseUrl}/wheel`,
+        path: LINKS.admin,
+        element: <Admin />,
+      },
+      {
+        path: LINKS.standUpWheel,
         element: <Wheel />,
       },
       {
-        path: `${config.baseUrl}/wheel/options`,
-        element: <WheelOptions />,
-      },
-      {
-        path: `${config.baseUrl}/wheel/stats`,
+        path: LINKS.wheelStats,
         element: <WheelStats />,
       },
       {
-        path: `${config.baseUrl}/vibecheck`,
+        path: LINKS.vibeCheck,
         element: <VibeCheck />,
       },
       {
-        path: `${config.baseUrl}/vibecheck/stats`,
+        path: LINKS.vibeCheckStats,
         element: <VibeCheckStats />
       }
     ],

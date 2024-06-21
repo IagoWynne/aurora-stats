@@ -1,9 +1,9 @@
 import { useMutation } from "@apollo/client";
+import GET_WHEEL_OPTIONS_QUERY from "../../queries/getWheelOptions";
 import {
   ADD_WHEEL_OPTION_MUTATION,
-  GET_WHEEL_OPTIONS_QUERY,
-  GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY,
-} from "../queries";
+} from "../../queries";
+import { Button } from "../../../Common";
 
 interface Props {
   onSuccess: () => void;
@@ -15,7 +15,6 @@ const AddWheelOption = ({ onSuccess }: Props): JSX.Element => {
     {
       refetchQueries: [
         { query: GET_WHEEL_OPTIONS_QUERY },
-        { query: GET_WHEEL_OPTIONS_AND_PEOPLE_QUERY },
       ],
     },
   );
@@ -49,7 +48,7 @@ const AddWheelOption = ({ onSuccess }: Props): JSX.Element => {
       <label>
         <input type="text" name="option" placeholder="Option" required />
       </label>
-      <button type="submit">+</button>
+      <Button type="submit" className="w-10 ml-2">+</Button>
     </form>
   );
 };
