@@ -36,7 +36,7 @@
   "engines": {
     "node": ">20.0"
   },
-  "homepage": "/aurora-website",
+  "homepage": "/",
   "eslintConfig": {
     "extends": [
       "react-app",

@@ -63,9 +63,6 @@ services:
     volumes:
       - ./website:/app
     command: yarn dev
-    environment:
-      REACT_APP_API: ${API_URL}
-      REACT_APP_API_PORT: ${API_PORT}
     ports:
       - ${WEBSITE_PORT}:${WEBSITE_PORT}
     depends_on:
