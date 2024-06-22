@@ -2,6 +2,7 @@ package vibecheck
 
 import (
 	customErrors "aurora-stats/api/internal/errors"
+	"aurora-stats/api/internal/utils"
 	"errors"
 	"log"
 	"slices"
@@ -29,7 +30,7 @@ func SaveVibeCheck(date time.Time, scores []DomainVibeCheckScore) error {
 		}
 	}
 
-	err := repo.Create(date, scores)
+	err := repo.Create(utils.TruncateToDay(date), scores)
 
 	if err != nil {
 		log.Print(err)
