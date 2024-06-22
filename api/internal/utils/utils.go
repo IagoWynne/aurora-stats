@@ -1,5 +1,7 @@
 package utils
 
+import "time"
+
 func MapArray[T any, U any](results []U, mapFn func(U) T) []T {
 	var output []T
 
@@ -8,4 +10,8 @@ func MapArray[T any, U any](results []U, mapFn func(U) T) []T {
 	}
 
 	return output
+}
+
+func TruncateToDay(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 }
